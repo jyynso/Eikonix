@@ -5,28 +5,22 @@ using System.Web;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-
 namespace WebApplication1.Models
 {
-    public class Cart
+    public class Orders
     {
         [Key]
-        [Column("cart_id")]
-        public int cartId { get; set; }
+        [Column("order_id")]
+        public int orderId { get; set; }
 
         //foreign key from users table
-        [Column("user_id")] 
+        [Column("user_id")]
         public int userId { get; set; }
 
-        //foreign key from products table
-        [Column("product_id")]
-        public int productId { get; set; }
+        [Column("order_totalamount")]
+        public decimal orderTotalAmount { get; set; }
 
-        [Column("cart_quantity")]
-        public int cartQuantity { get; set; }  
-
-
-
-
+        [Column("order_status")]
+        public string orderStatus { get; set; }
     }
 }
