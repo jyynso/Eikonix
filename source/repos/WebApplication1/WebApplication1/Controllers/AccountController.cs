@@ -17,6 +17,7 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public ActionResult Login(string email, string password)
         {
+            using (var db = new My)
             // Admin authentication
             if (email == "admin@gmail.com" && password == "54321")
             {
