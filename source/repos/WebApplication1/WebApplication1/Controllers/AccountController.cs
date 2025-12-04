@@ -90,7 +90,7 @@ namespace WebApplication1.Controllers
                     userName = name,
                     userEmail = email,
                     hashedpassword = hashed,
-                    userRole = string.IsNullOrEmpty(userRole) ? "user" : userRole
+                    userRole = string.IsNullOrEmpty(userRole) ? "customer" : userRole
                 };
 
                 db.Users.Add(user);
