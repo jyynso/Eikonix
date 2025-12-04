@@ -20,11 +20,10 @@ namespace WebApplication1.Models
         [Column("user_email")]
         public string userEmail { get; set; }
 
+        [Column("user_pass")]
+        public string hashedpassword { get; set; }
+
         [Column("user_role")]
         public string userRole { get; set; }
-
-        [Column("user_accountstatus")]
-        public string userAccountStatus {get; set; }
-
     }
 }
