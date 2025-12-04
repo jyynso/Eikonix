@@ -1,0 +1,405 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Register - Eikonix";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Eikonix</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/Login.css")" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+    <link rel="icon" type="image/x-icon" href="~/Content/imgs/Logo/favicon.ico">
+</head>
+<body>
+
+    <!-- DARK MODE TOGGLE BUTTON -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+        <i class='bx bx-moon' id="themeIcon"></i>
+    </button>
+
+    <div class="back-home">
+        <a href="@Url.Action("Index", "Home")">
+            <i class='bx bx-arrow-back'></i>
+            <span>Back to Home</span>
+        </a>
+    </div>
+
+    <div class="form-container register-container">
+        <div class="logo-section">
+            <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="login-logo">
+            <h1 class="brand-name">EIKONIX</h1>
+            <p class="brand-tagline">Your Gateway to Art</p>
+        </div>
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { id = "registerForm" }))
+        {
+            <h3>Create Account</h3>
+            <p class="subtitle">Join our community of art lovers</p>
+
+            if (ViewBag.Error != null)
+            {
+                <div class="error-msg">
+                    <i class='bx bx-error-circle'></i>
+                    <span>@ViewBag.Error</span>
+                </div>
+            }
+
+            <div class="input-group">
+                <i class='bx bx-user'></i>
+                @Html.TextBox("Name", null, new { @placeholder = "Enter your name", required = "required", id = "name" })
+                <span class="validation-message" id="nameError"></span>
+            </div>
+
+            <div class="input-group">
+                <i class='bx bx-envelope'></i>
+                @Html.TextBox("Email", null, new { @type = "email", placeholder = "Enter your email", required = "required", id = "email" })
+                <span class="validation-message" id="emailError"></span>
+            </div>
+
+            <div class="input-group">
+                <i class='bx bx-lock-alt'></i>
+                @Html.Password("Password", null, new { placeholder = "Enter your password", required = "required", id = "password", minlength = "5" })
+                <i class='bx bx-show toggle-password' id="togglePassword"></i>
+                <span class="validation-message" id="passwordError"></span>
+            </div>
+
+            <div class="password-strength">
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <div class="strength-text" id="strengthText">Password Strength</div>
+            </div>
+
+            <div class="password-requirements">
+                <p class="req-title"><i class='bx bx-info-circle'></i> Password Requirements:</p>
+                <ul class="req-list">
+                    <li id="req-length"><i class='bx bx-x'></i> Minimum 5 characters</li>
+                    <li id="req-letter"><i class='bx bx-x'></i> At least one letter</li>
+                    <li id="req-number"><i class='bx bx-x'></i> At least one number</li>
+                </ul>
+            </div>
+
+            <div class="input-group">
+                <i class='bx bx-lock-alt'></i>
+                @Html.Password("ConfirmPassword", null, new { placeholder = "Confirm your password", required = "required", id = "confirmPassword" })
+                <i class='bx bx-show toggle-password' id="toggleConfirmPassword"></i>
+                <span class="validation-message" id="confirmPasswordError"></span>
+            </div>
+
+            <div class="password-match" id="passwordMatch"></div>
+
+            <button type="submit" class="form-btn">
+                <i class='bx bx-user-plus'></i>
+                <span>Register Now</span>
+            </button>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <p class="signup-link">
+                Already have an account?
+                <a href="@Url.Action("Login", "Account")">Login now</a>
+            </p>
+        }
+    </div>
+
+    <script>
+        // Get form and input elements
+        const registerForm = document.getElementById('registerForm');
+        const nameField = document.getElementById('name');
+        const emailField = document.getElementById('email');
+        const passwordField = document.getElementById('password');
+        const confirmPasswordField = document.getElementById('confirmPassword');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+        // Validation error elements
+        const nameError = document.getElementById('nameError');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+        // Toggle password visibility
+        if (togglePassword && passwordField) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                this.classList.toggle('bx-show');
+                this.classList.toggle('bx-hide');
+            });
+        }
+
+        if (toggleConfirmPassword && confirmPasswordField) {
+            toggleConfirmPassword.addEventListener('click', function() {
+                const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                confirmPasswordField.setAttribute('type', type);
+                this.classList.toggle('bx-show');
+                this.classList.toggle('bx-hide');
+            });
+        }
+
+        // Real-time validation functions
+        function validateName() {
+            if (nameField.value.trim() === '') {
+                nameError.textContent = 'Name is required';
+                nameError.style.display = 'block';
+                nameField.classList.add('invalid');
+                return false;
+            } else if (nameField.value.trim().length < 2) {
+                nameError.textContent = 'Name must be at least 2 characters';
+                nameError.style.display = 'block';
+                nameField.classList.add('invalid');
+                return false;
+            } else {
+                nameError.style.display = 'none';
+                nameField.classList.remove('invalid');
+                nameField.classList.add('valid');
+                return true;
+            }
+        }
+
+        function validateEmail() {
+            const emailPattern = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            if (emailField.value.trim() === '') {
+                emailError.textContent = 'Email is required';
+                emailError.style.display = 'block';
+                emailField.classList.add('invalid');
+                return false;
+            } else if (!emailPattern.test(emailField.value)) {
+                emailError.textContent = 'Please enter a valid email address (e.g., user@@example.com)';
+                emailError.style.display = 'block';
+                emailField.classList.add('invalid');
+                return false;
+            } else {
+                emailError.style.display = 'none';
+                emailField.classList.remove('invalid');
+                emailField.classList.add('valid');
+                return true;
+            }
+        }
+
+        function validatePassword() {
+            const password = passwordField.value;
+            if (password === '') {
+                passwordError.textContent = 'Password is required';
+                passwordError.style.display = 'block';
+                passwordField.classList.add('invalid');
+                return false;
+            } else if (password.length < 5) {
+                passwordError.textContent = 'Password must be at least 5 characters';
+                passwordError.style.display = 'block';
+                passwordField.classList.add('invalid');
+                return false;
+            } else if (!/[a-zA-Z]/.test(password)) {
+                passwordError.textContent = 'Password must contain at least one letter';
+                passwordError.style.display = 'block';
+                passwordField.classList.add('invalid');
+                return false;
+            } else if (!/[0-9]/.test(password)) {
+                passwordError.textContent = 'Password must contain at least one number';
+                passwordError.style.display = 'block';
+                passwordField.classList.add('invalid');
+                return false;
+            } else {
+                passwordError.style.display = 'none';
+                passwordField.classList.remove('invalid');
+                passwordField.classList.add('valid');
+                return true;
+            }
+        }
+
+        function validateConfirmPassword() {
+            if (confirmPasswordField.value === '') {
+                confirmPasswordError.textContent = 'Please confirm your password';
+                confirmPasswordError.style.display = 'block';
+                confirmPasswordField.classList.add('invalid');
+                return false;
+            } else if (confirmPasswordField.value !== passwordField.value) {
+                confirmPasswordError.textContent = 'Passwords do not match';
+                confirmPasswordError.style.display = 'block';
+                confirmPasswordField.classList.add('invalid');
+                return false;
+            } else {
+                confirmPasswordError.style.display = 'none';
+                confirmPasswordField.classList.remove('invalid');
+                confirmPasswordField.classList.add('valid');
+                return true;
+            }
+        }
+
+        // Add blur event listeners for validation
+        nameField.addEventListener('blur', validateName);
+        nameField.addEventListener('input', function() {
+            if (this.value.length > 0) validateName();
+            else {
+                nameError.style.display = 'none';
+                this.classList.remove('invalid', 'valid');
+            }
+        });
+
+        emailField.addEventListener('blur', validateEmail);
+        emailField.addEventListener('input', function() {
+            if (this.value.length > 0) validateEmail();
+            else {
+                emailError.style.display = 'none';
+                this.classList.remove('invalid', 'valid');
+            }
+        });
+
+        passwordField.addEventListener('blur', validatePassword);
+        passwordField.addEventListener('input', function() {
+            if (this.value.length > 0) validatePassword();
+            else {
+                passwordError.style.display = 'none';
+                this.classList.remove('invalid', 'valid');
+            }
+        });
+        
+        confirmPasswordField.addEventListener('blur', validateConfirmPassword);
+        confirmPasswordField.addEventListener('input', function() {
+            if (this.value.length > 0) validateConfirmPassword();
+            else {
+                confirmPasswordError.style.display = 'none';
+                this.classList.remove('invalid', 'valid');
+            }
+        });
+
+        // Form submission validation
+        registerForm.addEventListener('submit', function(e) {
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+            const isConfirmPasswordValid = validateConfirmPassword();
+
+            if (!isNameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
+                e.preventDefault();
+                
+                // Scroll to first error
+                const firstError = document.querySelector('.invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+
+        // Password strength meter
+        if (passwordField) {
+            passwordField.addEventListener('input', function() {
+                const password = this.value;
+                const strengthFill = document.getElementById('strengthFill');
+                const strengthText = document.getElementById('strengthText');
+                
+                // Requirements check
+                const reqLength = document.getElementById('req-length');
+                const reqLetter = document.getElementById('req-letter');
+                const reqNumber = document.getElementById('req-number');
+                
+                // Check length
+                if (password.length >= 5) {
+                    reqLength.classList.add('met');
+                    reqLength.querySelector('i').className = 'bx bx-check';
+                } else {
+                    reqLength.classList.remove('met');
+                    reqLength.querySelector('i').className = 'bx bx-x';
+                }
+                
+                // Check letter
+                if (/[a-zA-Z]/.test(password)) {
+                    reqLetter.classList.add('met');
+                    reqLetter.querySelector('i').className = 'bx bx-check';
+                } else {
+                    reqLetter.classList.remove('met');
+                    reqLetter.querySelector('i').className = 'bx bx-x';
+                }
+                
+                // Check number
+                if (/[0-9]/.test(password)) {
+                    reqNumber.classList.add('met');
+                    reqNumber.querySelector('i').className = 'bx bx-check';
+                } else {
+                    reqNumber.classList.remove('met');
+                    reqNumber.querySelector('i').className = 'bx bx-x';
+                }
+                
+                // Calculate strength
+                let strength = 0;
+                if (password.length >= 5) strength++;
+                if (password.length >= 8) strength++;
+                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+                if (/[0-9]/.test(password)) strength++;
+                if (/[^a-zA-Z0-9]/.test(password)) strength++;
+                
+                // Update strength bar and text
+                strengthFill.className = 'strength-fill';
+                if (password.length === 0) {
+                    strengthFill.style.width = '0%';
+                    strengthText.textContent = 'Password Strength';
+                    strengthFill.classList.remove('very-weak', 'weak', 'medium', 'strong', 'very-strong');
+                } else if (strength <= 1) {
+                    strengthFill.style.width = '20%';
+                    strengthText.textContent = 'Very Weak';
+                    strengthFill.classList.add('very-weak');
+                } else if (strength === 2) {
+                    strengthFill.style.width = '40%';
+                    strengthText.textContent = 'Weak';
+                    strengthFill.classList.add('weak');
+                } else if (strength === 3) {
+                    strengthFill.style.width = '60%';
+                    strengthText.textContent = 'Medium';
+                    strengthFill.classList.add('medium');
+                } else if (strength === 4) {
+                    strengthFill.style.width = '80%';
+                    strengthText.textContent = 'Strong';
+                    strengthFill.classList.add('strong');
+                } else {
+                    strengthFill.style.width = '100%';
+                    strengthText.textContent = 'Very Strong';
+                    strengthFill.classList.add('very-strong');
+                }
+
+                // Validate on input if field has been touched
+                if (password.length > 0) {
+                    validatePassword();
+                }
+            });
+        }
+
+        // Password match validation
+        if (passwordField && confirmPasswordField) {
+            const passwordMatch = document.getElementById('passwordMatch');
+            
+            function checkPasswordMatch() {
+                if (confirmPasswordField.value.length > 0) {
+                    if (confirmPasswordField.value === passwordField.value) {
+                        passwordMatch.innerHTML = '<i class="bx bx-check-circle"></i> Passwords match';
+                        passwordMatch.className = 'password-match match';
+                        validateConfirmPassword();
+                    } else {
+                        passwordMatch.innerHTML = '<i class="bx bx-x-circle"></i> Passwords do not match';
+                        passwordMatch.className = 'password-match no-match';
+                        validateConfirmPassword();
+                    }
+                } else {
+                    passwordMatch.innerHTML = '';
+                    passwordMatch.className = 'password-match';
+                }
+            }
+            
+            confirmPasswordField.addEventListener('input', checkPasswordMatch);
+            passwordField.addEventListener('input', function() {
+                if (confirmPasswordField.value.length > 0) {
+                    checkPasswordMatch();
+                }
+            });
+        }
+    </script>
+    <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+
+</body>
+</html>

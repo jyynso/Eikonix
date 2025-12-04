@@ -1,0 +1,167 @@
+@{
+    Layout = null;
+    ViewBag.Title = "Admin Dashboard";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Eikonix</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/Admin.css")?v=@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+    <style>
+        /* CRITICAL FIX - Inline styles to ensure button text is visible */
+        .btn-view,
+        .btn-add {
+            color: #000000 !important;
+            font-weight: 700 !important;
+            text-shadow: 0 0 1px rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .btn-view:hover,
+        .btn-add:hover {
+            color: #ffffff !important;
+            text-shadow: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- DARK MODE TOGGLE BUTTON -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+        <i class='bx bx-moon' id="themeIcon"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <div class="admin-logo-section">
+            <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
+            <h1 class="admin-brand-name">EIKONIX</h1>
+            <p class="admin-brand-tagline">Admin Portal</p>
+        </div>
+        <ul>
+            <li><a href="@Url.Action("Dashboard", "Admin")" class="active"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+            <li><a href="@Url.Action("ManageProducts", "Admin")"><i class='bx bx-box'></i> Manage Products</a></li>
+            <li><a href="@Url.Action("ManageOrders", "Admin")"><i class='bx bx-cart'></i> Manage Orders</a></li>
+            <li><a href="@Url.Action("ManageCustomers", "Admin")"><i class='bx bx-user'></i> Manage Customers</a></li>
+            <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
+            <li><a href="@Url.Action("Logout", "Account")" class="logout-btn"><i class='bx bx-log-out'></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <div class="admin-header">
+            <h1>Dashboard</h1>
+            <div class="user-info">
+                <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
+                <span>admin@gmail.com</span>
+            </div>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <i class='bx bx-box'></i>
+                <h3>Total Artworks</h3>
+                <p>48</p>
+            </div>
+
+            <div class="dashboard-card">
+                <i class='bx bx-cart'></i>
+                <h3>Total Orders</h3>
+                <p>156</p>
+            </div>
+
+            <div class="dashboard-card">
+                <i class='bx bx-user'></i>
+                <h3>Total Customers</h3>
+                <p>89</p>
+            </div>
+
+            <div class="dashboard-card">
+                <i class='bx bx-dollar-circle'></i>
+                <h3>Total Sales</h3>
+                <p>&#8369;156,890.00</p>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="admin-table-container">
+            <h2>Recent Orders</h2>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#1001</td>
+                        <td>John Doe</td>
+                        <td>&#8369;7,500.00</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>2024-01-15</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#1002</td>
+                        <td>Jane Smith</td>
+                        <td>&#8369;3,200.00</td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                        <td>2024-01-14</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#1003</td>
+                        <td>Mike Johnson</td>
+                        <td>&#8369;4,500.00</td>
+                        <td><span class="status-badge status-processing">Processing</span></td>
+                        <td>2024-01-14</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#1004</td>
+                        <td>Sarah Williams</td>
+                        <td>&#8369;5,000.00</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>2024-01-13</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#1005</td>
+                        <td>Tom Brown</td>
+                        <td>&#8369;2,500.00</td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                        <td>2024-01-13</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+</body>
+</html>

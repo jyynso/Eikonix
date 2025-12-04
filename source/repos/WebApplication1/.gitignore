@@ -1,0 +1,23 @@
+# Visual Studio temporary files
+.vs/
+*.suo
+*.user
+*.log
+
+# Binaries
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+# Packages
+packages/
+*.nupkg
+
+# Visual Studio's cache and other temporary files
+.vs/
+*.*proj.user
+*.sln.docstates
+
+# Resharper's cache
+_ReSharper.*/

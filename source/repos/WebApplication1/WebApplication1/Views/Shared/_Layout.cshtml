@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Eikonix</title>
+
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <link href="~/Content/Cart.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+</head>
+
+<body>
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart">
+        <h2 class="cart-title">Your Cart</h2>
+
+        <div class="cart-content">
+            <!-- JS will populate items here -->
+        </div>
+
+        <div class="total">
+            <div class="total-title">Total</div>
+            <div class="total-price">₱0</div>
+        </div>
+
+        <button type="button" class="btn-buy">Place Order</button>
+        <i class='bx bx-x' id="cart-close"></i>
+    </div>
+
+    <header>
+        <a href="@Url.Action("Index", "Home")" class="logo">
+            <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo">
+        </a>
+
+        <nav class="navbar">
+            <a href="@Url.Action("Index", "Home")">HOME</a>
+            <a href="@Url.Action("Index", "Home")#about">ABOUT US</a>
+            <div class="dropdown">
+                <a href="@Url.Action("Index", "Home")#products" class="dropbtn">
+                    PRODUCTS <i class='bx bx-chevron-down'></i>
+                </a>
+                <div class="dropdown-content">
+                    <a href="@Url.Action("Index", "Home")#products">ALL</a>
+                    <a href="@Url.Action("Index", "Home")#products">DIGITAL ARTS</a>
+                    <a href="@Url.Action("Index", "Home")#products">TRADITIONAL ARTS</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="header-right">
+            <div class="search-box">
+                <input type="text" placeholder="Search..." class="search-input">
+                <i class='bx bx-search search-icon'></i>
+            </div>
+
+            @if (Session["UserID"] != null)
+            {
+                <a href="#" class="cart-icon" id="cart-icon" title="Shopping Cart">
+                    <i class='bx bx-shopping-bag'></i>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="@Url.Action("Logout", "Account")" class="logout-btn" title="Logout">
+                    <i class='bx bx-log-out'></i>
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Account")" class="login-btn" title="Login">
+                    <i class='bx bx-user'></i>
+                </a>
+                <a href="#" class="cart-icon" id="cart-icon" title="Shopping Cart">
+                    <i class='bx bx-shopping-bag'></i>
+                </a>
+            }
+        </div>
+    </header>
+
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+    </div>
+
+    <section class="footer" id="footer">
+        <div class="footer-container">
+            <div class="footer-box">
+                <h2>Eikonix</h2>
+                <p>#discover exclusive artworks crafted to inspire your space and elevate your collection.</p>
+                <div class="social">
+                    <a href="#" target="_blank" title="Facebook"><i class='bx bxl-facebook'></i></a>
+                    <a href="#" target="_blank" title="Twitter"><i class='bx bxl-twitter'></i></a>
+                    <a href="#" target="_blank" title="Instagram"><i class='bx bxl-instagram'></i></a>
+                    <a href="#" target="_blank" title="TikTok"><i class='bx bxl-tiktok'></i></a>
+                </div>
+            </div>
+
+            <div class="footer-box">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#">Product</a></li>
+                    <li><a href="#">Help & Support</a></li>
+                    <li><a href="#">Return Policy</a></li>
+                    <li><a href="#">Terms Of Use</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-box">
+                <h3>View Guides</h3>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog Posts</a></li>
+                    <li><a href="#">Our Branches</a></li>
+                    <li><a href="#">About Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-box">
+                <h3>Contacts</h3>
+                <div class="contact">
+                    <span><i class='bx bxs-phone'></i>+63 9218909614</span>
+                    <span><i class='bx bxs-envelope'></i>eikonixclub@gmail.com</span>
+                    <span><i class='bx bxs-map'></i>Quezon City, Philippines</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; @DateTime.Now.Year Eikonix. All rights reserved.</p>
+        </div>
+    </section>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script src="~/Scripts/main2.js"></script>
+    <script src="~/Scripts/theme-toggle.js"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

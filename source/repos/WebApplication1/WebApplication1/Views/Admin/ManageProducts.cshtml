@@ -1,0 +1,194 @@
+@{
+    Layout = null;
+    ViewBag.Title = "Manage Products";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products - Eikonix</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/Admin.css")?v=@DateTime.Now.Ticks" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+    <link rel="icon" type="image/x-icon" href="~/Content/imgs/Logo/favicon.ico">
+</head>
+<body>
+    <!-- DARK MODE TOGGLE BUTTON -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+        <i class='bx bx-moon' id="themeIcon"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <div class="admin-logo-section">
+            <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
+            <h1 class="admin-brand-name">EIKONIX</h1>
+            <p class="admin-brand-tagline">Admin Portal</p>
+        </div>
+        <ul>
+            <li><a href="@Url.Action("Dashboard", "Admin")"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+            <li><a href="@Url.Action("ManageProducts", "Admin")" class="active"><i class='bx bx-box'></i> Manage Products</a></li>
+            <li><a href="@Url.Action("ManageOrders", "Admin")"><i class='bx bx-cart'></i> Manage Orders</a></li>
+            <li><a href="@Url.Action("ManageCustomers", "Admin")"><i class='bx bx-user'></i> Manage Customers</a></li>
+            <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
+            <li><a href="@Url.Action("Logout", "Account")" class="logout-btn"><i class='bx bx-log-out'></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <div class="admin-header">
+            <h1>Manage Products</h1>
+            <div class="user-info">
+                <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
+                <span>admin@gmail.com</span>
+            </div>
+        </div>
+
+        <div class="admin-table-container">
+            <button class="btn-admin btn-add"><i class='bx bx-plus'></i> Add New Product</button>
+            
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Artwork Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Sunset Dreams</td>
+                        <td>&#8369;2,500.00</td>
+                        <td>5</td>
+                        <td>Digital Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Abstract Emotions</td>
+                        <td>&#8369;3,200.00</td>
+                        <td>3</td>
+                        <td>Traditional Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Ocean Waves</td>
+                        <td>&#8369;1,800.00</td>
+                        <td>8</td>
+                        <td>Digital Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td>4</td>
+                        <td>Urban Landscape</td>
+                        <td>&#8369;4,500.00</td>
+                        <td>2</td>
+                        <td>Traditional Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Floral Paradise</td>
+                        <td>&#8369;2,100.00</td>
+                        <td>6</td>
+                        <td>Digital Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Portrait Study</td>
+                        <td>&#8369;3,800.00</td>
+                        <td>4</td>
+                        <td>Traditional Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Neon Nights</td>
+                        <td>&#8369;2,800.00</td>
+                        <td>7</td>
+                        <td>Digital Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Starry Night</td>
+                        <td>&#8369;3,600.00</td>
+                        <td>3</td>
+                        <td>Traditional Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Coffee Break</td>
+                        <td>&#8369;1,900.00</td>
+                        <td>10</td>
+                        <td>Digital Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Autumn Vibes</td>
+                        <td>&#8369;2,400.00</td>
+                        <td>8</td>
+                        <td>Traditional Art</td>
+                        <td>
+                            <button class="btn-admin btn-view">View</button>
+                            <button class="btn-admin btn-edit">Edit</button>
+                            <button class="btn-admin btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Theme Toggle Script -->
+    <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+</body>
+</html>
