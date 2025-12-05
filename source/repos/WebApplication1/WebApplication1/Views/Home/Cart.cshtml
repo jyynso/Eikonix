@@ -61,7 +61,20 @@
 
 <!-- Shop Content -->
 <div class="content">
+
     <section class="shop container">
+        @foreach (var product in Model)
+            {
+                <div class="product-box">
+                    <img src="@Url.Content(product.productImagePath)" alt="@product.productTitle" class="product-img">
+                    <h2 class="product-title">@product.productTitle</h2>
+                    <span class="product-price">@product.productPrice</span>
+                    <i class='bx bx-shopping-bag add-cart' data-id="@product.productId"></i>
+                </div>
+            }
+    </section>
+
+    @*<section class="shop container">
         <h1 class="section-title">Featured Artworks</h1>
 
         <div class="shop-content">
@@ -151,7 +164,7 @@
             </div>
 
         </div>
-    </section>
+    </section>*@
 
     <!-- ABOUT -->
     <section class="about" id="about">
