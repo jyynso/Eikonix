@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<WebApplication1.Data.Products>
+
+@{
     ViewBag.Title = "Home";
     Layout = "~/Views/Shared/_Layout_Cart.cshtml";
 }
@@ -9,19 +11,19 @@
         margin-top: 80px; /* Add space below fixed header */
         padding: 0;
     }
-    
-    .cover-photo .container {
-        max-width: 100%;
-        padding: 0;
-        margin: 0;
-    }
-    
+
+        .cover-photo .container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
     .cover-photo-img {
         width: 100%;
         height: auto;
         display: block;
     }
-    
+
     /* Ensure content starts below cover photo */
     .content {
         padding-top: 2rem;

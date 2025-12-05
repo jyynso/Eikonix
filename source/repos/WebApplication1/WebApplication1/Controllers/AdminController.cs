@@ -11,7 +11,7 @@ namespace WebApplication1.Controllers
         // Check if user is admin
         private bool IsAdmin()
         {
-            return Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin";
+            return Session["UserRole"] != null && Session["UserRole"].ToString() == "admin";
         }
 
         // Dashboard

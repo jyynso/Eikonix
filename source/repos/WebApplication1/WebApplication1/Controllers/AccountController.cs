@@ -35,7 +35,7 @@ namespace WebApplication1.Controllers
                         return RedirectToAction("Cart", "Home");
                 }
             }
-            ViewBag.Error = "invalid";
+            ViewBag.Error = "Invalid Email or Password";
             return View();
 
             //// Admin authentication
@@ -98,6 +98,7 @@ namespace WebApplication1.Controllers
             }
 
             // TODO: Add logic to save user in DB
+            // done.
 
             return RedirectToAction("Login");
         }
