@@ -16,7 +16,7 @@ namespace WebApplication1.Models
 
         public int TotalCustomers { get; set; }
 
-        public List<Products> Products { get; set; }
-        public List<Users> Users { get; set; }
+        //table details
+        public List<Orders> RecentOrders { get; set; }
     }
 }
