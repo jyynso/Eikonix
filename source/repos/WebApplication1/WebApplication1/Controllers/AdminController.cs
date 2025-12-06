@@ -131,25 +131,33 @@ namespace WebApplication1.Controllers
             }
             AdminDashboardView model = new AdminDashboardView();
 
-            int currentUserId = Convert.ToInt32(Session["UserId"]);
+            var customerData = db.Users
+                                .Where(u => u.userRole.Equals("customer"))
+                                .GroupJoin(
+                                    db.Orders,
+                                    user => user.userId,
+                                    order => order.userId,
+                                    (user, userOrders) => new
+                                    {
+                                        User = user,
+                                        allOrders = userOrders
+                                    }
+                                )
+            .Select(c => new ManageCustomerView
+            {
+                userId = c.User.userId,
+                userName = c.User.userName,
+                userEmail = c.User.userEmail,
+                userStatus = c.User.userStatus,
 
-            model.TotalOrders = db.Orders
-                                    .Where(o => o.userId == currentUserId)
-                                    .Count();
-            model.ManageCustomer = (from o in db.Orders
-                                  join u in db.Users on o.userId equals u.userId
-                                  orderby o.orderDate descending
-                                  select new ManageCustomerView
-                                  {
-                                      orderId = o.orderId,
-                                      userName = u.userName,
-                                      userStatus = u.userStatus,
-                                      orderStatus = o.orderStatus,
-                                      orderDate = o.orderDate,
-                                      orderTotalAmount = o.orderTotalAmount,
-                                  })
-                                .Take(5)
-                                .ToList();
+                totalOrders = c.allOrders.Count(),
+                totalSpent = c.allOrders
+                                .Where(o => o.orderStatus.Equals("completed"))
+                                .Sum(o  => (decimal?)o.orderTotalAmount) ?? 0m
+            })
+            .ToList();
+
+            model.ManageCustomer = customerData;
             return View(model);
         }
 
