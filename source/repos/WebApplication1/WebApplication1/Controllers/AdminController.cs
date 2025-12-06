@@ -10,8 +10,11 @@ using WebApplication1.Models;
 namespace WebApplication1.Controllers
 {
 
+
     public class AdminController : Controller
     {
+        private AppDbContext db = new AppDbContext();
+
         // Check if user is admin
         private bool IsAdmin()
         {
@@ -37,6 +40,12 @@ namespace WebApplication1.Controllers
             {
                 model.CurrentAdminEmail = "Admin Account";
             }
+
+            //pull details 
+            model.TotalProducts = db.Products.Count();
+            model.TotalCustomers = db.Users
+                                    .Where(u => u.userRole == "customer")
+                                    .Count();
 
             return View(model);
         }

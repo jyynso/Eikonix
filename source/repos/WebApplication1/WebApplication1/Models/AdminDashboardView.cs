@@ -8,7 +8,14 @@ namespace WebApplication1.Models
 {
     public class AdminDashboardView
     {
+        //to display current session email
         public string CurrentAdminEmail { get; set; }
+        
+        //admin dashboard details :D
+        public int TotalProducts { get; set; }
+
+        public int TotalCustomers { get; set; }
+
         public List<Products> Products { get; set; }
         public List<Users> Users { get; set; }
     }
