@@ -18,6 +18,12 @@ namespace WebApplication1.Models
         public decimal TotalSales { get; set; }
 
         //table details
+
+        //dashboard and manage orders view
         public List<RecentOrderView> RecentOrders { get; set; }
+
+        //manage products
+        public List<Products> ManageProducts { get; set; }
+
     }
 }

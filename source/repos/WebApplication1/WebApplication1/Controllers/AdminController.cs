@@ -47,7 +47,7 @@ namespace WebApplication1.Controllers
 
             AdminDashboardView model = new AdminDashboardView();
 
-            //pull details 
+            //initialize and pull details 
             model.TotalProducts = db.Products.Count();
             model.TotalOrders = db.Orders.Count();
 
@@ -89,6 +89,10 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Login", "Account");
             }
             AdminDashboardView model = new AdminDashboardView();
+
+            //populate natin :D
+            model.ManageProducts = db.Products.ToList();
+
             return View(model);
         }
 
@@ -100,6 +104,21 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Login", "Account");
             }
             AdminDashboardView model = new AdminDashboardView();
+
+            model.RecentOrders = (from o in db.Orders
+                                  join u in db.Users on o.userId equals u.userId
+                                  orderby o.orderDate descending
+                                  select new RecentOrderView
+                                  {
+                                      orderId = o.orderId,
+                                      userName = u.userName,
+                                      orderStatus = o.orderStatus,
+                                      orderDate = o.orderDate,
+                                      orderTotalAmount = o.orderTotalAmount,
+                                  })
+                                 .Take(5)
+                                 .ToList();
+
             return View(model);
         }
 

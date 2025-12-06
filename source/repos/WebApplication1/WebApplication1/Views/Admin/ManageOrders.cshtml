@@ -1,3 +1,4 @@
+@model WebApplication1.Models.AdminDashboardView
 @{
     Layout = null;
     ViewBag.Title = "Manage Orders";
@@ -31,7 +32,8 @@
         <ul>
             <li><a href="@Url.Action("Dashboard", "Admin")"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
             <li><a href="@Url.Action("ManageProducts", "Admin")"><i class='bx bx-box'></i> Manage Products</a></li>
-            <li><a href="@Url.Action("ManageOrders", "Admin")" class="active"><i class='bx bx-cart'></i> Manage Orders</a>
+            <li>
+                <a href="@Url.Action("ManageOrders", "Admin")" class="active"><i class='bx bx-cart'></i> Manage Orders</a>
             </li>
             <li><a href="@Url.Action("ManageCustomers", "Admin")"><i class='bx bx-user'></i> Manage Customers</a></li>
             <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
@@ -45,7 +47,7 @@
             <h1>Manage Orders</h1>
             <div class="user-info">
                 <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
-                <span>admin@gmail.com</span>
+                <span>@ViewBag.CurrentAdminEmail</span>
             </div>
         </div>
 
@@ -64,126 +66,40 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>#1001</td>
-                        <td>John Doe</td>
-                        <td>&#8369;7,500.00</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td>2024-01-15</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1002</td>
-                        <td>Jane Smith</td>
-                        <td>&#8369;3,200.00</td>
-                        <td><span class="status-badge status-completed">Completed</span></td>
-                        <td>2024-01-14</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1003</td>
-                        <td>Mike Johnson</td>
-                        <td>&#8369;4,500.00</td>
-                        <td><span class="status-badge status-processing">Processing</span></td>
-                        <td>2024-01-14</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1004</td>
-                        <td>Sarah Williams</td>
-                        <td>&#8369;5,000.00</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td>2024-01-13</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1005</td>
-                        <td>Tom Brown</td>
-                        <td>&#8369;2,500.00</td>
-                        <td><span class="status-badge status-completed">Completed</span></td>
-                        <td>2024-01-13</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1006</td>
-                        <td>Emily Davis</td>
-                        <td>&#8369;6,300.00</td>
-                        <td><span class="status-badge status-processing">Processing</span></td>
-                        <td>2024-01-12</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1007</td>
-                        <td>David Martinez</td>
-                        <td>&#8369;8,700.00</td>
-                        <td><span class="status-badge status-completed">Completed</span></td>
-                        <td>2024-01-12</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1008</td>
-                        <td>Lisa Anderson</td>
-                        <td>&#8369;3,800.00</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td>2024-01-11</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1009</td>
-                        <td>Robert Wilson</td>
-                        <td>&#8369;9,200.00</td>
-                        <td><span class="status-badge status-completed">Completed</span></td>
-                        <td>2024-01-11</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#1010</td>
-                        <td>Maria Garcia</td>
-                        <td>&#8369;4,200.00</td>
-                        <td><span class="status-badge status-processing">Processing</span></td>
-                        <td>2024-01-10</td>
-                        <td>
-                            <button class="btn-admin btn-view">View</button>
-                            <button class="btn-admin btn-edit">Update Status</button>
-                            <button class="btn-admin btn-delete">Cancel</button>
-                        </td>
-                    </tr>
+                    @foreach (var details in Model.RecentOrders)
+                    {
+                        string status = details.orderStatus.ToLower();
+                        string statusClass;
+
+                        if (status.Contains("pending"))
+                        {
+                            statusClass = "status-pending";
+                        }
+                        else if (status.Contains("completed"))
+                        {
+                            statusClass = "status-completed";
+                        }
+                        else if (status.Contains("processing"))
+                        {
+                            statusClass = "status-processing";
+                        }
+                        else
+                        {
+                            statusClass = "default";
+                        }
+                        <tr>
+                            <td>#@details.orderId</td>
+                            <td>@details.userName</td>
+                            <td>&#8369;@details.orderTotalAmount</td>
+                            <td><span class="status-badge @statusClass">@details.orderStatus</span></td>
+                            <td>@details.orderDate.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <button class="btn-admin btn-view">View</button>
+                                <button class="btn-admin btn-edit">Update Status</button>
+                                <button class="btn-admin btn-delete">Cancel</button>
+                            </td>
+                        </tr>   
+                    }
                 </tbody>
             </table>
         </div>

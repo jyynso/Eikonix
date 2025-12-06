@@ -108,7 +108,7 @@
 
                     @foreach (var details in Model.RecentOrders)
                     {
-                                                    string status = details.orderStatus.ToLower();
+                            string status = details.orderStatus.ToLower();
                             string statusClass;
 
                             if (status.Contains("pending"))
