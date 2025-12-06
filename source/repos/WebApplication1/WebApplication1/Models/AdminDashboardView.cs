@@ -13,10 +13,11 @@ namespace WebApplication1.Models
         
         //admin dashboard details :D
         public int TotalProducts { get; set; }
-
         public int TotalCustomers { get; set; }
+        public int TotalOrders { get; set; }
+        public decimal TotalSales { get; set; }
 
         //table details
-        public List<Orders> RecentOrders { get; set; }
+        public List<RecentOrderView> RecentOrders { get; set; }
     }
 }

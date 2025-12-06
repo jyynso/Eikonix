@@ -191,6 +191,7 @@
     <Compile Include="Models\Orderitems.cs" />
     <Compile Include="Models\Orders.cs" />
     <Compile Include="Models\Products.cs" />
+    <Compile Include="Models\RecentOrderView.cs" />
     <Compile Include="Models\Users.cs" />
     <Compile Include="Models\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

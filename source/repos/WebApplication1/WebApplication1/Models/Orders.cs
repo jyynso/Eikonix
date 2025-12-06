@@ -22,5 +22,8 @@ namespace WebApplication1.Models
 
         [Column("order_status")]
         public string orderStatus { get; set; }
+
+        [Column("order_creationdate")]
+        public DateTime orderDate { get; set; }
     }
 }

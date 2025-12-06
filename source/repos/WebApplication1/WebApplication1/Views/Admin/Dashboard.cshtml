@@ -59,7 +59,7 @@
             <h1>Dashboard</h1>
             <div class="user-info">
                 <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
-                <span>@Model.CurrentAdminEmail</span>
+                <span>@ViewBag.CurrentAdminEmail</span>
             </div>
         </div>
 
@@ -74,7 +74,7 @@
             <div class="dashboard-card">
                 <i class='bx bx-cart'></i>
                 <h3>Total Orders</h3>
-                <p>156</p>
+                <p>@Model.TotalOrders</p>
             </div>
 
             <div class="dashboard-card">
@@ -86,7 +86,7 @@
             <div class="dashboard-card">
                 <i class='bx bx-dollar-circle'></i>
                 <h3>Total Sales</h3>
-                <p>&#8369;156,890.00</p>
+                <p>&#8369;@Model.TotalSales</p>
             </div>
         </div>
 
@@ -106,14 +106,33 @@
                 </thead>
                 <tbody>
 
-                    @foreach (var order in Model.RecentOrders)
+                    @foreach (var details in Model.RecentOrders)
                     {
+                                                    string status = details.orderStatus.ToLower();
+                            string statusClass;
+
+                            if (status.Contains("pending"))
+                            {
+                                statusClass = "status-pending";
+                            }
+                            else if (status.Contains("completed"))
+                            {
+                                statusClass = "status-completed";
+                            }
+                            else if (status.Contains("processing"))
+                            {
+                                statusClass = "status-processing";
+                            }
+                            else
+                            {
+                                statusClass = "default";
+                            }
                         <tr>
-                            <td>#@order.orderId</td>
-                            <td>John Doe</td>
-                            <td>&#8369;7,500.00</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>2024-01-15</td>
+                            <td>#@details.orderId</td>
+                            <td>@details.userName</td>
+                            <td>&#8369;@details.orderTotalAmount</td>
+                            <td><span class="status-badge @statusClass">@details.orderStatus</span></td>
+                            <td>@details.orderDate.ToString("yyyy-MM-dd")</td>
                             <td>
                                 <button class="btn-admin btn-view">View</button>
                                 <button class="btn-admin btn-edit">Edit</button>

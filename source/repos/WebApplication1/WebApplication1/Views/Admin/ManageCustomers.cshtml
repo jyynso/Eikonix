@@ -1,3 +1,4 @@
+@model WebApplication1.Models.AdminDashboardView
 @{
     Layout = null;
     ViewBag.Title = "Manage Customers";
@@ -42,13 +43,13 @@
             <h1>Manage Customers</h1>
             <div class="user-info">
                 <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
-                <span>admin@gmail.com</span>
+                <span>@ViewBag.CurrentAdminEmail</span>
             </div>
         </div>
 
         <div class="admin-table-container">
             <h2>All Customers</h2>
-            
+
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -68,138 +69,6 @@
                         <td>john@example.com</td>
                         <td>5</td>
                         <td>&#8369;18,750.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jane Smith</td>
-                        <td>jane@example.com</td>
-                        <td>8</td>
-                        <td>&#8369;32,400.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Mike Johnson</td>
-                        <td>mike@example.com</td>
-                        <td>3</td>
-                        <td>&#8369;11,200.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Sarah Williams</td>
-                        <td>sarah@example.com</td>
-                        <td>12</td>
-                        <td>&#8369;48,600.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>Tom Brown</td>
-                        <td>tom@example.com</td>
-                        <td>2</td>
-                        <td>&#8369;7,500.00</td>
-                        <td><span class="status-badge status-inactive">Inactive</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-edit">Activate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>6</td>
-                        <td>Emily Davis</td>
-                        <td>emily@example.com</td>
-                        <td>7</td>
-                        <td>&#8369;26,250.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>7</td>
-                        <td>David Martinez</td>
-                        <td>david@example.com</td>
-                        <td>15</td>
-                        <td>&#8369;63,750.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>8</td>
-                        <td>Lisa Anderson</td>
-                        <td>lisa@example.com</td>
-                        <td>4</td>
-                        <td>&#8369;15,000.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>9</td>
-                        <td>Robert Wilson</td>
-                        <td>robert@example.com</td>
-                        <td>9</td>
-                        <td>&#8369;37,800.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>10</td>
-                        <td>Maria Garcia</td>
-                        <td>maria@example.com</td>
-                        <td>6</td>
-                        <td>&#8369;22,500.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>11</td>
-                        <td>James Taylor</td>
-                        <td>james@example.com</td>
-                        <td>1</td>
-                        <td>&#8369;3,500.00</td>
-                        <td><span class="status-badge status-inactive">Inactive</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-edit">Activate</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>12</td>
-                        <td>Patricia Lee</td>
-                        <td>patricia@example.com</td>
-                        <td>11</td>
-                        <td>&#8369;46,200.00</td>
                         <td><span class="status-badge status-active">Active</span></td>
                         <td>
                             <button class="btn-admin btn-view">View Details</button>

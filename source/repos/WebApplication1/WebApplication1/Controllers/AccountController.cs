@@ -37,27 +37,6 @@ namespace WebApplication1.Controllers
             }
             ViewBag.Error = "Invalid Email or Password";
             return View();
-
-            //// Admin authentication
-            //if (email == "admin@gmail.com" && password == "54321")
-            //{
-            //    Session["UserEmail"] = email;
-            //    Session["UserRole"] = "Admin";
-            //    return RedirectToAction("Dashboard", "Admin");
-            //}
-
-            //// Regular user authentication
-            //bool valid = (email == "test@example.com" && password == "12345");
-
-            //if (!valid)
-            //{
-            //    ViewBag.Error = "Invalid email or password.";
-            //    return View();
-            //}
-
-            //Session["UserEmail"] = email;
-            //Session["UserRole"] = "User";
-            //return RedirectToAction("Cart", "Home");
         }
 
         public ActionResult Logout()
