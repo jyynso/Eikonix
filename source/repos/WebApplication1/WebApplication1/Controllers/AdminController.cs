@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Data;
+using WebApplication1.Models;
+
 
 namespace WebApplication1.Controllers
 {
+
     public class AdminController : Controller
     {
         // Check if user is admin
@@ -22,7 +26,19 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            return View();
+            AdminDashboardView model = new AdminDashboardView();
+
+            //display current admin session email
+            if (Session["UserEmail"] != null)
+            {
+                model.CurrentAdminEmail = Session["UserEmail"].ToString();
+            }
+            else
+            {
+                model.CurrentAdminEmail = "Admin Account";
+            }
+
+            return View(model);
         }
 
         // Products Management

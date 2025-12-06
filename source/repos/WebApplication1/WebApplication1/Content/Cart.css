@@ -711,13 +711,19 @@ body.dark-mode .product-box {
 }
 
 .product-title {
-    padding: 20px 20px 10px;
+    padding: 20px 20px 5px;
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-color);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+    .sub {
+        margin: 0;
+        padding: 0 20px 5px;
+        font-size: 0.813rem !important;
+        text-transform: none !important;
+    }
 
 .product-price {
     padding: 0 20px 20px;

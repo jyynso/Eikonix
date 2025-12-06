@@ -125,6 +125,9 @@ function handle_addCartItem(e) {
     
     // Find the closest product box container
     let product = this.closest('.box') || this.closest('.product-box');
+
+    // pull product from data-id
+    const productId = this.getAttribute('data-id');
     
     if (!product) {
         console.error('Product container not found');
@@ -147,7 +150,7 @@ function handle_addCartItem(e) {
     console.log('Adding to cart:', title, price, imgSrc);
 
     // Check if item already exists in cart
-    const existingItem = itemsAdded.find((el) => el.title == title);
+    const existingItem = itemsAdded.find((el) => el.id == productId);
     
     if (existingItem) {
         // Find the cart box for this item and increase quantity
@@ -168,14 +171,16 @@ function handle_addCartItem(e) {
     } else {
         // Add new item to cart
         let newToAdd = {
+            id: productId,
             title,
             price,
             imgSrc,
+            quantity: 1,
         };
         itemsAdded.push(newToAdd);
 
         // Add product to cart
-        let cartBoxElement = CartBoxComponent(title, price, imgSrc);
+        let cartBoxElement = CartBoxComponent(title, price, imgSrc, productId);
         let newNode = document.createElement("div");
         newNode.innerHTML = cartBoxElement;
         const cartContent = cart.querySelector(".cart-content");
@@ -191,11 +196,17 @@ function handle_addCartItem(e) {
 }
 
 function handle_removeCartItem() {
-    const itemTitle = this.parentElement.querySelector(".cart-product-title").innerHTML;
+    const cartBox = this.parentElement;
+
+    const itemId = cartBox.getAttribute('data-id');
+    const itemTitle = cartBox.querySelector('.cart-product-title').innerHTML;
+
+    cartBox.remove();
+    //const itemTitle = this.parentElement.querySelector(".cart-product-title").innerHTML;
     
-    this.parentElement.remove();
+    //this.parentElement.remove();
     itemsAdded = itemsAdded.filter(
-        (el) => el.title != itemTitle
+        (el) => el.id != itemId
     );
 
     showNotification(`"${itemTitle}" removed from cart`, "success");
@@ -257,9 +268,9 @@ function updateTotal() {
 }
 
 // ============= HTML COMPONENTS =============
-function CartBoxComponent(title, price, imgSrc) {
+function CartBoxComponent(title, price, imgSrc, productId) {
     return `
-    <div class="cart-box">
+    <div class="cart-box" data-id="${productId}">
         <img src=${imgSrc} alt="" class="cart-img">
         <div class="detail-box">
             <div class="cart-product-title">${title}</div>

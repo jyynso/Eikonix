@@ -1,3 +1,5 @@
+@model WebApplication1.Models.AdminDashboardView
+
 @{
     Layout = null;
     ViewBag.Title = "Admin Dashboard";
@@ -20,12 +22,12 @@
             font-weight: 700 !important;
             text-shadow: 0 0 1px rgba(255, 255, 255, 0.5) !important;
         }
-        
-        .btn-view:hover,
-        .btn-add:hover {
-            color: #ffffff !important;
-            text-shadow: none !important;
-        }
+
+            .btn-view:hover,
+            .btn-add:hover {
+                color: #ffffff !important;
+                text-shadow: none !important;
+            }
     </style>
 </head>
 <body>
@@ -57,7 +59,7 @@
             <h1>Dashboard</h1>
             <div class="user-info">
                 <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
-                <span>admin@gmail.com</span>
+                <span>@Model.CurrentAdminEmail</span>
             </div>
         </div>
 
