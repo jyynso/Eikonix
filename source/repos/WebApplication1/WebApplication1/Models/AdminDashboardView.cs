@@ -25,5 +25,7 @@ namespace WebApplication1.Models
         //manage products
         public List<Products> ManageProducts { get; set; }
 
+        //manage customers
+        public List<ManageCustomerView> ManageCustomer { get; set; }
     }
 }

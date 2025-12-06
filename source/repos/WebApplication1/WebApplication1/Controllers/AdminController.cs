@@ -104,7 +104,8 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Login", "Account");
             }
             AdminDashboardView model = new AdminDashboardView();
-
+            
+            //join two tables 
             model.RecentOrders = (from o in db.Orders
                                   join u in db.Users on o.userId equals u.userId
                                   orderby o.orderDate descending
@@ -112,7 +113,6 @@ namespace WebApplication1.Controllers
                                   {
                                       orderId = o.orderId,
                                       userName = u.userName,
-                                      orderStatus = o.orderStatus,
                                       orderDate = o.orderDate,
                                       orderTotalAmount = o.orderTotalAmount,
                                   })
@@ -130,6 +130,26 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Login", "Account");
             }
             AdminDashboardView model = new AdminDashboardView();
+
+            int currentUserId = Convert.ToInt32(Session["UserId"]);
+
+            model.TotalOrders = db.Orders
+                                    .Where(o => o.userId == currentUserId)
+                                    .Count();
+            model.ManageCustomer = (from o in db.Orders
+                                  join u in db.Users on o.userId equals u.userId
+                                  orderby o.orderDate descending
+                                  select new ManageCustomerView
+                                  {
+                                      orderId = o.orderId,
+                                      userName = u.userName,
+                                      userStatus = u.userStatus,
+                                      orderStatus = o.orderStatus,
+                                      orderDate = o.orderDate,
+                                      orderTotalAmount = o.orderTotalAmount,
+                                  })
+                                .Take(5)
+                                .ToList();
             return View(model);
         }
 

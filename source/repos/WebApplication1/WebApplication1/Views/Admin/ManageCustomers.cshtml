@@ -63,18 +63,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>John Doe</td>
-                        <td>john@example.com</td>
-                        <td>5</td>
-                        <td>&#8369;18,750.00</td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>
-                            <button class="btn-admin btn-view">View Details</button>
-                            <button class="btn-admin btn-delete">Deactivate</button>
-                        </td>
-                    </tr>
+                    @foreach (var details in Model.ManageCustomer)
+                    {
+                        <tr>
+                            <td>@details.userId</td>
+                            <td>@details.userName</td>
+                            <td>@details.userEmail</td>
+                            <td>@details</td>
+                            <td>&#8369;18,750.00</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>
+                                <button class="btn-admin btn-view">View Details</button>
+                                <button class="btn-admin btn-delete">Deactivate</button>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

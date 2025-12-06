@@ -26,6 +26,7 @@ namespace WebApplication1.Controllers
 
                 if (user != null && Utils.VerifyPassword(password, user.hashedpassword))
                 {
+                    Session["UserId"] = user.userId; //idk why I put this here but it may come useful later :D
                     Session["UserEmail"] = user.userEmail;
                     Session["UserRole"] = user.userRole;
 

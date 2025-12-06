@@ -25,5 +25,8 @@ namespace WebApplication1.Models
 
         [Column("user_role")]
         public string userRole { get; set; }
+
+        [Column("user_accountstatus")]
+        public string userStatus { get; set; }
     }
 }
