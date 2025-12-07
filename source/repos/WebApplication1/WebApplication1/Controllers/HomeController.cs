@@ -23,13 +23,25 @@ namespace WebApplication1.Controllers
         public ActionResult Cart()
         {
             var products = db.Products
-                    .Where(p => p.productStock > 0 || p.productCategory.ToLower() == "digital")
+                    .Where(p => p.productStock > 0)
                     .ToList();
             return View(products);
         }
+        public ActionResult Digital()
+        {
+            var products = db.Products
+                    .Where(p => p.productStock > 0 && p.productCategory == "Digital Art")
+                    .ToList();
+            return View(products);
+        }
+        public ActionResult Traditional()
+        {
+            return View();
+        }
 
         [HttpPost]
-        //this is not working for some reason :D
+
+        //i dont know JS and this is not working for some reason :D
         //for reservation with 1 copy of artworks
         public JsonResult ReserveProducts(int productId)
         {
