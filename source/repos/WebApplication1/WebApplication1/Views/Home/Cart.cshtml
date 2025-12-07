@@ -68,12 +68,13 @@
             @foreach (var product in Model)
             {
                 <div class="product-box">
-                    <img src="@Url.Content(product.productImagePath)" alt="@product.productTitle" class="product-img">
+                    <img src="@Url.Content(product.productImagePath.Trim())" alt="@product.productTitle" class="product-img">
                     <h2 class="product-title">@product.productTitle</h2>
                     <p class="product-title sub">@product.productDescription</p>
                     <p class="product-title sub">Category: @product.productCategory</p>
                     <p class="product-title sub">Medium: @product.productMedium</p>
                     <p class="product-title sub">Size: @product.productSize</p>
+                    <p class="product-title sub">Stock: @product.productStock</p>
                     <span class="product-price">₱@product.productPrice</span>
                     <i class='bx bx-shopping-bag add-cart' data-id="@product.productId"></i>
                 </div>
@@ -82,99 +83,6 @@
 
         
     </section>
-
-    @*<section class="shop container">
-        <h1 class="section-title">Featured Artworks</h1>
-
-        <div class="shop-content">
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p1.jpg")" alt="p1" class="product-img">
-                <h2 class="product-title">Sunset Dreams</h2>
-                <span class="product-price">₱2,500</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p2.jpg")" alt="p2" class="product-img">
-                <h2 class="product-title">Abstract Emotions</h2>
-                <span class="product-price">₱3,200</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p3.jpg")" alt="p3" class="product-img">
-                <h2 class="product-title">Ocean Waves</h2>
-                <span class="product-price">₱1,800</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p4.jpg")" alt="p4" class="product-img">
-                <h2 class="product-title">Urban Landscape</h2>
-                <span class="product-price">₱4,500</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p5.jpg")" alt="p5" class="product-img">
-                <h2 class="product-title">Floral Paradise</h2>
-                <span class="product-price">₱2,100</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p6.jpg")" alt="p6" class="product-img">
-                <h2 class="product-title">Portrait Study</h2>
-                <span class="product-price">₱3,800</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p7.jpg")" alt="p7" class="product-img">
-                <h2 class="product-title">Neon Nights</h2>
-                <span class="product-price">₱2,800</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p8.jpg")" alt="p8" class="product-img">
-                <h2 class="product-title">Mountain Majesty</h2>
-                <span class="product-price">₱3,500</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p9.jpg")" alt="p9" class="product-img">
-                <h2 class="product-title">Cyberpunk City</h2>
-                <span class="product-price">₱4,200</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p10.jpg")" alt="p10" class="product-img">
-                <h2 class="product-title">Wildlife Sketch</h2>
-                <span class="product-price">₱1,500</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p11.jpg")" alt="p11" class="product-img">
-                <h2 class="product-title">Fantasy Realm</h2>
-                <span class="product-price">₱5,000</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-            <div class="product-box">
-                <img src="@Url.Content("~/Content/imgs/Drawing/p12.jpg")" alt="p12" class="product-img">
-                <h2 class="product-title">Still Life Collection</h2>
-                <span class="product-price">₱2,200</span>
-                <i class='bx bx-shopping-bag add-cart'></i>
-            </div>
-
-        </div>
-    </section>*@
-
     <!-- ABOUT -->
     <section class="about" id="about">
 
