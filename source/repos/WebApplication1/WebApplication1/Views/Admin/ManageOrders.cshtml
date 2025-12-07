@@ -68,7 +68,11 @@
                 <tbody>
                     @foreach (var details in Model.RecentOrders)
                     {
-                        string status = details.orderStatus.ToLower();
+                        //throwing a nullexception at first so I added this
+                        string status = string.IsNullOrEmpty(details.orderStatus)
+                            ? "default"
+                            :details.orderStatus.ToLower();
+
                         string statusClass;
 
                         if (status.Contains("pending"))

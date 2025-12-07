@@ -187,6 +187,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AdminDashboardView.cs" />
+    <Compile Include="Models\AdminSalesReportView.cs" />
     <Compile Include="Models\Cart.cs" />
     <Compile Include="Models\ManageCustomerView.cs" />
     <Compile Include="Models\Orderitems.cs" />

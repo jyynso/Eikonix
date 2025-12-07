@@ -170,6 +170,119 @@ namespace WebApplication1.Controllers
             }
             AdminDashboardView model = new AdminDashboardView();
 
+            model.TotalOrders = db.Orders.Count();
+            model.TotalCustomers = db.Users
+                                     .Where(u => u.userRole == "customer")
+                                     .Count();
+
+            //only completed orders will be total
+            var CompletedOrders = db.Orders.Where(o => o.orderStatus.Equals("completed"));
+            if (CompletedOrders.Any())
+            {
+                //total sales
+                decimal totalSales = CompletedOrders.Sum(o => o.orderTotalAmount);
+
+                //count only the complete
+                int totalCompletedOrders = CompletedOrders.Count();
+
+                model.TotalProducts = totalCompletedOrders;
+                model.TotalSales = totalSales;
+                model.AvgOrderValue = totalSales / totalCompletedOrders;
+            }
+            else
+            {
+                model.AvgOrderValue = 0m;
+            }
+            if (CompletedOrders.Any())
+            {
+                model.TotalSales = CompletedOrders.Sum(o => o.orderTotalAmount);
+            }
+            else
+            {
+                model.TotalSales = 0;
+            }
+
+            //for sales summary by month
+
+            //how many months to show in the table
+            const int ShowNumberOfMonths = 5;
+
+            model.MonthSummaryView = new List<AdminSalesReportView>();
+            
+            for (int i = 0; i < ShowNumberOfMonths; i++)
+            {
+                DateTime reportDate = DateTime.Today.AddMonths(-i);
+
+                int currentMonth = reportDate.Month;
+                int currentYear = reportDate.Year;
+
+                DateTime previousDate = reportDate.AddMonths(-1);
+                int previousMonth = previousDate.Month;
+                int previousYear = previousDate.Year;
+
+                AdminSalesReportView currentReport = new AdminSalesReportView
+                {
+                    Month = reportDate.ToString("MMMM yyyy")
+                };
+
+                var currentMonthOrders = db.Orders
+                        .Where(o => o.orderDate.Month == currentMonth && o.orderDate.Year == currentYear);
+                var currentMonthCompletedOrders = currentMonthOrders
+                        .Where(o => o.orderStatus.Equals("completed"));
+                var previousMonthCompletedOrders = db.Orders
+                        .Where(o => o.orderStatus.Equals("completed", StringComparison.OrdinalIgnoreCase) &&
+                        o.orderDate.Month == previousMonth &&
+                        o.orderDate.Year == previousYear);
+                var newCustomersCurrentMonth = db.Users
+                    .Where(u => u.userRole.Equals("customer") &&
+                        u.userCreationDate.HasValue &&
+                        u.userCreationDate.Value.Month == currentMonth &&
+                        u.userCreationDate.Value.Year == currentYear);
+                decimal previousMonthSales = 0m;
+
+                currentReport.TotalOrders = currentMonthOrders.Count();
+
+                if (currentMonthCompletedOrders.Any())
+                {
+                    currentReport.TotalSales = currentMonthCompletedOrders.Sum(o => o.orderTotalAmount);
+                }
+                else
+                {
+                    currentReport.TotalSales = 0m;
+                }
+
+                currentReport.NewCustomers = newCustomersCurrentMonth.Count();
+
+                //we do matematika for growth and shizz
+                if (previousMonthCompletedOrders.Any())
+                {
+                    previousMonthSales = previousMonthCompletedOrders.Sum(o => o.orderTotalAmount);
+                }
+
+                if (previousMonthSales > 0)
+                {
+                    decimal growthRate = (currentReport.TotalSales - previousMonthSales) / previousMonthSales;
+                    currentReport.Growth = growthRate;
+                }
+                else if (currentReport.TotalSales > 0 && previousMonthSales == 0)
+                {
+                    currentReport.Growth = 1.0m;
+                }
+                else
+                {
+                    currentReport.Growth = 0m;
+                }
+
+                //uncomment this if gusto lang ishow months with actual data inside them :D
+                //if (currentReport.TotalOrders > 0 || currentReport.NewCustomers > 0)
+                //{
+                //    model.MonthSummaryView.Add(currentReport);
+                //}
+
+                //with this, ipapakita natin months with no record, it will fix itself naman new data populating the db
+                model.MonthSummaryView.Add(currentReport);
+
+            }
             return View(model);
         }
     }

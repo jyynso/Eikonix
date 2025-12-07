@@ -28,5 +28,8 @@ namespace WebApplication1.Models
 
         [Column("user_accountstatus")]
         public string userStatus { get; set; }
+
+        [Column("user_creationdate")]
+        public DateTime? userCreationDate { get; set; }
     }
 }

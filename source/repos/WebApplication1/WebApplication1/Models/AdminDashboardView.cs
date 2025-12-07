@@ -27,5 +27,9 @@ namespace WebApplication1.Models
 
         //manage customers
         public List<ManageCustomerView> ManageCustomer { get; set; }
+
+        //sales report
+        public decimal AvgOrderValue { get; set; }
+        public List<AdminSalesReportView> MonthSummaryView { get; set; }
     }
 }
