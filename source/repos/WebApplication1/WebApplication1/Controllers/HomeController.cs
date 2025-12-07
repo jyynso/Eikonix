@@ -36,7 +36,10 @@ namespace WebApplication1.Controllers
         }
         public ActionResult Traditional()
         {
-            return View();
+            var products = db.Products
+                    .Where(p => p.productStock > 0 && p.productCategory == "Traditional Art")
+                    .ToList();
+            return View(products);
         }
 
         [HttpPost]

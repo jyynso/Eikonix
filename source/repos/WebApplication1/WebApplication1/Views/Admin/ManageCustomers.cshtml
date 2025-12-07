@@ -65,16 +65,30 @@
                 <tbody>
                     @foreach (var details in Model.ManageCustomer)
                     {
+
+                        string status = details.userStatus.ToLower();
+                        string statusClass = status.Equals("active") ? "status-active" : "status-inactive";
+                        string buttonText = status.Equals("active") ? "Deactivate" : "Activate";
+
                         <tr>
                             <td>@details.userId</td>
                             <td>@details.userName</td>
                             <td>@details.userEmail</td>
                             <td>@details.totalOrders</td>
                             <td>&#8369;@details.totalSpent</td>
-                            <td><span class="status-badge status-active">Active</span></td>
+
+                            <td>
+                                <span class="status-badge @statusClass customer-status" data-user-id="@details.userId">
+                                    @details.userStatus
+                                </span>
+                            </td>
                             <td>
                                 <button class="btn-admin btn-view">View Details</button>
-                                <button class="btn-admin btn-delete">Deactivate</button>
+                                <button class="btn-admin toggle-status-btn @(status.Equals("active") ? "btn-delete" : "btn-view")"
+                                        data-user-id="@details.userId"
+                                        data-current-status="@status">
+                                    @buttonText
+                                </button>
                             </td>
                         </tr>
                     }
@@ -83,5 +97,69 @@
         </div>
     </div>
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+
+    //asked gemini for help :(
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButtons = document.querySelectorAll('.toggle-status-btn');
+
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-user-id');
+                    const currentStatus = this.getAttribute('data-current-status');
+
+                    const confirmMessage = currentStatus === 'active'
+                        ? `Are you sure you want to deactivate user Id #${userId}?`
+                        : `Are you sure you want to activate user Id #${userId}?`;
+
+                    if (confirm(confirmMessage)) {
+                        toggleUserStatus(userId, this);
+                    }
+                });
+            });
+
+            function toggleUserStatus(userId, buttonElement) {
+                const toggleUrl = '@Url.Action("ToggleUserStatus", "Admin")';
+
+                fetch(toggleUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    },
+                    body: `id=${encodeURIComponent(userId)}`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(error => { throw new Error(error.message || 'Server error occurred.'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const newStatus = data.newStatus.toLowerCase();
+                        const newStatusDisplay = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+
+                        const statusSpan = document.querySelector(`.customer-status[data-user-id="${userId}"]`);
+
+                        if (statusSpan) {
+                            statusSpan.textContent = newStatusDisplay;
+                            statusSpan.className = 'status-badge customer-status ' + (newStatus === 'active' ? 'status-active' : 'status-inactive');
+                        }
+                        buttonElement.textContent = newStatus === 'active' ? 'Deactivate' : 'Activate';
+                        buttonElement.setAttribute('data-current-status', newStatus);
+                        buttonElement.className = 'btn-admin toggle-status-btn ' + (newStatus === 'active' ? 'btn-delete' : 'btn-view');
+
+                        alert(data.message);
+                    } else {
+                        alert('Status update failed: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('AJAX Error:', error);
+                    alert('An unexpected error occurred during status update: ' + error.message);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -401,26 +401,48 @@ namespace WebApplication1.Controllers
                 {
                     category.MarketSharePercentage = 0m;
                 }
-
-                //if (category.MarketSharePercentage >= 50m)
-                //{
-                //    category.MarketShareClass = "status-completed";
-                //}
-                //else if (category.MarketSharePercentage > 20m)
-                //{
-                //    category.MarketShareClass = "status-processing";
-                //}
-                //else
-                //{
-                //    category.MarketShareClass = "status-pending";
-                //    category.MarketShareClass = "status-pending";
-                //}
-
                 model.CategoryPerformance.Add(category);
             }
-
-
             return View(model);
         }
+
+
+        [HttpPost]
+        public ActionResult ToggleUserStatus(int id)
+        {
+            if (!IsAdmin())
+            {
+                Response.StatusCode = 403;
+                return Json(new { success = false, message = "Access denied: Administrator login required." });
+            }
+
+            var userToggle = db.Users.Find(id);
+            if (userToggle == null)
+            {
+                Response.StatusCode = 404;
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            string currentStatus = userToggle.userStatus.ToLower();
+            string newStatus;
+            string message;
+
+            if (currentStatus == "active")
+            {
+                newStatus = "inactive";
+                message = $"Customer ID {id} has been **deactivated**.";
+            }
+            else
+            {
+                newStatus = "active";
+                message = $"Customer ID {id} has been **activated**.";
+            }
+            userToggle.userStatus = newStatus;
+            db.Entry(userToggle).State = EntityState.Modified;
+            db.SaveChanges();
+
+            return Json(new { success = true, newStatus = newStatus, message = message });
+        }
     }
+
 }

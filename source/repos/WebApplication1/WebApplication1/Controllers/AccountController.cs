@@ -23,6 +23,11 @@ namespace WebApplication1.Controllers
             using (var db = new AppDbContext())
             {
                 var user = db.Users.FirstOrDefault(u => u.userEmail == email);
+                if (user.userStatus.Equals("inactive", StringComparison.OrdinalIgnoreCase))
+                {
+                    ViewBag.Error = "Your account is currently inactive. Please contact the administrator.";
+                    return View();
+                }
 
                 if (user != null && Utils.VerifyPassword(password, user.hashedpassword))
                 {

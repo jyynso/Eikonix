@@ -53,7 +53,6 @@
 
         <div class="admin-table-container">
             <h2>All Orders</h2>
-
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -70,7 +69,7 @@
                     {
                         //throwing a nullexception at first so I added this
                         string status = string.IsNullOrEmpty(details.orderStatus)
-                            ? "default"
+                            ? "pending"
                             :details.orderStatus.ToLower();
 
                         string statusClass;
