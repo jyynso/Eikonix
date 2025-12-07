@@ -173,8 +173,7 @@ namespace WebApplication1.Controllers
             model.TotalOrders = db.Orders.Count();
             model.TotalCustomers = db.Users
                                      .Where(u => u.userRole == "customer")
-                                     .Count();
-
+                                     .Count();                  
             //only completed orders will be total
             var CompletedOrders = db.Orders.Where(o => o.orderStatus.Equals("completed"));
             if (CompletedOrders.Any())
@@ -273,7 +272,7 @@ namespace WebApplication1.Controllers
                     currentReport.Growth = 0m;
                 }
 
-                //uncomment this if gusto lang ishow months with actual data inside them :D
+                //uncomment this and comment the one below this if gusto lang ishow months with actual data inside them :D
                 //if (currentReport.TotalOrders > 0 || currentReport.NewCustomers > 0)
                 //{
                 //    model.MonthSummaryView.Add(currentReport);
@@ -281,8 +280,61 @@ namespace WebApplication1.Controllers
 
                 //with this, ipapakita natin months with no record, it will fix itself naman new data populating the db
                 model.MonthSummaryView.Add(currentReport);
-
             }
+
+            //top selling sining gawa
+            var topProducts = db.Orderitems
+                                .Where(oi => oi.Order.orderStatus.Equals("completed"))
+                                .GroupBy(oi => oi.productId)
+                                .Select(g => new
+                                {
+                                    productId = g.Key,
+                                    unitsSold = g.Sum(oi => oi.orderItemQuantity),
+                                    revenue = g.Sum(oi => oi.orderItemQuantity * oi.orderItemPrice)
+                                })
+                                .OrderByDescending(x => x.revenue)
+                                .Take(5)
+                                .ToList();
+            //threshold
+            const decimal ExcellentRevenue = 200000.00m;
+            const decimal GoodRevenue = 100000.00m;
+
+            int RankCounter = 1;
+            var rankings = topProducts
+                    .Join(db.Products,
+                        rank => rank.productId,
+                        product => product.productId,
+                        (rank, product) => new AdminTopProductsView
+                        {
+                            ArtworkName = product.productTitle,
+                            Category = product.productCategory,
+                            UnitsSold = rank.unitsSold,
+                            Revenue = rank.revenue,
+                            PerformanceLabel = "",
+                            PerformanceClass = ""
+                        })
+                    .ToList();
+
+            foreach (var item in rankings)
+            {
+                item.Rank = RankCounter++;
+                if (item.Revenue >= ExcellentRevenue)
+                {
+                    item.PerformanceLabel = "EXCELLENT";
+                    item.PerformanceClass = "status-completed";
+                }
+                else if (item.Revenue >= GoodRevenue)
+                {
+                    item.PerformanceLabel = "GOOD";
+                    item.PerformanceClass = "status-processing";
+                }
+                else
+                {
+                    item.PerformanceLabel = "FAIR";
+                    item.PerformanceClass = "status-pending";
+                }
+            }
+            model.TopProducts = rankings;
             return View(model);
         }
     }

@@ -19,15 +19,16 @@ namespace WebApplication1.Models
 
         // foreign key from products table :D
         [Column("product_id")]
-        public string productId { get; set; }
+        public int productId { get; set; }
 
         [Column("orderitem_quantity")]
-        public string orderItemQuantity { get; set; }
+        public int orderItemQuantity { get; set; }
 
         [Column("orderitem_price")]
         public decimal orderItemPrice { get; set; }
 
-
+        [ForeignKey("orderId")]
+        public virtual Orders Order { get; set; }
 
     }
 }
