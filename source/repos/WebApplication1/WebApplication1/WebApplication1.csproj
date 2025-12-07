@@ -186,6 +186,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\AdminCategoryPerformanceView.cs" />
     <Compile Include="Models\AdminDashboardView.cs" />
     <Compile Include="Models\AdminSalesReportView.cs" />
     <Compile Include="Models\AdminTopProductsView.cs" />

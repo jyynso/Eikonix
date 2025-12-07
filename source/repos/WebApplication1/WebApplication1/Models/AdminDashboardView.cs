@@ -32,5 +32,6 @@ namespace WebApplication1.Models
         public decimal AvgOrderValue { get; set; }
         public List<AdminSalesReportView> MonthSummaryView { get; set; }
         public List<AdminTopProductsView> TopProducts { get; set; }
+        public List<AdminCategoryPerformanceView> CategoryPerformance { get; set; }
     }
 }

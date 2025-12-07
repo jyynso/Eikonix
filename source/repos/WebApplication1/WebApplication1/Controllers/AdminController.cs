@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using WebApplication1.Data;
 using WebApplication1.Models;
 using System.Data.Entity;
+using System.Security.Cryptography;
 
 
 namespace WebApplication1.Controllers
@@ -67,7 +68,7 @@ namespace WebApplication1.Controllers
                                      .Count();
             model.RecentOrders = (from o in db.Orders
                                   join u in db.Users on o.userId equals u.userId
-                                  orderby o.orderDate descending
+                                  orderby o.orderDate ascending
                                   select new RecentOrderView
                                   {
                                       orderId = o.orderId,
@@ -104,11 +105,11 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Login", "Account");
             }
             AdminDashboardView model = new AdminDashboardView();
-            
+
             //join two tables 
             model.RecentOrders = (from o in db.Orders
                                   join u in db.Users on o.userId equals u.userId
-                                  orderby o.orderDate descending
+                                  orderby o.orderDate ascending
                                   select new RecentOrderView
                                   {
                                       orderId = o.orderId,
@@ -153,7 +154,7 @@ namespace WebApplication1.Controllers
                 totalOrders = c.allOrders.Count(),
                 totalSpent = c.allOrders
                                 .Where(o => o.orderStatus.Equals("completed"))
-                                .Sum(o  => (decimal?)o.orderTotalAmount) ?? 0m
+                                .Sum(o => (decimal?)o.orderTotalAmount) ?? 0m
             })
             .ToList();
 
@@ -173,9 +174,10 @@ namespace WebApplication1.Controllers
             model.TotalOrders = db.Orders.Count();
             model.TotalCustomers = db.Users
                                      .Where(u => u.userRole == "customer")
-                                     .Count();                  
+                                     .Count();
             //only completed orders will be total
             var CompletedOrders = db.Orders.Where(o => o.orderStatus.Equals("completed"));
+
             if (CompletedOrders.Any())
             {
                 //total sales
@@ -207,7 +209,7 @@ namespace WebApplication1.Controllers
             const int ShowNumberOfMonths = 5;
 
             model.MonthSummaryView = new List<AdminSalesReportView>();
-            
+
             for (int i = 0; i < ShowNumberOfMonths; i++)
             {
                 DateTime reportDate = DateTime.Today.AddMonths(-i);
@@ -283,6 +285,7 @@ namespace WebApplication1.Controllers
             }
 
             //top selling sining gawa
+
             var topProducts = db.Orderitems
                                 .Where(oi => oi.Order.orderStatus.Equals("completed"))
                                 .GroupBy(oi => oi.productId)
@@ -295,6 +298,12 @@ namespace WebApplication1.Controllers
                                 .OrderByDescending(x => x.revenue)
                                 .Take(5)
                                 .ToList();
+            //this is a problem
+            //we need to add this to not make the market share& but by doing so the total sales and other data is setting to 0
+            //model.TotalProducts = 0;
+            //model.TotalSales = 0;
+            //model.AvgOrderValue = 0;
+
             //threshold
             const decimal ExcellentRevenue = 200000.00m;
             const decimal GoodRevenue = 100000.00m;
@@ -335,6 +344,82 @@ namespace WebApplication1.Controllers
                 }
             }
             model.TopProducts = rankings;
+
+            //category performance
+            decimal overallTotalRevenue = db.Orderitems
+                                            .Where(oi => oi.Order.orderStatus.Equals("completed"))
+                                            .Sum(oi => (decimal?)oi.orderItemQuantity * oi.orderItemPrice) ?? 0m;
+            var CompletedCategorySalesData = db.Products
+                                                .Join(db.Orderitems,
+                                                    p => p.productId,
+                                                    oi => oi.productId,
+                                                    (p, oi) => new { Product = p, OrderItem = oi }
+                                                    )
+                                                .Join(db.Orders,
+                                                    combined => combined.OrderItem.orderId,
+                                                    o => o.orderId,
+                                                    (combined, o) => new
+                                                    {
+                                                        Product = combined.Product,
+                                                        OrderItem = combined.OrderItem,
+                                                        Order = o
+                                                    }
+                                                 )
+                                                .Where(x => x.Order.orderStatus.Equals("completed"))
+                                                .ToList();
+            var categoryPerformance = CompletedCategorySalesData
+                                        .GroupBy(x => x.Product.productCategory)
+                                        .Select(g => new
+                                        {
+                                            CategoryName = g.Key,
+                                            TotalProducts = g.Select(x => x.Product.productId).Distinct().Count(),
+                                            TotalUnitsSold = g.Sum(x => x.OrderItem.orderItemQuantity),
+                                            TotalRevenue = g.Sum(x => x.OrderItem.orderItemQuantity * x.OrderItem.orderItemPrice),
+                                        })
+                                        .ToList();
+            model.CategoryPerformance = new List<AdminCategoryPerformanceView>();
+
+            foreach (var cat in categoryPerformance)
+            {
+                AdminCategoryPerformanceView category = new AdminCategoryPerformanceView
+                {
+                    CategoryName = cat.CategoryName,
+                    TotalProducts = db.Products.Count(p => p.productCategory == cat.CategoryName),
+                    TotalUnitsSold = cat.TotalUnitsSold,
+                    TotalRevenue = cat.TotalRevenue
+                };
+
+                category.AveragePrice = category.TotalUnitsSold > 0
+                          ? category.TotalRevenue / category.TotalUnitsSold
+                          : 0m;
+
+                if (overallTotalRevenue > 0)
+                {
+                    category.MarketSharePercentage = (category.TotalRevenue / overallTotalRevenue) * 100m;
+                }
+                else
+                {
+                    category.MarketSharePercentage = 0m;
+                }
+
+                //if (category.MarketSharePercentage >= 50m)
+                //{
+                //    category.MarketShareClass = "status-completed";
+                //}
+                //else if (category.MarketSharePercentage > 20m)
+                //{
+                //    category.MarketShareClass = "status-processing";
+                //}
+                //else
+                //{
+                //    category.MarketShareClass = "status-pending";
+                //    category.MarketShareClass = "status-pending";
+                //}
+
+                model.CategoryPerformance.Add(category);
+            }
+
+
             return View(model);
         }
     }
