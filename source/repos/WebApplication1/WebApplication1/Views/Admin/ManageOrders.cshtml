@@ -14,166 +14,166 @@
     <title>Manage Orders - Eikonix</title>
     <link rel="stylesheet" href="@Url.Content("~/Content/Admin.css")" />
     <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
-</head>
+    <link rel="icon" type="image/png" href="@Url.Content("~/Content/imgs/Logo/favicon.png")" />
 
-<body>
-    <!-- DARK MODE TOGGLE BUTTON -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
-        <i class='bx bx-moon' id="themeIcon"></i>
-    </button>
+    <body>
+        <!-- DARK MODE TOGGLE BUTTON -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+            <i class='bx bx-moon' id="themeIcon"></i>
+        </button>
 
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-        <div class="admin-logo-section">
-            <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
-            <h1 class="admin-brand-name">EIKONIX</h1>
-            <p class="admin-brand-tagline">Admin Portal</p>
-        </div>
-        <ul>
-            <li><a href="@Url.Action("Dashboard", "Admin")"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
-            <li><a href="@Url.Action("ManageProducts", "Admin")"><i class='bx bx-box'></i> Manage Products</a></li>
-            <li>
-                <a href="@Url.Action("ManageOrders", "Admin")" class="active"><i class='bx bx-cart'></i> Manage Orders</a>
-            </li>
-            <li><a href="@Url.Action("ManageCustomers", "Admin")"><i class='bx bx-user'></i> Manage Customers</a></li>
-            <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
-            <li><a href="@Url.Action("Logout", "Account")" class="logout-btn"><i class='bx bx-log-out'></i> Logout</a></li>
-        </ul>
-    </div>
-
-    <!-- Main Content -->
-    <div class="admin-content">
-        <div class="admin-header">
-            <h1>Manage Orders</h1>
-            <div class="user-info">
-                <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
-                <span>@ViewBag.CurrentAdminEmail</span>
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="admin-logo-section">
+                <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
+                <h1 class="admin-brand-name">EIKONIX</h1>
+                <p class="admin-brand-tagline">Admin Portal</p>
             </div>
+            <ul>
+                <li><a href="@Url.Action("Dashboard", "Admin")"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+                <li><a href="@Url.Action("ManageProducts", "Admin")"><i class='bx bx-box'></i> Manage Products</a></li>
+                <li>
+                    <a href="@Url.Action("ManageOrders", "Admin")" class="active"><i class='bx bx-cart'></i> Manage Orders</a>
+                </li>
+                <li><a href="@Url.Action("ManageCustomers", "Admin")"><i class='bx bx-user'></i> Manage Customers</a></li>
+                <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
+                <li><a href="@Url.Action("Logout", "Account")" class="logout-btn"><i class='bx bx-log-out'></i> Logout</a></li>
+            </ul>
         </div>
 
-        <div class="admin-table-container">
-            
-            @*brute muna tayo*@
-            <div id="orderStatusFilters" style="margin-bottom: 20px;">
-                <button class="btn-admin filter-btn active-filter" data-status="all">All Orders</button>
-                <button class="btn-admin filter-btn status-pending" data-status="pending">Pending</button>
-                <button class="btn-admin filter-btn status-processing" data-status="processing">Processing</button>
-                <button class="btn-admin filter-btn status-completed" data-status="completed">Completed</button>
-                <button class="btn-admin filter-btn status-inactive" data-status="cancelled">Cancelled</button>
+        <!-- Main Content -->
+        <div class="admin-content">
+            <div class="admin-header">
+                <h1>Manage Orders</h1>
+                <div class="user-info">
+                    <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
+                    <span>@ViewBag.CurrentAdminEmail</span>
+                </div>
             </div>
-            <h2>All Orders</h2>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Total Amount</th>
-                        <th>Status</th>
-                        <th>Order Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var details in Model.RecentOrders)
-                    {
-                        //throwing a nullexception at first so I added this :D
-                        string status = string.IsNullOrEmpty(details.orderStatus)
-                            ? "pending"
-                            : details.orderStatus.ToLower();
 
-                        string statusClass;
+            <div class="admin-table-container">
 
-                        if (status.Contains("pending"))
-                        {
-                            statusClass = "status-pending";
-                        }
-                        else if (status.Contains("completed"))
-                        {
-                            statusClass = "status-completed";
-                        }
-                        else if (status.Contains("processing"))
-                        {
-                            statusClass = "status-processing";
-                        }
-                        else if (status.Contains("cancelled"))
-                        {
-                            statusClass = "status-inactive";
-                        }
-                        else
-                        {
-                            statusClass = "default";
-                        }
+                @*brute muna tayo*@
+                <div id="orderStatusFilters" style="margin-bottom: 20px;">
+                    <button class="btn-admin filter-btn active-filter" data-status="all">All Orders</button>
+                    <button class="btn-admin filter-btn status-pending" data-status="pending">Pending</button>
+                    <button class="btn-admin filter-btn status-processing" data-status="processing">Processing</button>
+                    <button class="btn-admin filter-btn status-completed" data-status="completed">Completed</button>
+                    <button class="btn-admin filter-btn status-inactive" data-status="cancelled">Cancelled</button>
+                </div>
+                <h2>All Orders</h2>
+                <table class="admin-table">
+                    <thead>
                         <tr>
-                            <td>#@details.orderId</td>
-                            <td>@details.userName</td>
-                            <td>&#8369;@details.orderTotalAmount</td>
-                            <td><span class="status-badge @statusClass">@details.orderStatus</span></td>
-                            <td>@details.orderDate.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                <button class="btn-admin btn-view" data-order-id="@details.orderId">View</button>
-                                <button class="btn-admin btn-edit" data-order-id="@details.orderId" data-current-status="@status">Update Status</button>
-                                <button class="btn-admin btn-delete" data-order-id="@details.orderId" data-current-status="@status">Cancel</button>
-                            </td>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Order Date</th>
+                            <th>Actions</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var details in Model.RecentOrders)
+                        {
+                            //throwing a nullexception at first so I added this :D
+                            string status = string.IsNullOrEmpty(details.orderStatus)
+                                ? "pending"
+                                : details.orderStatus.ToLower();
 
-                    }
-                </tbody>
-            </table>
-        </div>
+                            string statusClass;
 
-        @*reuse lang natin modal :D*@
-        @*this is for the view order details*@
-        <div class="custom-modal-overlay" id="modalViewOrderDetails">
-            <div class="custom-modal-content">
+                            if (status.Contains("pending"))
+                            {
+                                statusClass = "status-pending";
+                            }
+                            else if (status.Contains("completed"))
+                            {
+                                statusClass = "status-completed";
+                            }
+                            else if (status.Contains("processing"))
+                            {
+                                statusClass = "status-processing";
+                            }
+                            else if (status.Contains("cancelled"))
+                            {
+                                statusClass = "status-inactive";
+                            }
+                            else
+                            {
+                                statusClass = "default";
+                            }
+                            <tr>
+                                <td>#@details.orderId</td>
+                                <td>@details.userName</td>
+                                <td>&#8369;@details.orderTotalAmount</td>
+                                <td><span class="status-badge @statusClass">@details.orderStatus</span></td>
+                                <td>@details.orderDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <button class="btn-admin btn-view" data-order-id="@details.orderId">View</button>
+                                    <button class="btn-admin btn-edit" data-order-id="@details.orderId" data-current-status="@status">Update Status</button>
+                                    <button class="btn-admin btn-delete" data-order-id="@details.orderId" data-current-status="@status">Cancel</button>
+                                </td>
+                            </tr>
 
-                <div class="modal-header-custom">
-                    <h3 class="modal-title-custom" id="viewModalTitle">Order Details</h3>
-                    <button class="close-btn-custom" id="viewCloseButton">&times;</button>
-                </div>
-
-                <div class="modal-body-custom">
-                    <p id="viewModalBodyContent">Order Details</p>
-                </div>
-
-                <div class="modal-footer-custom">
-                    <button class="btn-admin btn-secondary-custom" id="viewCloseButton">Close</button>
-                </div>
-
+                        }
+                    </tbody>
+                </table>
             </div>
-        </div>
 
-        <div class="custom-modal-overlay" id="customConfirmModal">
-            <div class="custom-modal-content">
+            @*reuse lang natin modal :D*@
+            @*this is for the view order details*@
+            <div class="custom-modal-overlay" id="modalViewOrderDetails">
+                <div class="custom-modal-content">
 
-                <div class="modal-header-custom">
-                    <h3 class="modal-title-custom" id="confirmModalTitle">Order Action</h3>
-                    <button class="close-btn-custom" id="confirmCloseButton">&times;</button>
-                </div>
-
-                <div class="modal-body-custom">
-                    <p id="confirmModalBodyText">Are you sure you want to proceed with this action?</p>
-
-                    <div id="statusUpdateButtons" style="display:none; margin-top: 15px; text-align: center;">
-                        <button class="btn-admin status-btn status-pending" data-status="pending">Pending</button>
-                        <button class="btn-admin status-btn status-processing" data-status="processing">Processing</button>
-                        <button class="btn-admin status-btn status-completed" data-status="completed">Completed</button>
+                    <div class="modal-header-custom">
+                        <h3 class="modal-title-custom" id="viewModalTitle">Order Details</h3>
+                        <button class="close-btn-custom" id="viewCloseButton">&times;</button>
                     </div>
-                </div>
 
-                <div class="modal-footer-custom">
-                    <button class="btn-admin btn-secondary-custom" id="confirmCancelButton">Cancel</button>
-                    <button class="btn-admin" id="confirmActionButton">Confirm</button>
-                </div>
+                    <div class="modal-body-custom">
+                        <p id="viewModalBodyContent">Order Details</p>
+                    </div>
 
+                    <div class="modal-footer-custom">
+                        <button class="btn-admin btn-secondary-custom" id="viewCloseButton">Close</button>
+                    </div>
+
+                </div>
             </div>
+
+            <div class="custom-modal-overlay" id="customConfirmModal">
+                <div class="custom-modal-content">
+
+                    <div class="modal-header-custom">
+                        <h3 class="modal-title-custom" id="confirmModalTitle">Order Action</h3>
+                        <button class="close-btn-custom" id="confirmCloseButton">&times;</button>
+                    </div>
+
+                    <div class="modal-body-custom">
+                        <p id="confirmModalBodyText">Are you sure you want to proceed with this action?</p>
+
+                        <div id="statusUpdateButtons" style="display:none; margin-top: 15px; text-align: center;">
+                            <button class="btn-admin status-btn status-pending" data-status="pending">Pending</button>
+                            <button class="btn-admin status-btn status-processing" data-status="processing">Processing</button>
+                            <button class="btn-admin status-btn status-completed" data-status="completed">Completed</button>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer-custom">
+                        <button class="btn-admin btn-secondary-custom" id="confirmCancelButton">Cancel</button>
+                        <button class="btn-admin" id="confirmActionButton">Confirm</button>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
-    </div>
+        <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <script>
+        <script>
         $(document).ready(function () {
             const $viewDetailsModal = $('#modalViewOrderDetails');
             const $viewBodyContent = $viewDetailsModal.find('#viewModalBodyContent');
@@ -185,7 +185,7 @@
             const $confirmActionButton = $('#confirmActionButton');
 
             let currentOrderId = null;
-            let currentActionType = null; 
+            let currentActionType = null;
 
             function hideConfirmModal() {
                 $confirmModal.removeClass('show');
@@ -342,10 +342,10 @@
                         alert('An error occurred during status update. (Server Error)');
                     }
                 });
-                hideConfirmModal(); 
+                hideConfirmModal();
             }
         });
-    </script>
-</body>
+        </script>
+    </body>
 
 </html>
