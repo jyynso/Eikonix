@@ -117,6 +117,22 @@
         </div>
     </div>
 
+    <div class="custom-modal-overlay" id="customViewDetailsModal">
+
+        <div class="modal-header-custom">
+            <h3 class="modal-title-custom">Details</h3>
+            <button class="close-btn-custom" id="viewDetailsCloseButton">&times;</button>
+        </div>
+
+        <div class="modal-body-custom">
+            <p id="modalDetailsContent">details</p>
+        </div>
+
+        <div class="modal-footer-custom">
+            <button class="btn-admin btn-secondary-custom" id="viewDetailsCancelButton">Close</button>
+        </div>
+    </div>
+
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -128,9 +144,24 @@
         const cancelButton = document.getElementById('cancelButton');
         const closeButton = document.getElementById('closeButton'); 
 
+        const viewButtons = document.querySelectorAll('.btn-view'); // Your view buttons
+        const detailsModal = document.getElementById('customViewDetailsModal');
+        const detailsContent = document.getElementById('modalDetailsContent');
+        const viewCloseButton = document.getElementById('viewCloseButton');
+        const viewCancelButton = document.getElementById('viewCancelButton');
+
         let currentUserId = null;
         let currentButtonElement = null;
 
+        function showDetailsModal(content) {
+            modalDetailsContent.innerHTML = content;
+            modalDetailsContent.classList.add('show');
+        }
+
+        function hideDetailsModal(content) {
+            modalDetailsContent.classList.remove('show');
+            modalDetailsContent.innerHTML = 'Loading...';
+        }
         function showModal(message, isDeactivating) {
             modalBodyText.innerHTML = message;
 
