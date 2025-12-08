@@ -114,6 +114,7 @@ namespace WebApplication1.Controllers
                                   {
                                       orderId = o.orderId,
                                       userName = u.userName,
+                                      orderStatus = o.orderStatus,
                                       orderDate = o.orderDate,
                                       orderTotalAmount = o.orderTotalAmount,
                                   })

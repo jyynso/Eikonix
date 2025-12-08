@@ -70,7 +70,7 @@
                         //throwing a nullexception at first so I added this
                         string status = string.IsNullOrEmpty(details.orderStatus)
                             ? "pending"
-                            :details.orderStatus.ToLower();
+                            : details.orderStatus.ToLower();
 
                         string statusClass;
 
@@ -101,11 +101,33 @@
                                 <button class="btn-admin btn-edit">Update Status</button>
                                 <button class="btn-admin btn-delete">Cancel</button>
                             </td>
-                        </tr>   
+                        </tr>
+
                     }
                 </tbody>
             </table>
         </div>
+
+        <div class="custom-modal-overlay" id="modalViewOrderDetails">
+            <div class="custom-modal-content">
+
+                <div class="modal-header-custom">
+                    <h3 class="modal-title-custom" id="modalTitle">Order Details</h3>
+                    <button class="close-btn-custom" id="closeButton">&times;</button>
+                </div>
+
+                <div class="modal-body-custom">
+                    <p id="modalBodyText">Order Details</p>
+                </div>
+
+                <div class="modal-footer-custom">
+                    <button class="btn-admin btn-secondary-custom" id="cancelButton">Cancel</button>
+                    <button class="btn-admin" id="confirmButton">Confirm Change</button>
+                </div>
+
+            </div>
+        </div>
+
     </div>
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
 </body>
