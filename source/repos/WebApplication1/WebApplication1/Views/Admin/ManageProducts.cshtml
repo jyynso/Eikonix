@@ -186,7 +186,7 @@
 
                 <div class="modal-body-custom">
                     <div class="view-details-container">
-                        <img id="viewProductImage" src="#" alt="Product Image" style="max-width: 100%; height: auto; margin-bottom: 15px; border-radius: 5px;">
+                        <img id="viewProductImage" src="#" alt="Product Image" style="width: 100%; height: auto; margin-bottom: 15px; border-radius: 5px;">
                         <p><strong>ID:</strong> <span id="viewProductId"></span></p>
                         <p><strong>Description:</strong> <span id="viewProductDescription"></span></p>
                         <p><strong>Price:</strong> &#8369;<span id="viewProductPrice"></span></p>
@@ -209,6 +209,26 @@
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
+    // ----------------------------------------------------------------------
+    // FIX 1: Add the necessary utility function to resolve the image path
+    // ----------------------------------------------------------------------
+        // REPLACE your current resolveImagePath function with this
+        function resolveImagePath(path) {
+            if (!path) return '#';
+
+            // Remove leading tilde (~)
+            var cleanedPath = path.trim().replace(/^~/, '');
+
+            // Make sure it starts with a slash
+            if (!cleanedPath.startsWith('/')) {
+                cleanedPath = '/' + cleanedPath;
+            }
+
+            // Prepend the site's origin (protocol + host)
+            return window.location.origin + cleanedPath;
+        }
+
+
     $(document).ready(function () {
 
         const $addProductModal = $('#modalAddProduct');
@@ -256,7 +276,7 @@
             $addProductModal.removeClass('show');
         });
 
-        //pcutre preview
+        //picture preview
         $imageInput.on('change', function () {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
@@ -305,7 +325,7 @@
             });
         });
 
-        // --- NEW CODE BLOCK: View Product using the new modal ---
+        // --- NEW CODE BLOCK: View Product using the new modal (FIXED) ---
         $('.btn-view').on('click', function () {
             const productId = $(this).data('id');
 
@@ -328,11 +348,17 @@
                         $('#viewProductArtist').text(product.productArtist || 'N/A');
                         $('#viewProductSoftwareUsed').text(product.productSoftwareUsed || 'N/A');
 
+                        // -------------------------------------------------------------
+                        // FIX 2: Use the resolveImagePath function to get the correct URL
+                        // -------------------------------------------------------------
                         if (product.productImagePath) {
-                            $('#viewProductImage').attr('src', product.productImagePath).show();
+                            const fullImagePath = resolveImagePath(product.productImagePath);
+
+                            $('#viewProductImage').attr('src', fullImagePath).show();
                         } else {
                             $('#viewProductImage').hide();
                         }
+                        // -------------------------------------------------------------
 
                         // Show the modal
                         $viewProductModal.addClass('show');
@@ -368,15 +394,23 @@
                         $('#productSize').val(product.productSize);
                         $('#productArtist').val(product.productArtist);
                         $('#productSoftwareUsed').val(product.productSoftwareUsed);
-                        // NOTE: Image preview update logic needed here if you want to show existing image
+
+                        // BONUS FIX: Update image preview for edit mode
+                        if (product.productImagePath) {
+                            const fullImagePath = resolveImagePath(product.productImagePath);
+                            $('#imagePreview').attr('src', fullImagePath).show();
+                        } else {
+                            $('#imagePreview').hide().attr('src', '#');
+                        }
+
 
                         $form.attr('action', '@Url.Action("EditProduct", "Admin")');
 
                         let $hiddenIdInput = $('#productIdHidden');
                         if ($hiddenIdInput.length === 0) {
-                             $form.prepend('<input type="hidden" name="productId" id="productIdHidden" value="' + productId + '">');
+                            $form.prepend('<input type="hidden" name="productId" id="productIdHidden" value="' + productId + '">');
                         } else {
-                             $hiddenIdInput.val(productId);
+                            $hiddenIdInput.val(productId);
                         }
                         $('#modalAddProduct').addClass('show');
                     } else {
@@ -386,6 +420,9 @@
             });
         });
 
+        // --- Delete Product using customConfirmModal ---
+
+        // Open Delete Modal
         $('.btn-delete').on('click', function () {
             productIdToDelete = $(this).data('id');
             const productTitle = $(this).closest('tr').find('td:nth-child(2)').text();
@@ -395,11 +432,14 @@
 
             $confirmDeleteButton.show().text('Confirm Delete').removeClass('btn-primary-custom').addClass('btn-danger-custom');
 
+            // Show the modal
             $confirmModal.addClass('show');
         });
 
+        // Handle Delete Modal Close action
         $modalCloseButtons.on('click', hideConfirmModal);
 
+        // Handle Confirmation Button Click (Actual AJAX Delete)
         $confirmDeleteButton.on('click', function () {
             if (!productIdToDelete) return;
 

@@ -719,7 +719,11 @@ body.dark-mode .admin-table thead {
     background: white;
     padding: 20px;
     border-radius: 8px;
-    width: 400px;
+    width: 500px;
+    max-height: 90%;
+    max-width: 100%;
+    overflow-y: auto; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 /*IT WORKS NOW DONT TOUCH THIS!!!!*/
 .custom-modal-overlay.show {
@@ -766,7 +770,7 @@ body.dark-mode .admin-table thead {
 }
 
     .modal-body-custom span {
-        color: var(--main-color);
+        color: black;
     }
 
 .modal-footer-custom {
@@ -800,7 +804,7 @@ body.dark-mode .admin-table thead {
     .btn-primary-custom:hover {
         background: #008080;
         color: #ffffff !important;
-        transform: translateY(-2px);0
+        transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
     }
 .btn-danger-custom {
