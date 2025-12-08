@@ -52,6 +52,15 @@
         </div>
 
         <div class="admin-table-container">
+            
+            @*brute muna tayo*@
+            <div id="orderStatusFilters" style="margin-bottom: 20px;">
+                <button class="btn-admin filter-btn active-filter" data-status="all">All Orders</button>
+                <button class="btn-admin filter-btn status-pending" data-status="pending">Pending</button>
+                <button class="btn-admin filter-btn status-processing" data-status="processing">Processing</button>
+                <button class="btn-admin filter-btn status-completed" data-status="completed">Completed</button>
+                <button class="btn-admin filter-btn status-inactive" data-status="cancelled">Cancelled</button>
+            </div>
             <h2>All Orders</h2>
             <table class="admin-table">
                 <thead>
@@ -102,8 +111,8 @@
                             <td>@details.orderDate.ToString("yyyy-MM-dd")</td>
                             <td>
                                 <button class="btn-admin btn-view" data-order-id="@details.orderId">View</button>
-                                <button class="btn-admin btn-edit" data-order-id="@details.orderId">Update Status</button>
-                                <button class="btn-admin btn-delete" data-order-id="@details.orderId">Cancel</button>
+                                <button class="btn-admin btn-edit" data-order-id="@details.orderId" data-current-status="@status">Update Status</button>
+                                <button class="btn-admin btn-delete" data-order-id="@details.orderId" data-current-status="@status">Cancel</button>
                             </td>
                         </tr>
 
@@ -148,7 +157,6 @@
                         <button class="btn-admin status-btn status-pending" data-status="pending">Pending</button>
                         <button class="btn-admin status-btn status-processing" data-status="processing">Processing</button>
                         <button class="btn-admin status-btn status-completed" data-status="completed">Completed</button>
-                        <button class="btn-admin status-btn status-cancelled" data-status="cancelled">Cancelled</button>
                     </div>
                 </div>
 
@@ -186,6 +194,32 @@
                 currentOrderId = null;
                 currentActionType = null;
             }
+
+            //filters
+            $('#orderStatusFilters').on('click', '.filter-btn', function () {
+                const selectedStatus = $(this).data('status');
+
+                $('#orderStatusFilters .filter-btn').removeClass('active-filter');
+                $(this).addClass('active-filter');
+
+                const $tableRows = $('.admin-table tbody tr');
+
+                $tableRows.each(function () {
+                    const row = $(this);
+                    const rowStatus = row.find('.btn-edit').data('current-status');
+
+                    if (selectedStatus === 'all') {
+                        row.show();
+                    }
+                    else if (rowStatus === selectedStatus) {
+                        row.show();
+                    }
+                    else {
+                        row.hide();
+                    }
+
+                });
+            });
 
             $('.btn-view').on('click', function () {
                 currentOrderId = $(this).data('order-id');

@@ -493,7 +493,7 @@ namespace WebApplication1.Controllers
 
 
             string statusLower = newStatus.ToLower();
-            var validStatuses = new List<string> { "pending", "processing", "completed", "cancelled" };
+            var validStatuses = new List<string> { "pending", "processing", "completed"};
 
             if (!validStatuses.Contains(statusLower))
             {
