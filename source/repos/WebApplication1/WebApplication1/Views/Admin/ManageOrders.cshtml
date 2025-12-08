@@ -67,7 +67,7 @@
                 <tbody>
                     @foreach (var details in Model.RecentOrders)
                     {
-                        //throwing a nullexception at first so I added this
+                        //throwing a nullexception at first so I added this :D
                         string status = string.IsNullOrEmpty(details.orderStatus)
                             ? "pending"
                             : details.orderStatus.ToLower();
