@@ -247,6 +247,7 @@
     <Content Include="Content\imgs\Gallery\2.JPG" />
     <Content Include="Content\imgs\Gallery\3.JPG" />
     <Content Include="Content\imgs\Gallery\4.JPG" />
+    <Content Include="Content\imgs\Logo\favicon.png" />
     <Content Include="Content\imgs\Logo\logo.png" />
     <Content Include="Content\imgs\Logo\Eikonix-rbg.png" />
     <Content Include="Content\imgs\Logo\Eikonix.png" />

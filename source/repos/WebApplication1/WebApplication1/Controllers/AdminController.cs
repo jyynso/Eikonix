@@ -547,7 +547,7 @@ namespace WebApplication1.Controllers
                     }
                     catch (Exception ex)
                     {
-                        return Json(new { success = false, message = "Error saving product or file: " + ex.Message });
+                        return Json(new { success = false, message = "Error saving product: " + ex.Message });
                     }
                 }
                 else
@@ -599,7 +599,6 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                // 1. Get the original product entity
                 var existingProduct = db.Products.Find(product.productId);
 
                 if (existingProduct == null)
@@ -607,18 +606,15 @@ namespace WebApplication1.Controllers
                     return Json(new { success = false, message = "Product not found for update." });
                 }
 
-                // 2. Update properties manually (safer than using Attach/Entry.State)
                 existingProduct.productTitle = product.productTitle;
                 existingProduct.productDescription = product.productDescription;
                 existingProduct.productPrice = product.productPrice;
                 existingProduct.productStock = product.productStock;
-                // ... update all other fields ...
 
-                // 3. Handle image update (if a new file was uploaded)
-                if (productImage != null && productImage.ContentLength > 0)
-                {
-                    // TO DO: Add image saving logic here, update existingProduct.productImagePath
-                }
+                //// 3. Handle image update (if a new file was uploaded)
+                //if (productImage != null && productImage.ContentLength > 0)
+                //{
+                //}
 
                 db.SaveChanges();
 

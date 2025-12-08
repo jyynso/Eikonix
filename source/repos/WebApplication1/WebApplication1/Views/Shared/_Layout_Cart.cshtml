@@ -12,7 +12,7 @@
     <link href="~/Content/Site_COMPLETE.css" rel="stylesheet" />
     <link href="~/Content/Cart.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
-    <link rel="icon" type="image/x-icon" href="~/Content/imgs/Logo/favicon.ico">
+    <link rel="icon" type="image/png" href="@Url.Content("~/Content/imgs/Logo/favicon.png")" />
 </head>
 
 <body>
@@ -54,7 +54,7 @@
                 <li class="dropdown">
                     <a href="#">Products <span class="caret">&#x25BC;</span></a>
                     <div class="dropdown-content">
-                        <a href="#">All</a>
+                        <a href=@Url.Action("Cart", "Home")>All</a>
                         <a href=@Url.Action("Digital", "Home")>Digital Arts</a>
                         <a href=@Url.Action("Traditional", "Home")>Traditional Arts</a>
                     </div>

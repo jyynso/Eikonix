@@ -209,22 +209,15 @@
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
-    // ----------------------------------------------------------------------
-    // FIX 1: Add the necessary utility function to resolve the image path
-    // ----------------------------------------------------------------------
-        // REPLACE your current resolveImagePath function with this
+        //this gave me a headache but it works now :D
         function resolveImagePath(path) {
             if (!path) return '#';
 
-            // Remove leading tilde (~)
             var cleanedPath = path.trim().replace(/^~/, '');
 
-            // Make sure it starts with a slash
             if (!cleanedPath.startsWith('/')) {
                 cleanedPath = '/' + cleanedPath;
             }
-
-            // Prepend the site's origin (protocol + host)
             return window.location.origin + cleanedPath;
         }
 
@@ -246,7 +239,6 @@
 
         let productIdToDelete = null;
 
-        // --- NEW CODE BLOCK: References for the VIEW modal ---
         const $viewProductModal = $('#modalViewProduct');
         const $viewProductCloseButtons = $viewProductModal.find('.close-btn-custom, [data-dismiss="modal"]');
 
@@ -289,7 +281,7 @@
             }
         });
 
-        // add edit
+        // add / edit
         $addProductForm.on('submit', function (e) {
             e.preventDefault();
 
@@ -325,7 +317,6 @@
             });
         });
 
-        // --- NEW CODE BLOCK: View Product using the new modal (FIXED) ---
         $('.btn-view').on('click', function () {
             const productId = $(this).data('id');
 
@@ -348,9 +339,6 @@
                         $('#viewProductArtist').text(product.productArtist || 'N/A');
                         $('#viewProductSoftwareUsed').text(product.productSoftwareUsed || 'N/A');
 
-                        // -------------------------------------------------------------
-                        // FIX 2: Use the resolveImagePath function to get the correct URL
-                        // -------------------------------------------------------------
                         if (product.productImagePath) {
                             const fullImagePath = resolveImagePath(product.productImagePath);
 
@@ -358,9 +346,6 @@
                         } else {
                             $('#viewProductImage').hide();
                         }
-                        // -------------------------------------------------------------
-
-                        // Show the modal
                         $viewProductModal.addClass('show');
 
                     } else {
@@ -395,7 +380,6 @@
                         $('#productArtist').val(product.productArtist);
                         $('#productSoftwareUsed').val(product.productSoftwareUsed);
 
-                        // BONUS FIX: Update image preview for edit mode
                         if (product.productImagePath) {
                             const fullImagePath = resolveImagePath(product.productImagePath);
                             $('#imagePreview').attr('src', fullImagePath).show();
@@ -420,33 +404,26 @@
             });
         });
 
-        // --- Delete Product using customConfirmModal ---
-
-        // Open Delete Modal
         $('.btn-delete').on('click', function () {
             productIdToDelete = $(this).data('id');
             const productTitle = $(this).closest('tr').find('td:nth-child(2)').text();
 
             $confirmTitle.text(`Confirm Product Deletion`);
-            $confirmBodyText.html(`Are you sure you want to permanently delete **${productTitle} (ID: ${productIdToDelete})**? This action cannot be undone.`);
+            $confirmBodyText.html(`Are you sure you want to permanently delete ${productTitle} (ID: ${productIdToDelete})? This action cannot be undone.`);
 
             $confirmDeleteButton.show().text('Confirm Delete').removeClass('btn-primary-custom').addClass('btn-danger-custom');
 
-            // Show the modal
             $confirmModal.addClass('show');
         });
 
-        // Handle Delete Modal Close action
         $modalCloseButtons.on('click', hideConfirmModal);
 
-        // Handle Confirmation Button Click (Actual AJAX Delete)
         $confirmDeleteButton.on('click', function () {
             if (!productIdToDelete) return;
 
             const deleteId = productIdToDelete;
             const $rowToRemove = $('.btn-delete[data-id="' + deleteId + '"]').closest('tr');
 
-            // Perform the AJAX deletion
             $.ajax({
                 url: '@Url.Action("DeleteProduct", "Admin")',
                 type: 'POST',
@@ -460,7 +437,6 @@
                     }
                 },
                 error: function (xhr) {
-                    // Improved error handling for Delete operation
                     let errorMessage = 'An error occurred during deletion.';
                     try {
                         const response = JSON.parse(xhr.responseText);
