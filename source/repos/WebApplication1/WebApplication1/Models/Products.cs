@@ -12,6 +12,7 @@ namespace WebApplication1.Data
     {
         [Key]
         [Column("product_id")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int productId { get; set; }
 
         [Column("product_title")]
@@ -43,6 +44,9 @@ namespace WebApplication1.Data
 
         [Column("product_imagepath")]
         public string productImagePath { get; set; }
+
+        [Column("product_creationdate")]
+        public DateTime productCreationDate { get; set; }
 
     }
 }

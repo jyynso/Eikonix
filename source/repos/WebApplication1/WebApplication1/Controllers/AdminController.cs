@@ -7,6 +7,7 @@ using WebApplication1.Data;
 using WebApplication1.Models;
 using System.Data.Entity;
 using System.Security.Cryptography;
+using System.IO;
 
 
 namespace WebApplication1.Controllers
@@ -451,6 +452,7 @@ namespace WebApplication1.Controllers
 
 
         [HttpPost]
+        //for user status active or inactive
         public ActionResult ToggleUserStatus(int id)
         {
             var userToggle = db.Users.Find(id);
@@ -480,6 +482,9 @@ namespace WebApplication1.Controllers
 
             return Json(new { success = true, newStatus = newStatus, message = message });
         }
+
+
+        //for the order status
         public ActionResult UpdateOrderStatus(int id, string newStatus)
         {
 
@@ -506,6 +511,52 @@ namespace WebApplication1.Controllers
             db.SaveChanges();
 
             return Json(new { success = true, message = $"Order #{id} status updated to: {newStatus}" });
+        }
+
+        public ActionResult AddProduct(Products product, HttpPostedFileBase productImage)
+        {
+
+            if (ModelState.IsValid)
+            {
+                if (productImage != null && productImage.ContentLength > 0)
+                {
+                    try
+                    {
+                        string path = Server.MapPath("~/Content/imgs/Drawing/");
+
+                        if (!System.IO.Directory.Exists(path))
+                        {
+                            System.IO.Directory.CreateDirectory(path);
+                        }
+
+                        string fileExtension = Path.GetExtension(productImage.FileName);
+                        string fileName = Guid.NewGuid().ToString() + fileExtension;
+                        string fullPath = Path.Combine(path, fileName);
+
+                        productImage.SaveAs(fullPath);
+
+                        product.productImagePath = "~/Content/imgs/Drawing/" + fileName;
+
+                        product.productCreationDate = DateTime.Now;
+
+                        db.Products.Add(product);
+                        db.SaveChanges();
+
+                        return Json(new { success = true, message = "Product added successfully!" });
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the exception (recommended)
+                        return Json(new { success = false, message = "Error saving product or file: " + ex.Message });
+                    }
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Image file is required." });
+                }
+            }
+
+            return Json(new { success = false, message = "Invalid product data provided." });
         }
     }
 
