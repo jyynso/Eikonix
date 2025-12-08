@@ -108,25 +108,29 @@
 
                     @foreach (var details in Model.RecentOrders)
                     {
-                            string status = details.orderStatus.ToLower();
-                            string statusClass;
+                        string status = details.orderStatus.ToLower();
+                        string statusClass;
 
-                            if (status.Contains("pending"))
-                            {
-                                statusClass = "status-pending";
-                            }
-                            else if (status.Contains("completed"))
-                            {
-                                statusClass = "status-completed";
-                            }
-                            else if (status.Contains("processing"))
-                            {
-                                statusClass = "status-processing";
-                            }
-                            else
-                            {
-                                statusClass = "default";
-                            }
+                        if (status.Contains("pending"))
+                        {
+                            statusClass = "status-pending";
+                        }
+                        else if (status.Contains("completed"))
+                        {
+                            statusClass = "status-completed";
+                        }
+                        else if (status.Contains("processing"))
+                        {
+                            statusClass = "status-processing";
+                        }
+                        else if (status.Contains("cancelled"))
+                        {
+                            statusClass = "status-inactive";
+                        }
+                        else
+                        {
+                            statusClass = "default";
+                        }
                         <tr>
                             <td>#@details.orderId</td>
                             <td>@details.userName</td>

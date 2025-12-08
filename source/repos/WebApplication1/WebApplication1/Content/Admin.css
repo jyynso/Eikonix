@@ -800,7 +800,7 @@ body.dark-mode .admin-table thead {
     .btn-primary-custom:hover {
         background: #008080;
         color: #ffffff !important;
-        transform: translateY(-2px);
+        transform: translateY(-2px);0
         box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
     }
 .btn-danger-custom {

@@ -407,16 +407,52 @@ namespace WebApplication1.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public ActionResult GetOrderDetails(int id)
+        {
+            var order = db.Orders.FirstOrDefault(o => o.orderId == id);
+
+            if (order == null)
+            {
+                Response.StatusCode = 404;
+                return Json(new { success = false, message = "Order not found." }, JsonRequestBehavior.AllowGet);
+            }
+
+            var customer = db.Users.FirstOrDefault(u => u.userId == order.userId);
+            string customerName = customer?.userName ?? "N/A";
+            string customerEmail = customer?.userEmail ?? "N/A";
+
+            var items = db.Orderitems
+                .Where(oi => oi.orderId == id)
+                .Join(db.Products, 
+                      oi => oi.productId,
+                      p => p.productId,
+                      (oi, p) => new
+                      {
+                          oi.orderItemQuantity,
+                          oi.orderItemPrice,
+                          productTitle = p.productTitle
+                      })
+                .ToList();
+
+            var responseData = new
+            {
+                order.orderId,
+                order.orderTotalAmount,
+                order.orderStatus,
+                order.orderDate,
+                userName = customerName,
+                userEmail = customerEmail,
+                Items = items                        
+            };
+
+            return Json(new { success = true, data = responseData }, JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpPost]
         public ActionResult ToggleUserStatus(int id)
         {
-            if (!IsAdmin())
-            {
-                Response.StatusCode = 403;
-                return Json(new { success = false, message = "Access denied: Administrator login required." });
-            }
-
             var userToggle = db.Users.Find(id);
             if (userToggle == null)
             {
@@ -431,18 +467,45 @@ namespace WebApplication1.Controllers
             if (currentStatus == "active")
             {
                 newStatus = "inactive";
-                message = $"Customer ID {id} has been **deactivated**.";
+                message = $"Customer #{id} has been deactivated.";
             }
             else
             {
                 newStatus = "active";
-                message = $"Customer ID {id} has been **activated**.";
+                message = $"Customer #{id} has been activated.";
             }
             userToggle.userStatus = newStatus;
             db.Entry(userToggle).State = EntityState.Modified;
             db.SaveChanges();
 
             return Json(new { success = true, newStatus = newStatus, message = message });
+        }
+        public ActionResult UpdateOrderStatus(int id, string newStatus)
+        {
+
+            var order = db.Orders.Find(id);
+
+            if (order == null)
+            {
+                Response.StatusCode = 404;
+                return Json(new { success = false, message = "Order not found." });
+            }
+
+
+            string statusLower = newStatus.ToLower();
+            var validStatuses = new List<string> { "pending", "processing", "completed", "cancelled" };
+
+            if (!validStatuses.Contains(statusLower))
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = $"Invalid status provided: {newStatus}" });
+            }
+
+            order.orderStatus = newStatus;
+            db.Entry(order).State = EntityState.Modified;
+            db.SaveChanges();
+
+            return Json(new { success = true, message = $"Order #{id} status updated to: {newStatus}" });
         }
     }
 
