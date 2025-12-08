@@ -513,6 +513,7 @@ namespace WebApplication1.Controllers
             return Json(new { success = true, message = $"Order #{id} status updated to: {newStatus}" });
         }
 
+        //for add product button
         public ActionResult AddProduct(Products product, HttpPostedFileBase productImage)
         {
 
@@ -546,7 +547,6 @@ namespace WebApplication1.Controllers
                     }
                     catch (Exception ex)
                     {
-                        // Log the exception (recommended)
                         return Json(new { success = false, message = "Error saving product or file: " + ex.Message });
                     }
                 }
@@ -557,6 +557,99 @@ namespace WebApplication1.Controllers
             }
 
             return Json(new { success = false, message = "Invalid product data provided." });
+        }
+
+        //view product details
+        public JsonResult GetProductDetails(int id)
+        {
+            try
+            {
+                var product = db.Products.Find(id);
+
+                if (product == null)
+                {
+                    Response.StatusCode = 404;
+                    return Json(new { success = false, message = "Product not found." }, JsonRequestBehavior.AllowGet);
+                }
+                var productData = new
+                {
+                    productId = product.productId,
+                    productTitle = product.productTitle,
+                    productDescription = product.productDescription,
+                    productSize = product.productSize,
+                    productCategory = product.productCategory,
+                    productMedium = product.productMedium,
+                    productSoftwareUsed = product.productSoftwareUsed,
+                    productArtist = product.productArtist,
+                    productPrice = product.productPrice,
+                    productStock = product.productStock,
+                    productImagePath = product.productImagePath,
+                    productCreationDate = product.productCreationDate.ToString("yyyy-MM-dd HH:mm:ss")
+                };
+                return Json(new { success = true, product = productData }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error retrieving details: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        //edit the product
+        public JsonResult EditProduct(Products product, HttpPostedFileBase productImage)
+        {
+            try
+            {
+                // 1. Get the original product entity
+                var existingProduct = db.Products.Find(product.productId);
+
+                if (existingProduct == null)
+                {
+                    return Json(new { success = false, message = "Product not found for update." });
+                }
+
+                // 2. Update properties manually (safer than using Attach/Entry.State)
+                existingProduct.productTitle = product.productTitle;
+                existingProduct.productDescription = product.productDescription;
+                existingProduct.productPrice = product.productPrice;
+                existingProduct.productStock = product.productStock;
+                // ... update all other fields ...
+
+                // 3. Handle image update (if a new file was uploaded)
+                if (productImage != null && productImage.ContentLength > 0)
+                {
+                    // TO DO: Add image saving logic here, update existingProduct.productImagePath
+                }
+
+                db.SaveChanges();
+
+                return Json(new { success = true, message = $"{product.productTitle} updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error saving product or file: " + ex.Message });
+            }
+        }
+
+        //burahin
+        public JsonResult DeleteProduct(int id)
+        {
+            try
+            {
+                var product = db.Products.Find(id);
+                if (product == null)
+                {
+                    return Json(new { success = false, message = "Product not found." });
+                }
+
+                db.Products.Remove(product);
+                db.SaveChanges();
+
+                return Json(new { success = true, message = $"{product.productTitle} deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error deleting product: " + ex.Message });
+            }
         }
     }
 

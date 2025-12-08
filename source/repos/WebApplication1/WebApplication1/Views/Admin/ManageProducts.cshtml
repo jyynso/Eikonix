@@ -16,12 +16,10 @@
     <link rel="icon" type="image/x-icon" href="~/Content/imgs/Logo/favicon.ico">
 </head>
 <body>
-    <!-- DARK MODE TOGGLE BUTTON -->
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
         <i class='bx bx-moon' id="themeIcon"></i>
     </button>
 
-    <!-- Sidebar -->
     <div class="admin-sidebar">
         <div class="admin-logo-section">
             <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
@@ -38,7 +36,6 @@
         </ul>
     </div>
 
-    <!-- Main Content -->
     <div class="admin-content">
         <div class="admin-header">
             <h1>Manage Products</h1>
@@ -72,9 +69,9 @@
                             <td>@details.productStock</td>
                             <td>@details.productCategory</td>
                             <td>
-                                <button class="btn-admin btn-view">View</button>
-                                <button class="btn-admin btn-edit">Edit</button>
-                                <button class="btn-admin btn-delete">Delete</button>
+                                <button class="btn-admin btn-view" data-id="@details.productId">View</button>
+                                <button class="btn-admin btn-edit" data-id="@details.productId">Edit</button>
+                                <button class="btn-admin btn-delete" data-id="@details.productId">Delete</button>
                             </td>
                         </tr>
                     }
@@ -83,6 +80,7 @@
             </table>
         </div>
 
+        @*for add new products button*@
         <div class="custom-modal-overlay" id="modalAddProduct">
             <div class="custom-modal-content">
                 <form id="addProductForm" action="@Url.Action("AddProduct", "Admin")" method="post" enctype="multipart/form-data">
@@ -157,32 +155,108 @@
                 </form>
             </div>
         </div>
+
+        @*for delete*@
+        <div class="custom-modal-overlay" id="customConfirmModal">
+            <div class="custom-modal-content">
+
+                <div class="modal-header-custom">
+                    <h3 class="modal-title-custom" id="confirmModalTitle">Confirm Action</h3>
+                    <button class="close-btn-custom" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body-custom">
+                    <p id="confirmModalBodyText">Are you sure you want to proceed?</p>
+                </div>
+
+                <div class="modal-footer-custom">
+                    <button class="btn-admin btn-secondary-custom" data-dismiss="modal">Cancel</button>
+                    <button class="btn-admin btn-danger-custom" id="confirmDeleteButton">Confirm Delete</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="custom-modal-overlay" id="modalViewProduct">
+            <div class="custom-modal-content view-modal-content">
+                <div class="modal-header-custom">
+                    <h3 class="modal-title-custom" id="viewProductTitle">Product Details</h3>
+                    <button type="button" class="close-btn-custom" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body-custom">
+                    <div class="view-details-container">
+                        <img id="viewProductImage" src="#" alt="Product Image" style="max-width: 100%; height: auto; margin-bottom: 15px; border-radius: 5px;">
+                        <p><strong>ID:</strong> <span id="viewProductId"></span></p>
+                        <p><strong>Description:</strong> <span id="viewProductDescription"></span></p>
+                        <p><strong>Price:</strong> &#8369;<span id="viewProductPrice"></span></p>
+                        <p><strong>Stock:</strong> <span id="viewProductStock"></span></p>
+                        <p><strong>Category:</strong> <span id="viewProductCategory"></span></p>
+                        <p><strong>Medium:</strong> <span id="viewProductMedium"></span></p>
+                        <p><strong>Size:</strong> <span id="viewProductSize"></span></p>
+                        <p><strong>Artist:</strong> <span id="viewProductArtist"></span></p>
+                        <p><strong>Software Used:</strong> <span id="viewProductSoftwareUsed"></span></p>
+                    </div>
+                </div>
+
+                <div class="modal-footer-custom">
+                    <button type="button" class="btn-admin btn-secondary-custom" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Theme Toggle Script -->
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
-        $(document).ready(function () {
+    $(document).ready(function () {
+
         const $addProductModal = $('#modalAddProduct');
         const $addProductForm = $('#addProductForm');
         const $closeButtons = $addProductModal.find('.close-btn-custom, [data-dismiss="modal"]');
         const $imageInput = $('#productImage');
         const $imagePreview = $('#imagePreview');
+        const $productIdHidden = $('#productIdHidden');
 
-    // --- 1. OPEN MODAL ---
+        const $confirmModal = $('#customConfirmModal');
+        const $confirmTitle = $confirmModal.find('#confirmModalTitle');
+        const $confirmBodyText = $confirmModal.find('#confirmModalBodyText');
+        const $confirmDeleteButton = $confirmModal.find('#confirmDeleteButton');
+        const $modalCloseButtons = $confirmModal.find('.close-btn-custom, [data-dismiss="modal"]');
+
+        let productIdToDelete = null;
+
+        // --- NEW CODE BLOCK: References for the VIEW modal ---
+        const $viewProductModal = $('#modalViewProduct');
+        const $viewProductCloseButtons = $viewProductModal.find('.close-btn-custom, [data-dismiss="modal"]');
+
+        function hideConfirmModal() {
+            $confirmModal.removeClass('show');
+            productIdToDelete = null;
+        }
+
+        function hideViewModal() {
+            $viewProductModal.removeClass('show');
+        }
+
+        $viewProductCloseButtons.on('click', hideViewModal);
+
         $('.btn-add').on('click', function () {
-            $addProductForm[0].reset(); // Clear form on open
-            $imagePreview.hide().attr('src', '#'); // Clear image preview
+            $addProductForm[0].reset();
+            $imagePreview.hide().attr('src', '#');
             $addProductModal.addClass('show');
+
+            $addProductForm.attr('action', '@Url.Action("AddProduct", "Admin")');
+            if ($productIdHidden.length) {
+                $productIdHidden.remove();
+            }
         });
 
-    // --- 2. CLOSE MODAL ---
         $closeButtons.on('click', function () {
             $addProductModal.removeClass('show');
         });
 
-    // --- 3. IMAGE PREVIEW (Optional but helpful UX) ---
+        //pcutre preview
         $imageInput.on('change', function () {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
@@ -190,35 +264,176 @@
                     $imagePreview.attr('src', e.target.result).show();
                 };
                 reader.readAsDataURL(this.files[0]);
-             } else {
+            } else {
                 $imagePreview.hide();
             }
         });
 
-    // --- 4. FORM SUBMISSION (Using FormData for File Upload) ---
+        // add edit
         $addProductForm.on('submit', function (e) {
             e.preventDefault();
 
-        // Use FormData to package the form data, including the file
             const formData = new FormData(this);
-
+            const actionUrl = $addProductForm.attr('action');
             $.ajax({
-                url: '@Url.Action("AddProduct", "Admin")', // This will be your new C# action
+                url: actionUrl,
                 type: 'POST',
                 data: formData,
-                contentType: false, // CRITICAL: Tells jQuery not to set Content-Type
-                processData: false, // CRITICAL: Prevents jQuery from processing the data
+                contentType: false,
+                processData: false,
                 success: function (response) {
                     if (response.success) {
                         alert(response.message);
                         $addProductModal.removeClass('show');
-                        window.location.reload(); // Reload to see the new product
+                        window.location.reload();
                     } else {
                         alert('Error: ' + response.message);
                     }
                 },
-                error: function (xhr, status, error) {
-                    alert('An error occurred. Check server logs.');
+                error: function (xhr) {
+                    let errorMessage = 'An error occurred.';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        errorMessage += ` (HTTP Status: ${xhr.status} ${xhr.statusText})`;
+                    }
+                    alert(errorMessage);
+                }
+            });
+        });
+
+        // --- NEW CODE BLOCK: View Product using the new modal ---
+        $('.btn-view').on('click', function () {
+            const productId = $(this).data('id');
+
+            $.ajax({
+                url: '@Url.Action("GetProductDetails", "Admin")',
+                type: 'GET',
+                data: { id: productId },
+                success: function (response) {
+                    if (response.success) {
+                        const product = response.product;
+
+                        $('#viewProductTitle').text(product.productTitle);
+                        $('#viewProductId').text(product.productId);
+                        $('#viewProductDescription').text(product.productDescription);
+                        $('#viewProductPrice').text(product.productPrice.toFixed(2));
+                        $('#viewProductStock').text(product.productStock);
+                        $('#viewProductCategory').text(product.productCategory);
+                        $('#viewProductMedium').text(product.productMedium || 'N/A');
+                        $('#viewProductSize').text(product.productSize || 'N/A');
+                        $('#viewProductArtist').text(product.productArtist || 'N/A');
+                        $('#viewProductSoftwareUsed').text(product.productSoftwareUsed || 'N/A');
+
+                        if (product.productImagePath) {
+                            $('#viewProductImage').attr('src', product.productImagePath).show();
+                        } else {
+                            $('#viewProductImage').hide();
+                        }
+
+                        // Show the modal
+                        $viewProductModal.addClass('show');
+
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while fetching product details.');
+                }
+            });
+        });
+
+        // edit product
+        $('.btn-edit').on('click', function () {
+            const productId = $(this).data('id');
+            const $form = $('#addProductForm');
+
+            $.ajax({
+                url: '@Url.Action("GetProductDetails", "Admin")',
+                type: 'GET',
+                data: { id: productId },
+                success: function (response) {
+                    if (response.success) {
+                        const product = response.product;
+                        $('#productTitle').val(product.productTitle);
+                        $('#productDescription').val(product.productDescription);
+                        $('#productPrice').val(product.productPrice);
+                        $('#productStock').val(product.productStock);
+                        $('#productCategory').val(product.productCategory);
+                        $('#productMedium').val(product.productMedium);
+                        $('#productSize').val(product.productSize);
+                        $('#productArtist').val(product.productArtist);
+                        $('#productSoftwareUsed').val(product.productSoftwareUsed);
+                        // NOTE: Image preview update logic needed here if you want to show existing image
+
+                        $form.attr('action', '@Url.Action("EditProduct", "Admin")');
+
+                        let $hiddenIdInput = $('#productIdHidden');
+                        if ($hiddenIdInput.length === 0) {
+                             $form.prepend('<input type="hidden" name="productId" id="productIdHidden" value="' + productId + '">');
+                        } else {
+                             $hiddenIdInput.val(productId);
+                        }
+                        $('#modalAddProduct').addClass('show');
+                    } else {
+                        alert('Error fetching product for edit: ' + response.message);
+                    }
+                }
+            });
+        });
+
+        $('.btn-delete').on('click', function () {
+            productIdToDelete = $(this).data('id');
+            const productTitle = $(this).closest('tr').find('td:nth-child(2)').text();
+
+            $confirmTitle.text(`Confirm Product Deletion`);
+            $confirmBodyText.html(`Are you sure you want to permanently delete **${productTitle} (ID: ${productIdToDelete})**? This action cannot be undone.`);
+
+            $confirmDeleteButton.show().text('Confirm Delete').removeClass('btn-primary-custom').addClass('btn-danger-custom');
+
+            $confirmModal.addClass('show');
+        });
+
+        $modalCloseButtons.on('click', hideConfirmModal);
+
+        $confirmDeleteButton.on('click', function () {
+            if (!productIdToDelete) return;
+
+            const deleteId = productIdToDelete;
+            const $rowToRemove = $('.btn-delete[data-id="' + deleteId + '"]').closest('tr');
+
+            // Perform the AJAX deletion
+            $.ajax({
+                url: '@Url.Action("DeleteProduct", "Admin")',
+                type: 'POST',
+                data: { id: deleteId },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        $rowToRemove.remove();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function (xhr) {
+                    // Improved error handling for Delete operation
+                    let errorMessage = 'An error occurred during deletion.';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        errorMessage += ` (HTTP Status: ${xhr.status} ${xhr.statusText})`;
+                    }
+                    alert(errorMessage);
+                },
+                complete: function() {
+                    hideConfirmModal();
                 }
             });
         });
