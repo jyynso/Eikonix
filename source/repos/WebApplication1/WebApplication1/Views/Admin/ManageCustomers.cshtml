@@ -70,7 +70,14 @@
                         string statusClass = status.Equals("active") ? "status-active" : "status-inactive";
                         string buttonText = status.Equals("active") ? "Deactivate" : "Activate";
 
-                        <tr>
+                        <tr
+                            data-user-id="@details.userId"
+                            data-user-name="@details.userName"
+                            data-user-email="@details.userEmail"
+                            data-total-orders="@details.totalOrders"
+                            data-total-spent="@details.totalSpent"
+                            data-user-status="@details.userStatus"
+                            >
                             <td>@details.userId</td>
                             <td>@details.userName</td>
                             <td>@details.userEmail</td>
@@ -83,7 +90,8 @@
                                 </span>
                             </td>
                             <td>
-                                <button class="btn-admin btn-view">View Details</button>
+                                @*removed this for now cause why is this here*@
+                                @*<button class="btn-admin btn-view">View Details</button>*@
                                 <button class="btn-admin toggle-status-btn @(status.Equals("active") ? "btn-delete" : "btn-view")"
                                         data-user-id="@details.userId"
                                         data-current-status="@status">
@@ -135,121 +143,114 @@
 
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleButtons = document.querySelectorAll('.toggle-status-btn');
+   document.addEventListener('DOMContentLoaded', function() {
+    // Confirm/Deactivate modal
+    const toggleButtons = document.querySelectorAll('.toggle-status-btn');
+    const customModal = document.getElementById('customConfirmModal');
+    const modalBodyText = document.getElementById('modalBodyText');
+    const confirmButton = document.getElementById('confirmButton');
+    const cancelButton = document.getElementById('cancelButton');
+    const closeButton = document.getElementById('closeButton');
 
-        const customModal = document.getElementById('customConfirmModal');
-        const modalBodyText = document.getElementById('modalBodyText');
-        const confirmButton = document.getElementById('confirmButton');
-        const cancelButton = document.getElementById('cancelButton');
-        const closeButton = document.getElementById('closeButton'); 
+    let currentUserId = null;
+    let currentButtonElement = null;
 
-        const viewButtons = document.querySelectorAll('.btn-view'); // Your view buttons
-        const detailsModal = document.getElementById('customViewDetailsModal');
-        const detailsContent = document.getElementById('modalDetailsContent');
-        const viewCloseButton = document.getElementById('viewCloseButton');
-        const viewCancelButton = document.getElementById('viewCancelButton');
+    function showModal(message, isDeactivating) {
+        modalBodyText.innerHTML = message;
+        confirmButton.className = 'btn-admin';
+        confirmButton.classList.add(isDeactivating ? 'btn-danger-custom' : 'btn-primary-custom');
+        confirmButton.textContent = 'Confirm Change';
+        customModal.classList.add('show');
+    }
 
-        let currentUserId = null;
-        let currentButtonElement = null;
+    function hideModal() {
+        customModal.classList.remove('show');
+        currentUserId = null;
+        currentButtonElement = null;
+    }
 
-        function showDetailsModal(content) {
-            modalDetailsContent.innerHTML = content;
-            modalDetailsContent.classList.add('show');
-        }
-
-        function hideDetailsModal(content) {
-            modalDetailsContent.classList.remove('show');
-            modalDetailsContent.innerHTML = 'Loading...';
-        }
-        function showModal(message, isDeactivating) {
-            modalBodyText.innerHTML = message;
-
-            confirmButton.className = 'btn-admin'; 
-            if (isDeactivating) {
-                confirmButton.classList.add('btn-danger-custom');
-            } else {
-                confirmButton.classList.add('btn-primary-custom');
-            }
-            confirmButton.textContent = 'Confirm Change'; 
-
-            customModal.classList.add('show');
-        }
-
-        function hideModal() {
-            customModal.classList.remove('show');
-            currentUserId = null;
-            currentButtonElement = null;
-        }
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const userId = this.getAttribute('data-user-id');
-                const currentStatus = this.getAttribute('data-current-status');
-                const isDeactivating = currentStatus === 'active';
-
-                currentUserId = userId;
-                currentButtonElement = this;
-
-                const actionText = isDeactivating ? 'deactivate' : 'activate';
-                const confirmMessage = `Are you sure you want to <strong>${actionText}</strong> Customer ID #${userId}?`;
-
-                showModal(confirmMessage, isDeactivating);
-            });
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            currentUserId = this.getAttribute('data-user-id');
+            currentButtonElement = this;
+            const isDeactivating = this.getAttribute('data-current-status') === 'active';
+            const actionText = isDeactivating ? 'deactivate' : 'activate';
+            showModal(`Are you sure you want to <strong>${actionText}</strong> Customer ID #${currentUserId}?`, isDeactivating);
         });
-
-
-        cancelButton.addEventListener('click', hideModal);
-        closeButton.addEventListener('click', hideModal); 
-
-        confirmButton.addEventListener('click', function() {
-            if (currentUserId && currentButtonElement) {
-                toggleUserStatus(currentUserId, currentButtonElement);
-            }
-            hideModal();
-        });
-
-        function toggleUserStatus(userId, buttonElement) {
-            const toggleUrl = '@Url.Action("ToggleUserStatus", "Admin")';
-
-            fetch(toggleUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                },
-                body: `id=${encodeURIComponent(userId)}`
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(error => { throw new Error(error.message || 'rror occurred.'); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    const newStatus = data.newStatus.toLowerCase();
-                    const newStatusDisplay = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-
-                    const statusSpan = document.querySelector(`.customer-status[data-user-id="${userId}"]`);
-                    if (statusSpan) {
-                        statusSpan.textContent = newStatusDisplay;
-                        statusSpan.className = 'status-badge customer-status ' + (newStatus === 'active' ? 'status-active' : 'status-inactive');
-                    }
-                    const isNewStatusActive = newStatus === 'active';
-                    buttonElement.textContent = isNewStatusActive ? 'Deactivate' : 'Activate';
-                    buttonElement.setAttribute('data-current-status', newStatus);
-                    buttonElement.className = 'btn-admin toggle-status-btn ' + (isNewStatusActive ? 'btn-delete' : 'btn-view');
-
-                    alert(data.message);
-                } else {
-                    alert('Status update failed: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('AJAX Error:', error);
-                alert('An unexpected error occurred during status update.');
-            });
-        }
     });
+
+    cancelButton.addEventListener('click', hideModal);
+    closeButton.addEventListener('click', hideModal);
+
+    confirmButton.addEventListener('click', function() {
+        if (currentUserId && currentButtonElement) {
+            toggleUserStatus(currentUserId, currentButtonElement);
+        }
+        hideModal();
+    });
+
+    function toggleUserStatus(userId, buttonElement) {
+        const toggleUrl = '@Url.Action("ToggleUserStatus", "Admin")';
+        fetch(toggleUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            body: `id=${encodeURIComponent(userId)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const newStatus = data.newStatus.toLowerCase();
+                const statusSpan = document.querySelector(`.customer-status[data-user-id="${userId}"]`);
+                if (statusSpan) {
+                    statusSpan.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                    statusSpan.className = 'status-badge customer-status ' + (newStatus === 'active' ? 'status-active' : 'status-inactive');
+                }
+                buttonElement.textContent = newStatus === 'active' ? 'Deactivate' : 'Activate';
+                buttonElement.setAttribute('data-current-status', newStatus);
+                buttonElement.className = 'btn-admin toggle-status-btn ' + (newStatus === 'active' ? 'btn-delete' : 'btn-view');
+                alert(data.message);
+            } else {
+                alert('Status update failed: ' + data.message);
+            }
+        }).catch(err => { console.error(err); alert('Error updating status'); });
+    }
+
+    // View Details modal(i disbaled it for now cause i see no reason for viewdetails to be there); might add it later after all the features are done
+//    const viewButtons = document.querySelectorAll('.btn-view');
+    const detailsModal = document.getElementById('customViewDetailsModal');
+    const detailsContent = document.getElementById('modalDetailsContent');
+//    const viewCloseButton = document.getElementById('viewDetailsCloseButton');
+//    const viewCancelButton = document.getElementById('viewDetailsCancelButton');
+
+//    function showDetailsModal(html) {
+//        detailsContent.innerHTML = html;
+//        detailsModal.classList.add('show');
+//    }
+
+//    function hideDetailsModal() {
+//        detailsModal.classList.remove('show');
+//        detailsContent.innerHTML = 'Loading...';
+//    }
+
+//    viewButtons.forEach(button => {
+//        button.addEventListener('click', function() {
+//            const row = this.closest('tr');
+//            const html = `
+//                <strong>ID:</strong> ${row.dataset.userId} <br>
+//                <strong>Name:</strong> ${row.dataset.userName} <br>
+//                <strong>Email:</strong> ${row.dataset.userEmail} <br>
+//                <strong>Total Orders:</strong> ${row.dataset.totalOrders} <br>
+//                <strong>Total Spent:</strong> &#8369;${row.dataset.totalSpent} <br>
+//                <strong>Status:</strong> ${row.dataset.userStatus}
+//            `;
+//            showDetailsModal(html);
+//        });
+//    });
+
+//    viewCloseButton.addEventListener('click', hideDetailsModal);
+//    viewCancelButton.addEventListener('click', hideDetailsModal);
+});
+
     </script>
 </body>
 </html>
