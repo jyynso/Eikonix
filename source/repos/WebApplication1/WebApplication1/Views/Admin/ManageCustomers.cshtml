@@ -96,70 +96,129 @@
             </table>
         </div>
     </div>
+
+    <div class="custom-modal-overlay" id="customConfirmModal">
+        <div class="custom-modal-content">
+
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom" id="modalTitle">Confirm Status Change</h3>
+                <button class="close-btn-custom" id="closeButton">&times;</button>
+            </div>
+
+            <div class="modal-body-custom">
+                <p id="modalBodyText">Are you sure you want to proceed with this action?</p>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn-admin btn-secondary-custom" id="cancelButton">Cancel</button>
+                <button class="btn-admin" id="confirmButton">Confirm Change</button>
+            </div>
+
+        </div>
+    </div>
+
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
-
-    //asked gemini for help :(
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleButtons = document.querySelectorAll('.toggle-status-btn');
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-status-btn');
 
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const userId = this.getAttribute('data-user-id');
-                    const currentStatus = this.getAttribute('data-current-status');
+        const customModal = document.getElementById('customConfirmModal');
+        const modalBodyText = document.getElementById('modalBodyText');
+        const confirmButton = document.getElementById('confirmButton');
+        const cancelButton = document.getElementById('cancelButton');
+        const closeButton = document.getElementById('closeButton'); 
 
-                    const confirmMessage = currentStatus === 'active'
-                        ? `Are you sure you want to deactivate user Id #${userId}?`
-                        : `Are you sure you want to activate user Id #${userId}?`;
+        let currentUserId = null;
+        let currentButtonElement = null;
 
-                    if (confirm(confirmMessage)) {
-                        toggleUserStatus(userId, this);
-                    }
-                });
-            });
+        function showModal(message, isDeactivating) {
+            modalBodyText.innerHTML = message;
 
-            function toggleUserStatus(userId, buttonElement) {
-                const toggleUrl = '@Url.Action("ToggleUserStatus", "Admin")';
-
-                fetch(toggleUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    },
-                    body: `id=${encodeURIComponent(userId)}`
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(error => { throw new Error(error.message || 'Server error occurred.'); });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        const newStatus = data.newStatus.toLowerCase();
-                        const newStatusDisplay = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-
-                        const statusSpan = document.querySelector(`.customer-status[data-user-id="${userId}"]`);
-
-                        if (statusSpan) {
-                            statusSpan.textContent = newStatusDisplay;
-                            statusSpan.className = 'status-badge customer-status ' + (newStatus === 'active' ? 'status-active' : 'status-inactive');
-                        }
-                        buttonElement.textContent = newStatus === 'active' ? 'Deactivate' : 'Activate';
-                        buttonElement.setAttribute('data-current-status', newStatus);
-                        buttonElement.className = 'btn-admin toggle-status-btn ' + (newStatus === 'active' ? 'btn-delete' : 'btn-view');
-
-                        alert(data.message);
-                    } else {
-                        alert('Status update failed: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('AJAX Error:', error);
-                    alert('An unexpected error occurred during status update: ' + error.message);
-                });
+            confirmButton.className = 'btn-admin'; 
+            if (isDeactivating) {
+                confirmButton.classList.add('btn-danger-custom');
+            } else {
+                confirmButton.classList.add('btn-primary-custom');
             }
+            confirmButton.textContent = 'Confirm Change'; 
+
+            customModal.classList.add('show');
+        }
+
+        function hideModal() {
+            customModal.classList.remove('show');
+            currentUserId = null;
+            currentButtonElement = null;
+        }
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                const currentStatus = this.getAttribute('data-current-status');
+                const isDeactivating = currentStatus === 'active';
+
+                currentUserId = userId;
+                currentButtonElement = this;
+
+                const actionText = isDeactivating ? 'deactivate' : 'activate';
+                const confirmMessage = `Are you sure you want to <strong>${actionText}</strong> Customer ID #${userId}?`;
+
+                showModal(confirmMessage, isDeactivating);
+            });
         });
+
+
+        cancelButton.addEventListener('click', hideModal);
+        closeButton.addEventListener('click', hideModal); 
+
+        confirmButton.addEventListener('click', function() {
+            if (currentUserId && currentButtonElement) {
+                toggleUserStatus(currentUserId, currentButtonElement);
+            }
+            hideModal();
+        });
+
+        function toggleUserStatus(userId, buttonElement) {
+            const toggleUrl = '@Url.Action("ToggleUserStatus", "Admin")';
+
+            fetch(toggleUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                },
+                body: `id=${encodeURIComponent(userId)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => { throw new Error(error.message || 'rror occurred.'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const newStatus = data.newStatus.toLowerCase();
+                    const newStatusDisplay = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+
+                    const statusSpan = document.querySelector(`.customer-status[data-user-id="${userId}"]`);
+                    if (statusSpan) {
+                        statusSpan.textContent = newStatusDisplay;
+                        statusSpan.className = 'status-badge customer-status ' + (newStatus === 'active' ? 'status-active' : 'status-inactive');
+                    }
+                    const isNewStatusActive = newStatus === 'active';
+                    buttonElement.textContent = isNewStatusActive ? 'Deactivate' : 'Activate';
+                    buttonElement.setAttribute('data-current-status', newStatus);
+                    buttonElement.className = 'btn-admin toggle-status-btn ' + (isNewStatusActive ? 'btn-delete' : 'btn-view');
+
+                    alert(data.message);
+                } else {
+                    alert('Status update failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('AJAX Error:', error);
+                alert('An unexpected error occurred during status update.');
+            });
+        }
+    });
     </script>
 </body>
 </html>
