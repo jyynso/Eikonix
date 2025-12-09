@@ -13,6 +13,18 @@ namespace WebApplication1.Controllers
     {
         private AppDbContext db = new AppDbContext();
 
+        // Helper to get user ID from username
+        private int? GetCurrentUserId()
+        {
+            if (!User.Identity.IsAuthenticated)
+                return null;
+
+            string userEmail = User.Identity.Name; // From FormsAuthentication
+            var user = db.Users.FirstOrDefault(u => u.userEmail == userEmail);
+
+            return user?.userId;
+        }
+
         public ActionResult Index()
         {
             return View();
@@ -21,15 +33,15 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public ActionResult Confirmation(int orderId)
         {
-            string currentUserIdString = User.Identity.Name;
-            if (!int.TryParse(currentUserIdString, out int currentUserIdInt))
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
             {
                 TempData["Error"] = "Authentication error.";
                 return RedirectToAction("Login", "Account");
             }
 
             var order = db.Orders
-                            .Where(o => o.orderId == orderId && o.userId == currentUserIdInt)
+                            .Where(o => o.orderId == orderId && o.userId == userId.Value)
                             .Include(o => o.orderItems.Select(oi => oi.product))
                             .FirstOrDefault();
 
@@ -44,10 +56,23 @@ namespace WebApplication1.Controllers
 
         public ActionResult Cart()
         {
-            var products = db.Products
-                    .Where(p => p.productStock > 0)
-                    .ToList();
-            return View(products);
+            var userId = GetCurrentUserId();
+
+            if (!userId.HasValue)
+            {
+                // User not logged in - show all available products or redirect
+                var products = db.Products.Where(p => p.productStock > 0).ToList();
+                return View(products);
+            }
+
+            // Show ONLY products in user's cart
+            var cartItems = db.Carts
+                .Where(c => c.userId == userId.Value)
+                .Include(c => c.Product)
+                .ToList();
+
+            var productsInCart = cartItems.Select(c => c.Product).ToList();
+            return View(productsInCart);
         }
 
         public ActionResult Digital()
@@ -70,18 +95,17 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public ActionResult Checkout()
         {
-            string currentUserIdString = User.Identity.Name;
-
-            if (!int.TryParse(currentUserIdString, out int currentUserIdInt))
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
             {
                 TempData["Error"] = "Please login to checkout";
-                return RedirectToAction("Cart");
+                return RedirectToAction("Login", "Account");
             }
 
             // Get cart items with product details
             var cartItems = db.Carts
-                .Where(c => c.userId == currentUserIdInt)
-                .Include(c => c.Product) // IMPORTANT: Include Product
+                .Where(c => c.userId == userId.Value)
+                .Include(c => c.Product)
                 .ToList();
 
             if (!cartItems.Any())
@@ -108,20 +132,20 @@ namespace WebApplication1.Controllers
             return View(viewModel);
         }
 
-        // POST: Process the order (renamed from Checkout to avoid conflict)
+        // POST: Process the order
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ProcessOrder()
         {
-            string currentUserIdString = User.Identity.Name;
-
-            if (!int.TryParse(currentUserIdString, out int currentUserIdInt))
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
             {
                 TempData["Error"] = "Authentication error. Please log in to complete checkout.";
                 return RedirectToAction("Cart");
             }
 
             var cartItems = db.Carts
-                                .Where(c => c.userId == currentUserIdInt)
+                                .Where(c => c.userId == userId.Value)
                                 .Include(c => c.Product)
                                 .ToList();
 
@@ -136,7 +160,7 @@ namespace WebApplication1.Controllers
                 // Create a new Order
                 var newOrder = new Orders
                 {
-                    userId = currentUserIdInt,
+                    userId = userId.Value,
                     orderDate = DateTime.Now,
                     orderStatus = "Processing",
                     orderTotalAmount = 0.0m
@@ -187,7 +211,11 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public JsonResult ReserveProducts(int productId)
         {
-            string currentUserIdString = User.Identity.Name;
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
+            {
+                return Json(new { success = false, message = "Please login first" });
+            }
 
             var product = db.Products.FirstOrDefault(p => p.productId == productId);
 
@@ -201,54 +229,46 @@ namespace WebApplication1.Controllers
                 return Json(new { success = false, message = "Item is out of stock" });
             }
 
-            if (int.TryParse(currentUserIdString, out int currentUserIdInt))
+            var existingCartItem = db.Carts.FirstOrDefault(c => c.userId == userId.Value && c.productId == productId);
+            if (existingCartItem != null)
             {
-                var existingCartItem = db.Carts.FirstOrDefault(c => c.userId == currentUserIdInt && c.productId == productId);
-                if (existingCartItem != null)
-                {
-                    return Json(new { success = false, message = "You have already reserved this artwork." });
-                }
-
-                try
-                {
-                    var cartItem = new Cart
-                    {
-                        userId = currentUserIdInt,
-                        productId = productId,
-                        cartQuantity = 1,
-                        ReservationDate = DateTime.Now
-                    };
-
-                    db.Carts.Add(cartItem);
-                    product.productStock -= 1;
-                    db.SaveChanges();
-
-                    return Json(new { success = true, message = "Artwork successfully reserved and added to your cart." });
-                }
-                catch (Exception ex)
-                {
-                    return Json(new { success = false, message = "Server error during reservation." });
-                }
-            }
-            else
-            {
-                return Json(new { success = false, message = "Error: Invalid user ID format." });
-            }
-        }
-
-        [HttpPost] // Add this attribute
-        public JsonResult UnreservedProduct(int productId) // Fixed typo in method name
-        {
-            string currentUserIdString = User.Identity.Name;
-
-            if (!int.TryParse(currentUserIdString, out int currentUserIdInt))
-            {
-                return Json(new { success = false, message = "Error: Invalid user ID format." });
+                return Json(new { success = false, message = "You have already reserved this artwork." });
             }
 
             try
             {
-                var cartItem = db.Carts.FirstOrDefault(c => c.userId == currentUserIdInt && c.productId == productId);
+                var cartItem = new Cart
+                {
+                    userId = userId.Value,
+                    productId = productId,
+                    cartQuantity = 1,
+                    ReservationDate = DateTime.Now
+                };
+
+                db.Carts.Add(cartItem);
+                product.productStock -= 1;
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Artwork successfully reserved and added to your cart." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Server error during reservation." });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult UnreservedProduct(int productId)
+        {
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
+            {
+                return Json(new { success = false, message = "Please login first" });
+            }
+
+            try
+            {
+                var cartItem = db.Carts.FirstOrDefault(c => c.userId == userId.Value && c.productId == productId);
 
                 if (cartItem == null)
                 {
