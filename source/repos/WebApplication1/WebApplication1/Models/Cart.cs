@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApplication1.Data;
 
 
 namespace WebApplication1.Models
@@ -24,5 +25,13 @@ namespace WebApplication1.Models
 
         [Column("cart_quantity")]
         public int cartQuantity { get; set; }
+
+        public DateTime ReservationDate { get; set; } = DateTime.Now;
+
+        [ForeignKey("userId")]
+        public virtual Users User { get; set; }
+
+        [ForeignKey("productId")]
+        public virtual Products Product { get; set; }
     }
 }

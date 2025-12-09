@@ -1,14 +1,87 @@
-﻿@model List<WebApplication1.Data.Products>
-
+﻿@model WebApplication1.Models.CheckoutViewModel
 @{
-    ViewBag.Title = "Home";
-    Layout = "~/Views/Shared/_Layout_Cart.cshtml";
+    ViewBag.Title = "Checkout";
+    Layout = "~/Views/Shared/_Layout_Cart.cshtml"; 
 }
 
 <link href="~/Content/Cart.css" rel="stylesheet" />
 
+<!-- Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
+
 <div class="content">
-    <div>
-        <h2>aloha</h2>
-    </div>
+    <section class="shop container">
+        <h2 class="section-title">Checkout</h2>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <div class="row">
+            <!-- Order Summary -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Order Summary</h4>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="row mb-3 border-bottom pb-3">
+                                <div class="col-md-2">
+                                    <img src="@Url.Content(item.ProductImage)" alt="@item.ProductTitle"
+                                         class="img-fluid rounded" style="max-height: 80px;">
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>@item.ProductTitle</h6>
+                                    <p class="text-muted small mb-1">Artist: @item.ProductArtist</p>
+                                    <p class="text-muted small">Price: ₱@item.Price.ToString("N2")</p>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <p>Qty: @item.Quantity</p>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <p class="fw-bold">₱@item.ItemTotal.ToString("N2")</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Total & Checkout Button -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order Total</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="fw-bold">Total:</span>
+                            <span class="fw-bold">₱@Model.TotalAmount.ToString("N2")</span>
+                        </div>
+
+                        @using (Html.BeginForm("ProcessOrder", "Home", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-buy w-100">
+                                Place Order
+                            </button>
+                        }
+
+                        <div class="mt-3">
+                            <a href="@Url.Action("Cart")" class="btn btn-outline-secondary w-100">
+                                Back to Cart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
+
+<!-- JavaScript -->
+<script src="@Url.Content("~/Scripts/main2.js")"></script>
+<script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>

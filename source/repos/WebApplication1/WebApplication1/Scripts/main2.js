@@ -258,16 +258,22 @@ function handle_changeItemQuantity() {
     update();
 }
 
-function handle_buyOrder() {
+//remove this for now
+
+function handle_buyOrder(e) {
+    e.preventDefault();
+
     if (itemsAdded.length <= 0) {
         showNotification("Your cart is empty! Please add items first.", "warning");
         return;
     }
 
-    showNotification("Processing order and redirecting to checkout...", "success", 1500);
+    showNotification("Processing order and redirecting to checkout...", "success", 1000);
+
+    //hopefully this actually sends the form now :(
     setTimeout(() => {
         window.location.href = "/Home/Checkout";
-    }, 1500);
+    }, 1000);
 
     //const cartContent = cart.querySelector(".cart-content");
     //cartContent.innerHTML = "";

@@ -4,6 +4,7 @@
     using System.Web;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
+using WebApplication1.Data;
 
     namespace WebApplication1.Models
     {
@@ -29,6 +30,7 @@
 
             [ForeignKey("orderId")]
             public virtual Orders Order { get; set; }
+            public virtual Products product { get; set; }
 
-        }
+    }
     }

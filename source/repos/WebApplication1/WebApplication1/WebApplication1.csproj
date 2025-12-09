@@ -191,6 +191,7 @@
     <Compile Include="Models\AdminSalesReportView.cs" />
     <Compile Include="Models\AdminTopProductsView.cs" />
     <Compile Include="Models\Cart.cs" />
+    <Compile Include="Models\CheckoutView.cs" />
     <Compile Include="Models\ManageCustomerView.cs" />
     <Compile Include="Models\Orderitems.cs" />
     <Compile Include="Models\Orders.cs" />

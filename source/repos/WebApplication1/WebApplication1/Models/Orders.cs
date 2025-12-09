@@ -25,5 +25,7 @@ namespace WebApplication1.Models
 
         [Column("order_creationdate")]
         public DateTime orderDate { get; set; }
+
+        public virtual ICollection<Orderitems> orderItems { get; set; }
     }
 }
