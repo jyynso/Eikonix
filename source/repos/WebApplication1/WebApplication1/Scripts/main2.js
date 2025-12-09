@@ -15,40 +15,43 @@ closeCart.addEventListener("click", () => {
 // ============= NOTIFICATION FUNCTION =============
 function showNotification(message, type = 'success', duration = 3000) {
     const notificationContainer = document.getElementById('notificationContainer');
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    
+
     // Choose icon based on type
     let icon = 'bx-check-circle';
     if (type === 'error') icon = 'bx-error-circle';
     if (type === 'warning') icon = 'bx-error';
-    
+
     notification.innerHTML = `
         <i class='bx ${icon}'></i>
         <div class="notification-content">
             <div class="notification-message">${message}</div>
         </div>
     `;
-    
+
     notificationContainer.appendChild(notification);
-    
+
     // Trigger animation
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
-    
+
     // Remove notification after duration
     setTimeout(() => {
         notification.classList.remove('show');
         notification.classList.add('hide');
-        
+
         setTimeout(() => {
             notification.remove();
         }, 400);
     }, duration);
 }
+
+//local cart
+let itemsAdded = [];
 
 // ============= UPDATE CART COUNT BADGE =============
 function updateCartCount() {
@@ -56,7 +59,7 @@ function updateCartCount() {
     if (cartCountElement) {
         const totalItems = itemsAdded.length;
         cartCountElement.textContent = totalItems;
-        
+
         // Add visual feedback when count changes
         if (totalItems > 0) {
             cartCountElement.style.display = 'flex';
@@ -102,6 +105,7 @@ function addEvents() {
     // Change item quantity
     let cartQuantity_inputs = document.querySelectorAll(".cart-quantity");
     cartQuantity_inputs.forEach((input) => {
+        input.readOnly = true;
         input.addEventListener("change", handle_changeItemQuantity);
     });
 
@@ -116,102 +120,128 @@ function addEvents() {
     buy_btn.addEventListener("click", handle_buyOrder);
 }
 
-// ============= HANDLE EVENTS FUNCTIONS =============
-let itemsAdded = [];
+// ============= AJAX HELPER FUNCTION (NEW) =============
+async function sendReservationRequest(productId, action) {
+    const url = `/Home/${action}Product`;
 
-function handle_addCartItem(e) {
-    // Prevent default link behavior
-    if (e) e.preventDefault();
-    
-    // Find the closest product box container
-    let product = this.closest('.box') || this.closest('.product-box');
-
-    // pull product from data-id
-    const productId = this.getAttribute('data-id');
-    
-    if (!product) {
-        console.error('Product container not found');
-        return;
-    }
-    
-    let titleElement = product.querySelector(".product-title");
-    let priceElement = product.querySelector(".product-price");
-    let imgElement = product.querySelector(".product-img");
-    
-    if (!titleElement || !priceElement || !imgElement) {
-        console.error('Product elements not found', { titleElement, priceElement, imgElement });
-        return;
-    }
-    
-    let title = titleElement.innerHTML.trim();
-    let price = priceElement.innerHTML;
-    let imgSrc = imgElement.src;
-    
-    console.log('Adding to cart:', title, price, imgSrc);
-
-    // Check if item already exists in cart
-    const existingItem = itemsAdded.find((el) => el.id == productId);
-    
-    if (existingItem) {
-        // Find the cart box for this item and increase quantity
-        const cartBoxes = document.querySelectorAll(".cart-box");
-        cartBoxes.forEach((box) => {
-            const boxTitle = box.querySelector(".cart-product-title").innerHTML;
-            if (boxTitle === title) {
-                const quantityInput = box.querySelector(".cart-quantity");
-                let currentQty = parseInt(quantityInput.value);
-                if (currentQty < 100) {
-                    quantityInput.value = currentQty + 1;
-                    showNotification(`Quantity updated for "${title}"!`, "success");
-                } else {
-                    showNotification("Maximum quantity (100) reached for this item!", "warning");
-                }
-            }
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId: productId })
         });
-    } else {
-        // Add new item to cart
-        let newToAdd = {
+
+        // Check for redirect due to [Authorize] failure
+        //may change this cause idk if i stillw ant to use authorize
+        if (response.redirected) {
+            return { success: false, redirected: true };
+        }
+
+        if (!response.ok) {
+            showNotification(`HTTP Error: ${response.status}. Could not reach server.`, "error");
+            return { success: false };
+        }
+
+        const result = await response.json();
+        return result;
+
+    } catch (error) {
+        console.error("AJAX Error:", error);
+        showNotification("An unknown client error occurred.", "error");
+        return { success: false };
+    }
+}
+
+// ============= HANDLE EVENTS FUNCTIONS =============
+//updated
+async function handle_addCartItem(e) {
+    if (e) e.preventDefault();
+
+    const productBox = this.closest('.product-box') || this.closest('.box'); // Added .box fallback
+    const productId = this.getAttribute('data-id');
+
+    if (!productBox || !productId) return;
+
+    // Get item data for local display update
+    const title = productBox.querySelector(".product-title").innerHTML.trim();
+    const price = productBox.querySelector(".product-price").innerHTML;
+    const imgSrc = productBox.querySelector(".product-img").src;
+
+    // 1. Send request to C# to reserve the item and update stock
+    const result = await sendReservationRequest(productId, 'reserve');
+
+    if (result.redirected) {
+        // [Authorize] failed, browser handled the redirect to login page.
+        return;
+    }
+
+    if (result.success) {
+        // --- SUCCESS: Add item to the local cart display ---
+
+        // 2. Add the item to your local itemsAdded array (for display/total calculation only)
+        itemsAdded.push({
             id: productId,
             title,
             price,
             imgSrc,
             quantity: 1,
-        };
-        itemsAdded.push(newToAdd);
+        });
 
-        // Add product to cart
+        // 3. Add the HTML for the item to the cart sidebar
         let cartBoxElement = CartBoxComponent(title, price, imgSrc, productId);
         let newNode = document.createElement("div");
         newNode.innerHTML = cartBoxElement;
-        const cartContent = cart.querySelector(".cart-content");
+        const cartContent = document.querySelector(".cart-content");
         cartContent.appendChild(newNode);
 
-        // Show success notification
-        showNotification(`"${title}" added to cart!`, "success");
+        showNotification(result.message, "success");
+
+        // 4. CRITICAL: Hide the reserved item from the product listing
+        productBox.style.display = 'none';
+
+        update();
+    } else {
+        // --- FAILURE: Show error message from server
+        showNotification(result.message, "error");
     }
-
-    // DO NOT automatically open the cart sidebar - only open when cart icon is clicked
-
-    update();
 }
 
-function handle_removeCartItem() {
+async function handle_removeCartItem() {
     const cartBox = this.parentElement;
-
-    const itemId = cartBox.getAttribute('data-id');
+    const productId = cartBox.getAttribute('data-id');
     const itemTitle = cartBox.querySelector('.cart-product-title').innerHTML;
 
-    cartBox.remove();
-    //const itemTitle = this.parentElement.querySelector(".cart-product-title").innerHTML;
-    
-    //this.parentElement.remove();
-    itemsAdded = itemsAdded.filter(
-        (el) => el.id != itemId
-    );
+    // 1. Send request to C# to remove the reservation and increment stock
+    const result = await sendReservationRequest(productId, 'unreserved');
 
-    showNotification(`"${itemTitle}" removed from cart`, "success");
+    if (result.redirected) {
+        return;
+    }
 
-    update();
+    if (result.success) {
+        // --- SUCCESS: Remove from local cart display ---
+
+        // 2. Remove the item's HTML from the cart sidebar
+        cartBox.remove();
+
+        // 3. Remove from the local JS array
+        itemsAdded = itemsAdded.filter((el) => el.id != productId);
+
+        showNotification(`"${itemTitle}" unreserved and removed from cart.`, "success");
+
+        // 4. CRITICAL: Show the artwork again on the shop page
+        // Need to check all shop containers where the product might be displayed
+        document.querySelectorAll(`.product-box[data-id="${productId}"], .box[data-id="${productId}"]`).forEach(box => {
+            box.style.display = ''; // Restore to default display
+        });
+
+        update();
+    } else {
+        // --- FAILURE: Show error message
+        showNotification(result.message, "error");
+    }
 }
 
 function handle_changeItemQuantity() {
@@ -221,7 +251,7 @@ function handle_changeItemQuantity() {
         this.value = 100;
         showNotification("Maximum quantity allowed is 100", "warning");
     }
-    
+
     this.value = Math.floor(this.value); // to keep it integer
 
     update();
@@ -249,13 +279,13 @@ function updateTotal() {
     cartBoxes.forEach((cartBox) => {
         let priceElement = cartBox.querySelector(".cart-price");
         let priceString = priceElement.innerHTML;
-        
+
         // Remove currency symbol (₱ or &#8369;), commas, and any whitespace
         priceString = priceString.replace(/₱|&#8369;|,|\s/g, '');
-        
+
         let price = parseFloat(priceString);
         let quantity = parseInt(cartBox.querySelector(".cart-quantity").value);
-        
+
         // Only add to total if both price and quantity are valid numbers
         if (!isNaN(price) && !isNaN(quantity)) {
             total += price * quantity;

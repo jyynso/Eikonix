@@ -23,10 +23,6 @@ namespace WebApplication1.Models
         public int productId { get; set; }
 
         [Column("cart_quantity")]
-        public int cartQuantity { get; set; }  
-
-
-
-
+        public int cartQuantity { get; set; }
     }
 }
