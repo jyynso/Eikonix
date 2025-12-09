@@ -346,6 +346,7 @@
     <Content Include="Views\Admin\SalesReports.cshtml" />
     <Content Include="Views\Home\Digital.cshtml" />
     <Content Include="Views\Home\Traditional.cshtml" />
+    <Content Include="Views\Home\Checkout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

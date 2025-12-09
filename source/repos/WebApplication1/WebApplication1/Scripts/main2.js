@@ -244,15 +244,16 @@ async function handle_removeCartItem() {
     }
 }
 
+//we need to restrict for traditional art that has only 1 copy
 function handle_changeItemQuantity() {
     if (isNaN(this.value) || this.value < 1) {
         this.value = 1;
-    } else if (this.value > 100) {
-        this.value = 100;
-        showNotification("Maximum quantity allowed is 100", "warning");
+    } else if (this.value > 1) {
+        this.value = 1;
+        showNotification("This Artwork is a single copy", "warning");
     }
 
-    this.value = Math.floor(this.value); // to keep it integer
+    this.value = Math.floor(this.value); 
 
     update();
 }
@@ -262,12 +263,18 @@ function handle_buyOrder() {
         showNotification("Your cart is empty! Please add items first.", "warning");
         return;
     }
-    const cartContent = cart.querySelector(".cart-content");
-    cartContent.innerHTML = "";
-    showNotification("Your order has been placed successfully!", "success", 4000);
-    itemsAdded = [];
 
-    update();
+    showNotification("Processing order and redirecting to checkout...", "success", 1500);
+    setTimeout(() => {
+        window.location.href = "/Home/Checkout";
+    }, 1500);
+
+    //const cartContent = cart.querySelector(".cart-content");
+    //cartContent.innerHTML = "";
+    //showNotification("Your order has been placed successfully!", "success", 4000);
+    //itemsAdded = [];
+
+    //update();
 }
 
 // =========== UPDATE & RERENDER FUNCTIONS =========

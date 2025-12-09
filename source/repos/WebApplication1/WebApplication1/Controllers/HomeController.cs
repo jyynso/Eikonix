@@ -21,6 +21,13 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        public ActionResult Checkout()
+        {
+            string currentUserIdString = User.Identity.Name;
+
+
+            return View();
+        }
         
         public ActionResult Cart()
         {
@@ -75,7 +82,6 @@ namespace WebApplication1.Controllers
 
             if (int.TryParse(currentUserIdString, out int currentUserIdInt))
             {
-                // Operator '==' cannot be applied to operands of type 'int' and 'string'
                 var existingCartItem = db.Carts.FirstOrDefault(c => c.userId == currentUserIdInt && c.productId == productId);
                 if (existingCartItem != null)
                 {
@@ -84,11 +90,8 @@ namespace WebApplication1.Controllers
 
                 try
                 {
-                    // --- Fix 3: Assignment ---
-                    // Cannot implicitly convert type 'string' to 'int'
                     var cartItem = new WebApplication1.Models.Cart
                     {
-                        // Assign the converted integer ID
                         userId = currentUserIdInt,
                         productId = productId,
                         cartQuantity = 1,
@@ -108,7 +111,6 @@ namespace WebApplication1.Controllers
             }
             else
             {
-                // Error if the User.Identity.Name couldn't be converted to an integer
                 return Json(new { success = false, message = "Error: Invalid user ID format." });
             }
         }
