@@ -82,18 +82,14 @@ if (document.readyState == "loading") {
 
 // =============== START ====================
 function start() {
-    // 1. Initialize itemsAdded array from server data (for local state)
     if (typeof InitialCartItems !== 'undefined' && Array.isArray(InitialCartItems)) {
         itemsAdded = InitialCartItems;
     }
 
-    // 2. Manually render pre-existing items to the cart sidebar
     loadInitialCartItems();
 
-    // 3. Attach event listeners (for the newly rendered items)
     addEvents();
 
-    // 4. Calculate and display total and count
     updateTotal();
     updateCartCount();
 }
@@ -101,11 +97,10 @@ function start() {
 function loadInitialCartItems() {
     const cartContent = document.querySelector(".cart-content");
 
-    // Clear cart content if needed (optional)
     cartContent.innerHTML = "";
 
     itemsAdded.forEach(item => {
-        // Use the existing CartBoxComponent function you provided earlier
+
         let cartBoxElement = CartBoxComponent(item.title, item.price, item.imgSrc, item.id);
         let newNode = document.createElement("div");
         newNode.innerHTML = cartBoxElement;
@@ -152,10 +147,9 @@ function addEvents() {
     buy_btn.addEventListener("click", handle_buyOrder);
 }
 
-// ============= AJAX HELPER FUNCTION (NEW) =============
+// ============= AJAX HELPER FUNCTION =============
 async function sendReservationRequest(productId, action) {
 
-    // Map JS action to the correct C# action name
     let actionUrl = "";
     if (action === "reserve") {
         actionUrl = "/Home/ReserveProducts";
@@ -166,27 +160,22 @@ async function sendReservationRequest(productId, action) {
         return { success: false };
     }
 
-    // --- CRITICAL FIX START: Change to URL-encoded format ---
     const params = new URLSearchParams({ productId: productId });
 
     try {
         const response = await fetch(actionUrl, {
             method: 'POST',
-            // CRITICAL CHANGE: Use form-urlencoded content type
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             credentials: "include",
-            body: params.toString() // Data is now sent as: productId=X
+            body: params.toString() // 
         });
-        // --- CRITICAL FIX END ---
 
         if (response.redirected) {
-            // Server redirected to login page (Authentication issue)
-            window.location.href = "/Account/Login"; // Redirect the user manually if necessary
+            window.location.href = "/Account/Login"; 
             return { success: false, redirected: true };
         }
 
         if (!response.ok) {
-            // This line captures your 404 error
             showNotification(`HTTP Error: ${response.status}. Could not reach server.`, "error");
             return { success: false };
         }
@@ -200,73 +189,30 @@ async function sendReservationRequest(productId, action) {
         return { success: false };
     }
 }
-//async function sendReservationRequest(productId, action) {
-
-//    // Map JS action to the correct C# action name
-//    let actionUrl = "";
-//    if (action === "reserve") {
-//        actionUrl = "/Home/ReserveProducts";  // matches controller
-//    } else if (action === "unreserved") {
-//        actionUrl = "/Home/UnreservedProduct"; // matches controller
-//    } else {
-//        showNotification("Invalid action.", "error");
-//        return { success: false };
-//    }
-
-//    try {
-//        const response = await fetch(actionUrl, {
-//            method: 'POST',
-//            headers: { 'Content-Type': 'application/json' },
-//            credentials: "include", // important for auth
-//            body: JSON.stringify({ productId })
-//        });
-
-//        if (response.redirected) {
-//            return { success: false, redirected: true };
-//        }
-
-//        if (!response.ok) {
-//            showNotification(`HTTP Error: ${response.status}. Could not reach server.`, "error");
-//            return { success: false };
-//        }
-
-//        const result = await response.json();
-//        return result;
-
-//    } catch (error) {
-//        console.error("AJAX Error:", error);
-//        showNotification("An unknown client error occurred.", "error");
-//        return { success: false };
-//    }
-//}
 
 // ============= HANDLE EVENTS FUNCTIONS =============
 //updated
 async function handle_addCartItem(e) {
+    // Prevent default link behavior
     if (e) e.preventDefault();
 
-    const productBox = this.closest('.product-box') || this.closest('.box'); // Added .box fallback
+    // Find the closest product box container
+    const productBox = this.closest('.product-box') || this.closest('.box'); 
     const productId = this.getAttribute('data-id');
 
     if (!productBox || !productId) return;
 
-    // Get item data for local display update
     const title = productBox.querySelector(".product-title").innerHTML.trim();
     const price = productBox.querySelector(".product-price").innerHTML;
     const imgSrc = productBox.querySelector(".product-img").src;
 
-    // 1. Send request to C# to reserve the item and update stock
     const result = await sendReservationRequest(productId, 'reserve');
 
     if (result.redirected) {
-        // [Authorize] failed, browser handled the redirect to login page.
         return;
     }
 
     if (result.success) {
-        // --- SUCCESS: Add item to the local cart display ---
-
-        // 2. Add the item to your local itemsAdded array (for display/total calculation only)
         itemsAdded.push({
             id: productId,
             title,
@@ -275,7 +221,6 @@ async function handle_addCartItem(e) {
             quantity: 1,
         });
 
-        // 3. Add the HTML for the item to the cart sidebar
         let cartBoxElement = CartBoxComponent(title, price, imgSrc, productId);
         let newNode = document.createElement("div");
         newNode.innerHTML = cartBoxElement;
@@ -289,7 +234,6 @@ async function handle_addCartItem(e) {
 
         update();
     } else {
-        // --- FAILURE: Show error message from server
         showNotification(result.message, "error");
     }
 }
@@ -308,20 +252,18 @@ async function handle_removeCartItem() {
     if (result.success) {
         cartBox.remove();
 
-        // 3. Remove from the local JS array
         itemsAdded = itemsAdded.filter((el) => el.id != productId);
 
         showNotification(`"${itemTitle}" unreserved and removed from cart.`, "success");
 
-
-        //// Need to check all shop containers where the product might be displayed
-        //document.querySelectorAll(`.product-box[data-id="${productId}"], .box[data-id="${productId}"]`).forEach(box => {
-        //    box.style.display = ''; // Restore to default display
-        //});
+        //FIX4
+        // Need to check all shop containers where the product might be displayed
+        document.querySelectorAll(`.product-box[data-id="${productId}"], .box[data-id="${productId}"]`).forEach(box => {
+            box.style.display = ''; // Restore to default display
+        });
 
         update();
     } else {
-        // --- FAILURE: Show error message
         showNotification(result.message, "error");
     }
 }
@@ -340,7 +282,6 @@ function handle_changeItemQuantity() {
     update();
 }
 
-//remove this for now
 
 function handle_buyOrder(e) {
     e.preventDefault();
@@ -356,6 +297,8 @@ function handle_buyOrder(e) {
     setTimeout(() => {
         window.location.href = "/Home/Checkout";
     }, 1000);
+
+    //i forgot why I commented this pero wag muna galawin, gumagana na eh
 
     //const cartContent = cart.querySelector(".cart-content");
     //cartContent.innerHTML = "";

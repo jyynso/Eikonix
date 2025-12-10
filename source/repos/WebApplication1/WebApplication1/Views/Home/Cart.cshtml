@@ -5,6 +5,17 @@
     Layout = "~/Views/Shared/_Layout_Cart.cshtml";
 }
 
+@* load natin into js kasi need pa ireload para lumabas yung rmoved items from cart*@
+<!--@{
+    var initialCartItemsJs = Model.ReservedCartItems.Select(c => new
+    {
+        id = c.productId,
+        title = c.Product.productTitle,
+        price = c.Product.productPrice,
+        imgSrc = c.Product.productImagePath
+    }).ToList();
+}-->
+
 <style>
     /* Fix header and cover photo spacing */
     .cover-photo {
@@ -55,9 +66,12 @@
         <div class="total-price">₱0</div>
     </div>
 
-    <form method="post" action="@Url.Action("Checkout", "Home")" id="checkoutForm">
+    @*FIX3*@
+    @*<form method="post" action="@Url.Action("Checkout", "Home")" id="checkoutForm">
         <button type="submit" class="btn-buy">Place Order</button>
-    </form>
+    </form>*@
+
+    <button type="submit" class="btn-buy">Place Order</button>
     <i class='bx bx-x' id="cart-close"></i>
 </div>
 
@@ -131,21 +145,19 @@
 
 <!-- JavaScript -->
 <script>
-    // NEW: Pass the currently reserved items to the JavaScript state.
-    // This array will tell main2.js what needs to be added to the *local* cart
-    // state and rendered to the sidebar immediately on load.
     const InitialCartItems = @Html.Raw(
         Newtonsoft.Json.JsonConvert.SerializeObject(
             Model.ReservedCartItems.Select(c => new {
                 id = c.productId.ToString(),
                 title = c.Product.productTitle,
-                // Ensure price format matches your JS logic (e.g., "₱1,200.00")
                 price = "₱" + c.Product.productPrice.ToString("N2"),
                 imgSrc = Url.Content(c.Product.productImagePath.Trim()),
                 quantity = c.cartQuantity
             })
         )
     );
+
+    @*const InitialCartItems = @Html.Raw(Json.Encode(initialCartItemsJs));*@
 </script>
 
 <script src="@Url.Content("~/Scripts/main2.js")"></script>

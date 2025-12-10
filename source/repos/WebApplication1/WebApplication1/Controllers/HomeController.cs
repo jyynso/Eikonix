@@ -14,11 +14,12 @@ namespace WebApplication1.Controllers
     {
         private AppDbContext db = new AppDbContext();
 
-        // Helper to get user ID from username
         private int? GetCurrentUserId()
         {
             //pls workk
             return Session["UserId"] as int?;
+
+            //wag muna ito ibalik
 
             //if (!User.Identity.IsAuthenticated)
             //    return null;
@@ -29,8 +30,7 @@ namespace WebApplication1.Controllers
             //return user?.userId;
         }
 
-        //debug for now
-        // Add this to HomeController for debugging
+        //debug for now to see if we are actually getting the userid from session kasi ayaw gumana eiiii
         public ActionResult DebugAuth()
         {
             var info = new
@@ -82,8 +82,9 @@ namespace WebApplication1.Controllers
             List<Products> allInStockProducts = db.Products
                 .Where(p => p.productStock > 0)
                 .ToList();
-
-            List<Products> availableProducts = allInStockProducts;
+            
+            //FIX1
+            //List<Products> availableProducts = allInStockProducts;
 
             if (userId.HasValue)
             {
@@ -92,17 +93,18 @@ namespace WebApplication1.Controllers
                     .Include(c => c.Product)
                     .ToList();
 
-                // 2. Filter the available products: remove items the user has already reserved
                 var reservedProductIds = reservedItems.Select(c => c.productId).ToList();
 
-                availableProducts = allInStockProducts
-                    .Where(p => !reservedProductIds.Contains(p.productId))
-                    .ToList();
+
+                //FIX2
+                //availableProducts = allInStockProducts
+                //    .Where(p => !reservedProductIds.Contains(p.productId))
+                //    .ToList();
             }
 
             var viewModel = new CartViewModel
             {
-                AvailableProducts = availableProducts,
+                AvailableProducts = allInStockProducts,
                 ReservedCartItems = reservedItems
             };
 
@@ -125,7 +127,6 @@ namespace WebApplication1.Controllers
             return View(products);
         }
 
-        // GET: Show checkout page (review order)
         [HttpGet]
         public ActionResult Checkout()
         {
@@ -136,7 +137,6 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Get cart items with product details
             var cartItems = db.Carts
                 .Where(c => c.userId == userId.Value)
                 .Include(c => c.Product)
@@ -148,7 +148,6 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Cart");
             }
 
-            // Create simple view model
             var viewModel = new CheckoutViewModel
             {
                 CartItems = cartItems.Select(c => new CartItemViewModel
@@ -156,9 +155,10 @@ namespace WebApplication1.Controllers
                     ProductId = c.productId,
                     ProductTitle = c.Product.productTitle,
                     ProductImage = c.Product.productImagePath,
+                    ProductSize = c.Product.productSize,
                     ProductArtist = c.Product.productArtist,
                     Price = c.Product.productPrice,
-                    Quantity = c.cartQuantity
+                    ProductStock = c.cartQuantity
                 }).ToList(),
                 TotalAmount = cartItems.Sum(c => c.cartQuantity * c.Product.productPrice)
             };
@@ -166,7 +166,6 @@ namespace WebApplication1.Controllers
             return View(viewModel);
         }
 
-        // POST: Process the order
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ProcessOrder()
@@ -191,7 +190,6 @@ namespace WebApplication1.Controllers
 
             try
             {
-                // Create a new Order
                 var newOrder = new Orders
                 {
                     userId = userId.Value,
@@ -201,9 +199,8 @@ namespace WebApplication1.Controllers
                 };
 
                 db.Orders.Add(newOrder);
-                db.SaveChanges(); // Get orderId
+                db.SaveChanges();
 
-                // Move CartItems to OrderItems and calculate total
                 decimal totalAmount = 0.0m;
 
                 foreach (var item in cartItems)
@@ -222,13 +219,10 @@ namespace WebApplication1.Controllers
                     item.Product.productStock -= item.cartQuantity;
                 }
 
-                // Update order total
                 newOrder.orderTotalAmount = totalAmount;
 
-                // Remove cart items
                 db.Carts.RemoveRange(cartItems);
 
-                // Save all changes
                 db.SaveChanges();
 
                 TempData["Success"] = $"Order #{newOrder.orderId} placed!";
@@ -236,7 +230,6 @@ namespace WebApplication1.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception
                 TempData["Error"] = "A server error occurred during order processing.";
                 return RedirectToAction("Cart");
             }
