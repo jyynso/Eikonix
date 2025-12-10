@@ -299,7 +299,7 @@ async function handle_removeCartItem() {
     const productId = cartBox.getAttribute('data-id');
     const itemTitle = cartBox.querySelector('.cart-product-title').innerHTML;
 
-    const result = await sendReservationRequest(productId, 'unreserved');
+    const result = await sendReservationRequest(productId, 'unreserve');
 
     if (result.redirected) {
         return;
