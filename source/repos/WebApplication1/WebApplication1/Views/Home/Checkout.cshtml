@@ -91,11 +91,11 @@
                 <div class="summary-row discount-row">
                     <span class="summary-label">Discount</span>
                     @*wala eh, lets just pretend this works cause I dont want to work on the db anymore :(*@
-                    <span class="summary-value discounted">-₱40.00</span> 
+                    <span class="summary-value discounted">-₱40.00</span>
                 </div>
                 <div class="summary-row payment-method-row">
                     <span class="summary-label">Payment Method</span>
-                    <span class="summary-value">Gcash</span> 
+                    <span class="summary-value">Gcash</span>
                 </div>
             </div>
 
@@ -104,7 +104,7 @@
                 <span class="grand-total-price">₱@Model.TotalAmount.ToString("N2")</span>
             </div>
 
-            @using (Html.BeginForm("ProcessOrder", "Home", FormMethod.Post))
+            @using (Html.BeginForm("ProcessOrder", "Home", FormMethod.Post, new { id = "checkoutForm" })) 
             {
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn-buy checkout-btn-place-order">
@@ -118,3 +118,50 @@
 
 <script src="@Url.Content("~/Scripts/main2.js")"></script>
 <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('checkoutForm');
+        const notificationContainer = document.getElementById('notificationContainer');
+
+        // Function to create and show the simulated success notification
+        function showSuccessNotification(message) {
+            // 1. Create the notification element
+            const notification = document.createElement('div');
+            notification.className = 'custom-alert-box success show'; // Use 'success' class for green theme
+            notification.innerHTML = `
+                <i class='bx bxs-check-circle'></i>
+                <div class="alert-content">
+                    <p class="alert-message">${message}</p>
+                </div>
+            `;
+
+            // 2. Add it to the container
+            notificationContainer.appendChild(notification);
+
+            // 3. Automatically remove the notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.classList.add('hide');
+                // Remove the element from the DOM after the transition
+                notification.addEventListener('transitionend', () => {
+                    notification.remove();
+                });
+            }, 5000);
+        }
+
+        // Intercept the form submission for simulation
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // Stop the form from submitting to the server
+
+            // Simulate a successful order placement
+            const message = "✅ Order Placed Successfully! This is a simulation.";
+            showSuccessNotification(message);
+
+            // OPTIONAL: If you want to redirect to a confirmation page after the notification:
+            // setTimeout(() => {
+            //     window.location.href = '@Url.Action("OrderConfirmation", "Home")';
+            // }, 5500);
+        });
+    });
+</script>

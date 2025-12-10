@@ -78,13 +78,15 @@ namespace WebApplication1.Controllers
         {
             var userId = GetCurrentUserId();
             List<Cart> reservedItems = new List<Cart>();
-
+            List<Products> availableProducts;
             List<Products> allInStockProducts = db.Products
                 .Where(p => p.productStock > 0)
                 .ToList();
-            
+
             //FIX1
             //List<Products> availableProducts = allInStockProducts;
+
+            availableProducts = allInStockProducts;
 
             if (userId.HasValue)
             {
@@ -97,14 +99,14 @@ namespace WebApplication1.Controllers
 
 
                 //FIX2
-                //availableProducts = allInStockProducts
-                //    .Where(p => !reservedProductIds.Contains(p.productId))
-                //    .ToList();
+                availableProducts = allInStockProducts
+                    .Where(p => !reservedProductIds.Contains(p.productId))
+                    .ToList();
             }
 
             var viewModel = new CartViewModel
             {
-                AvailableProducts = allInStockProducts,
+                AvailableProducts = availableProducts,
                 ReservedCartItems = reservedItems
             };
 
@@ -308,7 +310,7 @@ namespace WebApplication1.Controllers
                 var product = db.Products.FirstOrDefault(p => p.productId == productId);
                 if (product != null)
                 {
-                    product.productStock += 1;
+                    //product.productStock += 1;
                     db.SaveChanges();
                     return Json(new { success = true, message = "Artwork successfully unreserved and restocked." });
                 }
