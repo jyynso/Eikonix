@@ -82,8 +82,40 @@ if (document.readyState == "loading") {
 
 // =============== START ====================
 function start() {
+    // 1. Initialize itemsAdded array from server data (for local state)
+    if (typeof InitialCartItems !== 'undefined' && Array.isArray(InitialCartItems)) {
+        itemsAdded = InitialCartItems;
+    }
+
+    // 2. Manually render pre-existing items to the cart sidebar
+    loadInitialCartItems();
+
+    // 3. Attach event listeners (for the newly rendered items)
     addEvents();
+
+    // 4. Calculate and display total and count
+    updateTotal();
     updateCartCount();
+}
+
+function loadInitialCartItems() {
+    const cartContent = document.querySelector(".cart-content");
+
+    // Clear cart content if needed (optional)
+    cartContent.innerHTML = "";
+
+    itemsAdded.forEach(item => {
+        // Use the existing CartBoxComponent function you provided earlier
+        let cartBoxElement = CartBoxComponent(item.title, item.price, item.imgSrc, item.id);
+        let newNode = document.createElement("div");
+        newNode.innerHTML = cartBoxElement;
+        cartContent.appendChild(newNode);
+
+        //this hides the item in the display page upon add to cart which is aa  big no no no no no no no no no non on on ononono
+        //document.querySelectorAll(`.product-box[data-id="${item.id}"], .box[data-id="${item.id}"]`).forEach(box => {
+        //    box.style.display = 'none';
+        //});
+    });
 }
 
 // ============= UPDATE & RERENDER ===========
@@ -122,24 +154,39 @@ function addEvents() {
 
 // ============= AJAX HELPER FUNCTION (NEW) =============
 async function sendReservationRequest(productId, action) {
-    const url = `/Home/${action}Product`;
+
+    // Map JS action to the correct C# action name
+    let actionUrl = "";
+    if (action === "reserve") {
+        actionUrl = "/Home/ReserveProducts";
+    } else if (action === "unreserve") {
+        actionUrl = "/Home/UnreserveProduct";
+    } else {
+        showNotification("Invalid action.", "error");
+        return { success: false };
+    }
+
+    // --- CRITICAL FIX START: Change to URL-encoded format ---
+    const params = new URLSearchParams({ productId: productId });
 
     try {
-        const response = await fetch(url, {
+        const response = await fetch(actionUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ productId: productId })
+            // CRITICAL CHANGE: Use form-urlencoded content type
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            credentials: "include",
+            body: params.toString() // Data is now sent as: productId=X
         });
+        // --- CRITICAL FIX END ---
 
-        // Check for redirect due to [Authorize] failure
-        //may change this cause idk if i stillw ant to use authorize
         if (response.redirected) {
+            // Server redirected to login page (Authentication issue)
+            window.location.href = "/Account/Login"; // Redirect the user manually if necessary
             return { success: false, redirected: true };
         }
 
         if (!response.ok) {
+            // This line captures your 404 error
             showNotification(`HTTP Error: ${response.status}. Could not reach server.`, "error");
             return { success: false };
         }
@@ -153,6 +200,45 @@ async function sendReservationRequest(productId, action) {
         return { success: false };
     }
 }
+//async function sendReservationRequest(productId, action) {
+
+//    // Map JS action to the correct C# action name
+//    let actionUrl = "";
+//    if (action === "reserve") {
+//        actionUrl = "/Home/ReserveProducts";  // matches controller
+//    } else if (action === "unreserved") {
+//        actionUrl = "/Home/UnreservedProduct"; // matches controller
+//    } else {
+//        showNotification("Invalid action.", "error");
+//        return { success: false };
+//    }
+
+//    try {
+//        const response = await fetch(actionUrl, {
+//            method: 'POST',
+//            headers: { 'Content-Type': 'application/json' },
+//            credentials: "include", // important for auth
+//            body: JSON.stringify({ productId })
+//        });
+
+//        if (response.redirected) {
+//            return { success: false, redirected: true };
+//        }
+
+//        if (!response.ok) {
+//            showNotification(`HTTP Error: ${response.status}. Could not reach server.`, "error");
+//            return { success: false };
+//        }
+
+//        const result = await response.json();
+//        return result;
+
+//    } catch (error) {
+//        console.error("AJAX Error:", error);
+//        showNotification("An unknown client error occurred.", "error");
+//        return { success: false };
+//    }
+//}
 
 // ============= HANDLE EVENTS FUNCTIONS =============
 //updated
@@ -198,8 +284,8 @@ async function handle_addCartItem(e) {
 
         showNotification(result.message, "success");
 
-        // 4. CRITICAL: Hide the reserved item from the product listing
-        productBox.style.display = 'none';
+        //again this hdies the item upon adding to the cart which is a big no nononononon
+        //productBox.style.display = 'none';
 
         update();
     } else {
@@ -213,7 +299,6 @@ async function handle_removeCartItem() {
     const productId = cartBox.getAttribute('data-id');
     const itemTitle = cartBox.querySelector('.cart-product-title').innerHTML;
 
-    // 1. Send request to C# to remove the reservation and increment stock
     const result = await sendReservationRequest(productId, 'unreserved');
 
     if (result.redirected) {
@@ -221,9 +306,6 @@ async function handle_removeCartItem() {
     }
 
     if (result.success) {
-        // --- SUCCESS: Remove from local cart display ---
-
-        // 2. Remove the item's HTML from the cart sidebar
         cartBox.remove();
 
         // 3. Remove from the local JS array
@@ -231,11 +313,11 @@ async function handle_removeCartItem() {
 
         showNotification(`"${itemTitle}" unreserved and removed from cart.`, "success");
 
-        // 4. CRITICAL: Show the artwork again on the shop page
-        // Need to check all shop containers where the product might be displayed
-        document.querySelectorAll(`.product-box[data-id="${productId}"], .box[data-id="${productId}"]`).forEach(box => {
-            box.style.display = ''; // Restore to default display
-        });
+
+        //// Need to check all shop containers where the product might be displayed
+        //document.querySelectorAll(`.product-box[data-id="${productId}"], .box[data-id="${productId}"]`).forEach(box => {
+        //    box.style.display = ''; // Restore to default display
+        //});
 
         update();
     } else {

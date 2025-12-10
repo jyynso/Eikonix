@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using WebApplication1.Data;
 using WebApplication1.Models;
+using WebApplication1.ViewModels;
 
 namespace WebApplication1.Controllers
 {
@@ -16,15 +17,34 @@ namespace WebApplication1.Controllers
         // Helper to get user ID from username
         private int? GetCurrentUserId()
         {
-            if (!User.Identity.IsAuthenticated)
-                return null;
+            //pls workk
+            return Session["UserId"] as int?;
 
-            string userEmail = User.Identity.Name; // From FormsAuthentication
-            var user = db.Users.FirstOrDefault(u => u.userEmail == userEmail);
+            //if (!User.Identity.IsAuthenticated)
+            //    return null;
 
-            return user?.userId;
+            //string userEmail = User.Identity.Name; // From FormsAuthentication
+            //var user = db.Users.FirstOrDefault(u => u.userEmail == userEmail);
+
+            //return user?.userId;
         }
 
+        //debug for now
+        // Add this to HomeController for debugging
+        public ActionResult DebugAuth()
+        {
+            var info = new
+            {
+                IsAuthenticated = User.Identity.IsAuthenticated,
+                UserIdentityName = User.Identity.Name ?? "NULL",
+                AuthenticationType = User.Identity.AuthenticationType,
+                SessionUserId = Session["UserId"],
+                SessionUserEmail = Session["UserEmail"],
+                SessionUserRole = Session["UserRole"]
+            };
+
+            return Json(info, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult Index()
         {
             return View();
@@ -57,22 +77,36 @@ namespace WebApplication1.Controllers
         public ActionResult Cart()
         {
             var userId = GetCurrentUserId();
+            List<Cart> reservedItems = new List<Cart>();
 
-            if (!userId.HasValue)
-            {
-                // User not logged in - show all available products or redirect
-                var products = db.Products.Where(p => p.productStock > 0).ToList();
-                return View(products);
-            }
-
-            // Show ONLY products in user's cart
-            var cartItems = db.Carts
-                .Where(c => c.userId == userId.Value)
-                .Include(c => c.Product)
+            List<Products> allInStockProducts = db.Products
+                .Where(p => p.productStock > 0)
                 .ToList();
 
-            var productsInCart = cartItems.Select(c => c.Product).ToList();
-            return View(productsInCart);
+            List<Products> availableProducts = allInStockProducts;
+
+            if (userId.HasValue)
+            {
+                reservedItems = db.Carts
+                    .Where(c => c.userId == userId.Value)
+                    .Include(c => c.Product)
+                    .ToList();
+
+                // 2. Filter the available products: remove items the user has already reserved
+                var reservedProductIds = reservedItems.Select(c => c.productId).ToList();
+
+                availableProducts = allInStockProducts
+                    .Where(p => !reservedProductIds.Contains(p.productId))
+                    .ToList();
+            }
+
+            var viewModel = new CartViewModel
+            {
+                AvailableProducts = availableProducts,
+                ReservedCartItems = reservedItems
+            };
+
+            return View(viewModel);
         }
 
         public ActionResult Digital()
@@ -209,6 +243,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
+        [ActionName("ReserveProducts")]
         public JsonResult ReserveProducts(int productId)
         {
             var userId = GetCurrentUserId();
@@ -242,11 +277,9 @@ namespace WebApplication1.Controllers
                     userId = userId.Value,
                     productId = productId,
                     cartQuantity = 1,
-                    ReservationDate = DateTime.Now
                 };
 
                 db.Carts.Add(cartItem);
-                product.productStock -= 1;
                 db.SaveChanges();
 
                 return Json(new { success = true, message = "Artwork successfully reserved and added to your cart." });
@@ -257,8 +290,10 @@ namespace WebApplication1.Controllers
             }
         }
 
+
         [HttpPost]
-        public JsonResult UnreservedProduct(int productId)
+        [ActionName("UnreserveProduct")]
+        public JsonResult UnreserveProduct(int productId)
         {
             var userId = GetCurrentUserId();
             if (!userId.HasValue)

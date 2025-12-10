@@ -1,4 +1,4 @@
-﻿@model List<WebApplication1.Data.Products>
+﻿@model WebApplication1.ViewModels.CartViewModel
 
 @{
     ViewBag.Title = "Home";
@@ -67,9 +67,9 @@
     <section class="shop container">
         <h1 class="section-title">Featured Artworks</h1>
         <div class="shop-content">
-            @foreach (var product in Model)
+            @foreach (var product in Model.AvailableProducts)
             {
-                <div class="product-box">
+                <div class="product-box" data-id="@product.productId">
                     <img src="@Url.Content(product.productImagePath.Trim())" alt="@product.productTitle" class="product-img">
                     <h2 class="product-title">@product.productTitle</h2>
                     <p class="product-title sub">Artist: @product.productArtist</p>
@@ -84,7 +84,7 @@
             }
         </div>
 
-        
+
     </section>
     <!-- ABOUT -->
     <section class="about" id="about">
@@ -130,5 +130,23 @@
 </div>
 
 <!-- JavaScript -->
+<script>
+    // NEW: Pass the currently reserved items to the JavaScript state.
+    // This array will tell main2.js what needs to be added to the *local* cart
+    // state and rendered to the sidebar immediately on load.
+    const InitialCartItems = @Html.Raw(
+        Newtonsoft.Json.JsonConvert.SerializeObject(
+            Model.ReservedCartItems.Select(c => new {
+                id = c.productId.ToString(),
+                title = c.Product.productTitle,
+                // Ensure price format matches your JS logic (e.g., "₱1,200.00")
+                price = "₱" + c.Product.productPrice.ToString("N2"),
+                imgSrc = Url.Content(c.Product.productImagePath.Trim()),
+                quantity = c.cartQuantity
+            })
+        )
+    );
+</script>
+
 <script src="@Url.Content("~/Scripts/main2.js")"></script>
 <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>

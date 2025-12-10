@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Helpers;
+using System.Web.Security;
 
 namespace WebApplication1.Controllers
 {
@@ -23,14 +24,11 @@ namespace WebApplication1.Controllers
             using (var db = new AppDbContext())
             {
                 var user = db.Users.FirstOrDefault(u => u.userEmail == email);
-                if (user.userStatus.Equals("inactive", StringComparison.OrdinalIgnoreCase))
-                {
-                    ViewBag.Error = "Your account is currently inactive. Please contact the administrator.";
-                    return View();
-                }
 
                 if (user != null && Utils.VerifyPassword(password, user.hashedpassword))
                 {
+                    FormsAuthentication.SetAuthCookie(user.userEmail, false);
+
                     Session["UserId"] = user.userId; //idk why I put this here but it may come useful later :D
                     Session["UserEmail"] = user.userEmail;
                     Session["UserRole"] = user.userRole;
@@ -47,7 +45,11 @@ namespace WebApplication1.Controllers
 
         public ActionResult Logout()
         {
+
+            FormsAuthentication.SignOut();
+            
             Session.Clear();
+            Session.Abandon();
             return RedirectToAction("Index", "Home");
         }
 

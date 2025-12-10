@@ -6,9 +6,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WebApplication1.Data;
 
-
 namespace WebApplication1.Models
 {
+    [Table("cart")] // <-- FIX: Explicitly map the C# model to the exact MySQL table name (singular, lowercase)
     public class Cart
     {
         [Key]
@@ -16,7 +16,7 @@ namespace WebApplication1.Models
         public int cartId { get; set; }
 
         //foreign key from users table
-        [Column("user_id")] 
+        [Column("user_id")]
         public int userId { get; set; }
 
         //foreign key from products table
@@ -25,8 +25,6 @@ namespace WebApplication1.Models
 
         [Column("cart_quantity")]
         public int cartQuantity { get; set; }
-
-        public DateTime ReservationDate { get; set; } = DateTime.Now;
 
         [ForeignKey("userId")]
         public virtual Users User { get; set; }
