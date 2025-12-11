@@ -21,7 +21,8 @@
         <i class='bx bx-moon' id="themeIcon"></i>
     </button>
 
-
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
 
     <!-- Cart Sidebar -->
     <div class="cart">
@@ -60,23 +61,36 @@
                         <a href=@Url.Action("Traditional", "Home")>Traditional Arts</a>
                     </div>
                 </li>
-                <li>
-                    <div class="search-track-box">
-                        <input type="text" placeholder="Search..." />
-                        <a href="#"><i class='bx bx-search'></i></a>
-                    </div>
-                </li>
             </ul>
         </nav>
 
-        <a href="#" id="cart-icon" class="cart-icon" title="Shopping Cart">
-            <i class='bx bx-shopping-bag'></i>
-            <span class="cart-count">0</span>
-        </a>
-    </header>
+        <div class="header-right">
+            <div class="search-track-box">
+                <input type="text" placeholder="Search..." />
+                <a href="#"><i class='bx bx-search'></i></a>
+            </div>
 
-    <!-- Notification Container -->
-    <div class="notification-container" id="notificationContainer"></div>
+            @if (Session["UserID"] != null)
+            {
+                <a href="#" class="cart-icon" id="cart-icon" title="Shopping Cart">
+                    <i class='bx bx-shopping-bag'></i>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="@Url.Action("Logout", "Account")" class="logout-btn" title="Logout">
+                    <i class='bx bx-log-out'></i>
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Account")" class="login-btn" title="Login">
+                    <i class='bx bx-user'></i>
+                </a>
+                <a href="#" class="cart-icon" id="cart-icon" title="Shopping Cart">
+                    <i class='bx bx-shopping-bag'></i>
+                </a>
+            }
+        </div>
+    </header>
 
     <div class="container body-content">
         @RenderBody()

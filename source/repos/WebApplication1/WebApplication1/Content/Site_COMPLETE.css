@@ -395,7 +395,7 @@ body.dark-mode .logo img {
     min-width: 200px;
     box-shadow: 0 8px 30px rgba(0, 128, 128, 0.2);
     border-radius: 8px;
-    margin-top: 5px;
+    margin-top: 15px;
     padding: 10px 0;
     z-index: 1001;
 }
@@ -1468,6 +1468,12 @@ body.dark-mode .heading p {
     color: rgba(255, 255, 255, 0.7);
 }
 
+/*for the products section*/
+.box {
+    display: flex;
+    flex-direction: column;
+}
+
 /* RESPONSIVE FOOTER */
 @media (max-width: 1200px) {
     .footer-container {
@@ -1498,3 +1504,4 @@ body.dark-mode .heading p {
         padding: 40px 20px 20px;
     }
 }
+

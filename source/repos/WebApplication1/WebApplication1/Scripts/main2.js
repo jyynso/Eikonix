@@ -5,6 +5,8 @@ const closeCart = document.querySelector("#cart-close");
 
 cartIcon.addEventListener("click", (e) => {
     e.preventDefault();
+    // ISSUE: Check if cart and cartIcon are found, which they should be if the HTML is correct.
+    // If the cart doesn't open, ensure the initial CSS sets it to display: none/visibility: hidden.
     cart.classList.toggle("active");
 });
 
@@ -15,6 +17,8 @@ closeCart.addEventListener("click", () => {
 // ============= NOTIFICATION FUNCTION =============
 function showNotification(message, type = 'success', duration = 3000) {
     const notificationContainer = document.getElementById('notificationContainer');
+    // FIX 2: Check if container exists before proceeding
+    if (!notificationContainer) return;
 
     // Create notification element
     const notification = document.createElement('div');
@@ -82,6 +86,7 @@ if (document.readyState == "loading") {
 
 // =============== START ====================
 function start() {
+    // Check for the initial cart data passed from Razor
     if (typeof InitialCartItems !== 'undefined' && Array.isArray(InitialCartItems)) {
         itemsAdded = InitialCartItems;
     }
@@ -94,9 +99,6 @@ function start() {
     updateTotal();
     updateCartCount();
 
-    // The 'orderButton' logic is now handled inside addEvents for consistency
-    // and is intended for the sidebar/Cart.cshtml button only.
-
     // Bind the Checkout form submit listener only if the form exists (on Checkout.cshtml)
     const checkoutForm = document.getElementById('checkoutForm');
     if (checkoutForm) {
@@ -106,11 +108,15 @@ function start() {
 
 function loadInitialCartItems() {
     const cartContent = document.querySelector(".cart-content");
+    if (!cartContent) return; // Add check
 
     cartContent.innerHTML = "";
 
     itemsAdded.forEach(item => {
-        let cartBoxElement = CartBoxComponent(item.title, item.price, item.imgSrc, item.id);
+        // Ensure the item.price is a string with the currency format before passing it to CartBoxComponent
+        let formattedPrice = item.price.startsWith('₱') ? item.price : '₱' + parseFloat(item.price).toFixed(2);
+
+        let cartBoxElement = CartBoxComponent(item.title, formattedPrice, item.imgSrc, item.id);
         let newNode = document.createElement("div");
         newNode.innerHTML = cartBoxElement;
         cartContent.appendChild(newNode);
@@ -133,10 +139,9 @@ function addEvents() {
     });
 
     // 2. NEW: Remove items from Checkout Page (.remove-checkout-item)
-    // NOTE: Ensure your Checkout.cshtml uses the class 'remove-checkout-item'
     let checkoutRemove_btns = document.querySelectorAll(".remove-checkout-item");
     checkoutRemove_btns.forEach((btn) => {
-        // FIX: Corrected typo in function name to match the definition below
+        // FIX: Ensure the function name is correct
         btn.addEventListener("click", handle_removeCheckoutItem);
     });
 
@@ -186,12 +191,14 @@ async function sendReservationRequest(productId, action) {
 
         if (response.redirected) {
             window.location.href = "/Account/Login";
-            return { success = false, redirected = true };
+            // FIX 1: Use colon (:) for object property definition
+            return { success: false, redirected: true };
         }
 
         if (!response.ok) {
             showNotification(`HTTP Error: ${response.status}. Could not reach server.`, "error");
-            return { success = false };
+            // FIX 1: Use colon (:) for object property definition
+            return { success: false };
         }
 
         const result = await response.json();
@@ -200,7 +207,8 @@ async function sendReservationRequest(productId, action) {
     } catch (error) {
         console.error("AJAX Error:", error);
         showNotification("An unknown client error occurred.", "error");
-        return { success = false };
+        // FIX 1: Use colon (:) for object property definition
+        return { success: false };
     }
 }
 
@@ -220,7 +228,7 @@ async function handle_addCartItem(e) {
     addButton.disabled = true;
 
     const title = productBox.querySelector(".product-title").innerHTML.trim();
-    const price = productBox.querySelector(".product-price").innerHTML;
+    const price = productBox.querySelector(".product-price").innerHTML; // Price includes '₱'
     const imgSrc = productBox.querySelector(".product-img").src;
 
     const result = await sendReservationRequest(productId, 'reserve');
@@ -233,19 +241,23 @@ async function handle_addCartItem(e) {
     }
 
     if (result.success) {
+        // Add item to local array
         itemsAdded.push({
             id: productId,
             title,
-            price,
+            price, // Keep price as formatted string for local cart rendering
             imgSrc,
             quantity: 1,
         });
 
+        // Add item to sidebar cart UI
         let cartBoxElement = CartBoxComponent(title, price, imgSrc, productId);
         let newNode = document.createElement("div");
         newNode.innerHTML = cartBoxElement;
         const cartContent = document.querySelector(".cart-content");
-        cartContent.appendChild(newNode);
+        if (cartContent) { // Check before appending
+            cartContent.appendChild(newNode);
+        }
 
         showNotification(result.message, "success");
 
@@ -269,6 +281,7 @@ async function handle_removeCartItem() {
     if (result.success) {
         cartBox.remove();
 
+        // Update local array
         itemsAdded = itemsAdded.filter((el) => el.id != productId);
 
         showNotification(`"${itemTitle}" unreserved and removed from cart.`, "success");
@@ -279,7 +292,7 @@ async function handle_removeCartItem() {
     }
 }
 
-// FIX: Renamed function for consistency
+// FIX: Corrected function name to match the event binding in addEvents
 async function handle_removeCheckoutItem(e) {
     e.preventDefault();
 
@@ -345,7 +358,7 @@ function handle_buyOrder(e) {
     }, 1000);
 }
 
-// FIX: Defined as async function and fixed the promise chain
+// This function relies on the Checkout.cshtml form submitting via AJAX
 async function handle_placeOrder(e) {
     e.preventDefault();
 
@@ -356,7 +369,7 @@ async function handle_placeOrder(e) {
         return;
     }
 
-    const button = form.querySelector('.checkout-btn-place-order') || e.currentTarget;
+    const button = form.querySelector('.checkout-btn-place-order') || form.querySelector('button[type="submit"]');
     const originalText = button.innerHTML;
 
     // Disable button and update text
@@ -371,8 +384,15 @@ async function handle_placeOrder(e) {
             body: formData
         });
 
-        // Ensure we handle non-JSON responses if fetch fails or redirects unexpectedly
+        // Check for server-side redirects (e.g., to login)
+        if (response.redirected) {
+            // Let the browser handle the redirect naturally
+            window.location.href = response.url;
+            return;
+        }
+
         if (!response.ok) {
+            // Throw error for bad HTTP status (4xx, 5xx)
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
@@ -394,7 +414,7 @@ async function handle_placeOrder(e) {
         }
     } catch (error) {
         console.error('Error placing order:', error);
-        showNotification("An unexpected network error occurred.", "error");
+        showNotification("An unexpected network error occurred or server response was malformed.", "error");
 
         // Re-enable button on catch/network error
         button.disabled = false;
@@ -406,6 +426,7 @@ async function handle_placeOrder(e) {
 function updateTotal() {
     let cartBoxes = document.querySelectorAll(".cart-box");
     const totalElement = cart.querySelector(".total-price");
+    if (!totalElement) return; // Add check if not on cart page
     let total = 0;
 
     cartBoxes.forEach((cartBox) => {
