@@ -88,10 +88,20 @@ function start() {
 
     loadInitialCartItems();
 
+    // Bind all events (remove, add, quantity change, buy/checkout)
     addEvents();
 
     updateTotal();
     updateCartCount();
+
+    // The 'orderButton' logic is now handled inside addEvents for consistency
+    // and is intended for the sidebar/Cart.cshtml button only.
+
+    // Bind the Checkout form submit listener only if the form exists (on Checkout.cshtml)
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', handle_placeOrder);
+    }
 }
 
 function loadInitialCartItems() {
@@ -100,16 +110,10 @@ function loadInitialCartItems() {
     cartContent.innerHTML = "";
 
     itemsAdded.forEach(item => {
-
         let cartBoxElement = CartBoxComponent(item.title, item.price, item.imgSrc, item.id);
         let newNode = document.createElement("div");
         newNode.innerHTML = cartBoxElement;
         cartContent.appendChild(newNode);
-
-        //this hides the item in the display page upon add to cart which is aa  big no no no no no no no no no non on on ononono
-        //document.querySelectorAll(`.product-box[data-id="${item.id}"], .box[data-id="${item.id}"]`).forEach(box => {
-        //    box.style.display = 'none';
-        //});
     });
 }
 
@@ -122,29 +126,39 @@ function update() {
 
 // =============== ADD EVENTS ===============
 function addEvents() {
-    // Remove items from cart
+    // 1. Remove items from sidebar cart (.cart-remove)
     let cartRemove_btns = document.querySelectorAll(".cart-remove");
-    console.log(cartRemove_btns);
     cartRemove_btns.forEach((btn) => {
         btn.addEventListener("click", handle_removeCartItem);
     });
 
-    // Change item quantity
+    // 2. NEW: Remove items from Checkout Page (.remove-checkout-item)
+    // NOTE: Ensure your Checkout.cshtml uses the class 'remove-checkout-item'
+    let checkoutRemove_btns = document.querySelectorAll(".remove-checkout-item");
+    checkoutRemove_btns.forEach((btn) => {
+        // FIX: Corrected typo in function name to match the definition below
+        btn.addEventListener("click", handle_removeCheckoutItem);
+    });
+
+
+    // 3. Change item quantity (read-only for now)
     let cartQuantity_inputs = document.querySelectorAll(".cart-quantity");
     cartQuantity_inputs.forEach((input) => {
         input.readOnly = true;
         input.addEventListener("change", handle_changeItemQuantity);
     });
 
-    // Add item to cart
+    // 4. Add item to cart
     let addCart_btns = document.querySelectorAll(".add-cart");
     addCart_btns.forEach((btn) => {
         btn.addEventListener("click", handle_addCartItem);
     });
 
-    // Buy Order
+    // 5. Buy Order (Sidebar cart button, redirects to checkout)
     const buy_btn = document.querySelector(".btn-buy");
-    buy_btn.addEventListener("click", handle_buyOrder);
+    if (buy_btn) {
+        buy_btn.addEventListener("click", handle_buyOrder);
+    }
 }
 
 // ============= AJAX HELPER FUNCTION =============
@@ -167,17 +181,17 @@ async function sendReservationRequest(productId, action) {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             credentials: "include",
-            body: params.toString() // 
+            body: params.toString()
         });
 
         if (response.redirected) {
-            window.location.href = "/Account/Login"; 
-            return { success: false, redirected: true };
+            window.location.href = "/Account/Login";
+            return { success = false, redirected = true };
         }
 
         if (!response.ok) {
             showNotification(`HTTP Error: ${response.status}. Could not reach server.`, "error");
-            return { success: false };
+            return { success = false };
         }
 
         const result = await response.json();
@@ -186,27 +200,33 @@ async function sendReservationRequest(productId, action) {
     } catch (error) {
         console.error("AJAX Error:", error);
         showNotification("An unknown client error occurred.", "error");
-        return { success: false };
+        return { success = false };
     }
 }
 
 // ============= HANDLE EVENTS FUNCTIONS =============
-//updated
 async function handle_addCartItem(e) {
     // Prevent default link behavior
     if (e) e.preventDefault();
 
     // Find the closest product box container
-    const productBox = this.closest('.product-box') || this.closest('.box'); 
+    const productBox = this.closest('.product-box') || this.closest('.box');
     const productId = this.getAttribute('data-id');
+    const addButton = this;
 
     if (!productBox || !productId) return;
+
+    // Disable temporarily while waiting for server response
+    addButton.disabled = true;
 
     const title = productBox.querySelector(".product-title").innerHTML.trim();
     const price = productBox.querySelector(".product-price").innerHTML;
     const imgSrc = productBox.querySelector(".product-img").src;
 
     const result = await sendReservationRequest(productId, 'reserve');
+
+    // Re-enable button on error/redirect/success
+    addButton.disabled = false;
 
     if (result.redirected) {
         return;
@@ -228,9 +248,6 @@ async function handle_addCartItem(e) {
         cartContent.appendChild(newNode);
 
         showNotification(result.message, "success");
-
-        //again this hdies the item upon adding to the cart which is a big no nononononon
-        //productBox.style.display = 'none';
 
         update();
     } else {
@@ -256,14 +273,43 @@ async function handle_removeCartItem() {
 
         showNotification(`"${itemTitle}" unreserved and removed from cart.`, "success");
 
-        //FIX4
-        // Need to check all shop containers where the product might be displayed
-        document.querySelectorAll(`.product-box[data-id="${productId}"], .box[data-id="${productId}"]`).forEach(box => {
-            box.style.display = ''; // Restore to default display
-        });
-
         update();
     } else {
+        showNotification(result.message, "error");
+    }
+}
+
+// FIX: Renamed function for consistency
+async function handle_removeCheckoutItem(e) {
+    e.preventDefault();
+
+    const link = e.currentTarget;
+    const productId = link.getAttribute('data-id');
+    const itemCard = link.closest('.order-item-card');
+
+    if (!confirm("Are you sure you want to remove this item from your cart?")) {
+        return;
+    }
+
+    link.style.pointerEvents = 'none';
+    link.textContent = 'Removing...';
+
+    const result = await sendReservationRequest(productId, 'unreserve');
+
+    if (result.success) {
+        // Optimistically remove the card from the view
+        itemCard.classList.add('removing');
+        setTimeout(() => {
+            itemCard.remove();
+            showNotification(result.message, "success");
+            // Reload to reflect new totals and potentially empty cart logic
+            window.location.reload();
+        }, 500);
+
+    } else {
+        // Re-enable and show error if request failed
+        link.style.pointerEvents = '';
+        link.textContent = 'Remove';
         showNotification(result.message, "error");
     }
 }
@@ -277,7 +323,7 @@ function handle_changeItemQuantity() {
         showNotification("This Artwork is a single copy", "warning");
     }
 
-    this.value = Math.floor(this.value); 
+    this.value = Math.floor(this.value);
 
     update();
 }
@@ -291,21 +337,69 @@ function handle_buyOrder(e) {
         return;
     }
 
-    showNotification("Processing order and redirecting to checkout...", "success", 1000);
+    showNotification("Redirecting to checkout...", "success", 1000);
 
-    //hopefully this actually sends the form now :(
+    // This redirects from the sidebar cart to the checkout page
     setTimeout(() => {
         window.location.href = "/Home/Checkout";
     }, 1000);
+}
 
-    //i forgot why I commented this pero wag muna galawin, gumagana na eh
+// FIX: Defined as async function and fixed the promise chain
+async function handle_placeOrder(e) {
+    e.preventDefault();
 
-    //const cartContent = cart.querySelector(".cart-content");
-    //cartContent.innerHTML = "";
-    //showNotification("Your order has been placed successfully!", "success", 4000);
-    //itemsAdded = [];
+    const form = document.getElementById('checkoutForm');
 
-    //update();
+    if (!form) {
+        showNotification("Checkout form not found. (Expected ID: 'checkoutForm')", "error");
+        return;
+    }
+
+    const button = form.querySelector('.checkout-btn-place-order') || e.currentTarget;
+    const originalText = button.innerHTML;
+
+    // Disable button and update text
+    button.disabled = true;
+    button.innerHTML = "Processing..."
+
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData
+        });
+
+        // Ensure we handle non-JSON responses if fetch fails or redirects unexpectedly
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Success: Show notification, then redirect
+            showNotification(data.message, "success");
+
+            setTimeout(() => {
+                window.location.href = data.redirectUrl;
+            }, 1500);
+
+        } else {
+            // Failure: Show error, re-enable button
+            showNotification(data.message, "error");
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    } catch (error) {
+        console.error('Error placing order:', error);
+        showNotification("An unexpected network error occurred.", "error");
+
+        // Re-enable button on catch/network error
+        button.disabled = false;
+        button.innerHTML = originalText;
+    }
 }
 
 // =========== UPDATE & RERENDER FUNCTIONS =========
@@ -343,9 +437,8 @@ function CartBoxComponent(title, price, imgSrc, productId) {
         <div class="detail-box">
             <div class="cart-product-title">${title}</div>
             <div class="cart-price">${price}</div>
-            <input type="number" value="1" class="cart-quantity" style="width: 60px;"> <!-- Adjust the width as needed -->
+            <input type="number" value="1" class="cart-quantity" style="width: 60px;">
         </div>
-        <!-- REMOVE CART  -->
         <i class='bx bxs-trash-alt cart-remove'></i>
     </div>`;
 }

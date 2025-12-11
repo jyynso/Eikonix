@@ -18,11 +18,10 @@
 <body>
     <!-- DARK MODE TOGGLE BUTTON -->
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
-        <i class='bx bx-moon' id="themeIcon"></i>   
+        <i class='bx bx-moon' id="themeIcon"></i>
     </button>
 
-    <!-- Notification Container -->
-    <div class="notification-container" id="notificationContainer"></div>
+
 
     <!-- Cart Sidebar -->
     <div class="cart">
@@ -40,6 +39,8 @@
         <button type="button" class="btn-buy">Place Order</button>
         <i class='bx bx-x' id="cart-close"></i>
     </div>
+
+
 
     <header>
         <a href="@Url.Action("Index", "Home")" class="logo">
@@ -73,6 +74,9 @@
             <span class="cart-count">0</span>
         </a>
     </header>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
 
     <div class="container body-content">
         @RenderBody()

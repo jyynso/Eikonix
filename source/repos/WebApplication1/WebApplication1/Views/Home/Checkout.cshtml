@@ -8,9 +8,8 @@
 
 <div class="notification-container" id="notificationContainer"></div>
 
-@* The container class is used for general page padding/max-width *@
 <div class="content container">
-    <h2 class="section-title">My Order</h2> @* Title matches the image/cart context *@
+    <h2 class="section-title">My Order</h2> 
 
     @if (TempData["Error"] != null)
     {
@@ -26,7 +25,6 @@
 
         <div class="order-details-container">
 
-            @* --- ITEMS LIST --- *@
             <div class="order-items-list">
                 @foreach (var item in Model.CartItems)
                 {
@@ -42,7 +40,7 @@
 
                             <div class="item-action-row">
                                 <a href="@Url.Action("Cart")" class="item-action-link">Edit</a>
-                                <a href="#" class="item-action-link remove">Remove</a> 
+                                <a href="#" class="item-action-link remove-checkout-item" data-id="@item.ProductId">Remove</a> 
                             </div>
                         </div>
                         <div class="item-card-right">
@@ -108,7 +106,7 @@
             {
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn-buy checkout-btn-place-order">
-                    Place Order
+                    Checkout
                 </button>
             }
 
@@ -118,50 +116,3 @@
 
 <script src="@Url.Content("~/Scripts/main2.js")"></script>
 <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('checkoutForm');
-        const notificationContainer = document.getElementById('notificationContainer');
-
-        // Function to create and show the simulated success notification
-        function showSuccessNotification(message) {
-            // 1. Create the notification element
-            const notification = document.createElement('div');
-            notification.className = 'custom-alert-box success show'; // Use 'success' class for green theme
-            notification.innerHTML = `
-                <i class='bx bxs-check-circle'></i>
-                <div class="alert-content">
-                    <p class="alert-message">${message}</p>
-                </div>
-            `;
-
-            // 2. Add it to the container
-            notificationContainer.appendChild(notification);
-
-            // 3. Automatically remove the notification after 5 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-                notification.classList.add('hide');
-                // Remove the element from the DOM after the transition
-                notification.addEventListener('transitionend', () => {
-                    notification.remove();
-                });
-            }, 5000);
-        }
-
-        // Intercept the form submission for simulation
-        form.addEventListener('submit', function (e) {
-            e.preventDefault(); // Stop the form from submitting to the server
-
-            // Simulate a successful order placement
-            const message = "✅ Order Placed Successfully! This is a simulation.";
-            showSuccessNotification(message);
-
-            // OPTIONAL: If you want to redirect to a confirmation page after the notification:
-            // setTimeout(() => {
-            //     window.location.href = '@Url.Action("OrderConfirmation", "Home")';
-            // }, 5500);
-        });
-    });
-</script>

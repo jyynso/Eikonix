@@ -228,7 +228,7 @@ namespace WebApplication1.Controllers
                 db.SaveChanges();
 
                 TempData["Success"] = $"Order #{newOrder.orderId} placed!";
-                return RedirectToAction("Confirmation", new { orderId = newOrder.orderId });
+                return RedirectToAction("Cart");
             }
             catch (Exception ex)
             {
