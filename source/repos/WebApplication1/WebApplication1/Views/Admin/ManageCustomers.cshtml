@@ -71,14 +71,12 @@
                         string statusClass = status.Equals("active") ? "status-active" : "status-inactive";
                         string buttonText = status.Equals("active") ? "Deactivate" : "Activate";
 
-                        <tr
-                            data-user-id="@details.userId"
+                        <tr data-user-id="@details.userId"
                             data-user-name="@details.userName"
                             data-user-email="@details.userEmail"
                             data-total-orders="@details.totalOrders"
                             data-total-spent="@details.totalSpent"
-                            data-user-status="@details.userStatus"
-                            >
+                            data-user-status="@details.userStatus">
                             <td>@details.userId</td>
                             <td>@details.userName</td>
                             <td>@details.userEmail</td>
@@ -106,42 +104,42 @@
         </div>
     </div>
 
-            <div class="custom-modal-overlay" id="customConfirmModal">
-                <div class="custom-modal-content">
+    <div class="custom-modal-overlay" id="customConfirmModal">
+        <div class="custom-modal-content">
 
-                    <div class="modal-header-custom">
-                        <h3 class="modal-title-custom" id="modalTitle">Confirm Status Change</h3>
-                        <button class="close-btn-custom" id="closeButton">&times;</button>
-                    </div>
-
-                    <div class="modal-body-custom">
-                        <p id="modalBodyText">Are you sure you want to proceed with this action?</p>
-                    </div>
-
-                    <div class="modal-footer-custom">
-                        <button class="btn-admin btn-secondary-custom" id="cancelButton">Cancel</button>
-                        <button class="btn-admin" id="confirmButton">Confirm Change</button>
-                    </div>
-
-                </div>
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom" id="modalTitle">Confirm Status Change</h3>
+                <button class="close-btn-custom" id="closeButton">&times;</button>
             </div>
+
+            <div class="modal-body-custom">
+                <p id="modalBodyText">Are you sure you want to proceed with this action?</p>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn-admin btn-secondary-custom" id="cancelButton">Cancel</button>
+                <button class="btn-admin" id="confirmButton">Confirm Change</button>
+            </div>
+
+        </div>
+    </div>
 
     @*remove for now, This only complicates things for now :( *@
     @*<div class="custom-modal-overlay" id="customViewDetailsModal">
 
-        <div class="modal-header-custom">
-            <h3 class="modal-title-custom">Details</h3>
-            <button class="close-btn-custom" id="viewDetailsCloseButton">&times;</button>
-        </div>
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom">Details</h3>
+                <button class="close-btn-custom" id="viewDetailsCloseButton">&times;</button>
+            </div>
 
-        <div class="modal-body-custom">
-            <p id="modalDetailsContent">details</p>
-        </div>
+            <div class="modal-body-custom">
+                <p id="modalDetailsContent">details</p>
+            </div>
 
-        <div class="modal-footer-custom">
-            <button class="btn-admin btn-secondary-custom" id="viewDetailsCancelButton">Close</button>
-        </div>
-    </div>*@
+            <div class="modal-footer-custom">
+                <button class="btn-admin btn-secondary-custom" id="viewDetailsCancelButton">Close</button>
+            </div>
+        </div>*@
 
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
     <script>
@@ -157,13 +155,30 @@
     let currentUserId = null;
     let currentButtonElement = null;
 
-    function showModal(message, isDeactivating) {
-        modalBodyText.innerHTML = message;
-        confirmButton.className = 'btn-admin';
-        confirmButton.classList.add(isDeactivating ? 'btn-danger-custom' : 'btn-primary-custom');
-        confirmButton.textContent = 'Confirm Change';
-        customModal.classList.add('show');
-    }
+
+       function showModal(message, isDeactivating) {
+           const userId = currentButtonElement.getAttribute('data-user-id');
+           const row = currentButtonElement.closest('tr');
+           const customerName = row.querySelector('td:nth-child(2)').textContent;
+           const actionText = isDeactivating ? 'Deactivate' : 'Activate';
+
+           document.getElementById('modalTitle').textContent = `${actionText} Customer?`;
+
+           modalBodyText.innerHTML = `
+        <div style="text-align: center; padding: 10px 0;">
+            <p><strong>${actionText}: ${customerName}</strong></p>
+            <p>Customer ID: ${userId}</p>
+            <p style="color: ${isDeactivating ? '#e74c3c' : '#00b894'}; font-weight: bold; margin-top: 10px;">
+                ${isDeactivating ? 'Customer will no longer be able to access their account.' : 'Customer account will be restored with full access.'}
+            </p>
+        </div>
+    `;
+
+           confirmButton.className = 'btn-admin';
+           confirmButton.classList.add(isDeactivating ? 'btn-danger-custom' : 'btn-view');
+           confirmButton.textContent = actionText;
+           customModal.classList.add('show');
+       }
 
     function hideModal() {
         customModal.classList.remove('show');
@@ -216,41 +231,9 @@
             }
         }).catch(err => { console.error(err); alert('Error updating status'); });
     }
-
-    // View Details modal(i disbaled it for now cause i see no reason for viewdetails to be there); might add it later after all the features are done
-//    const viewButtons = document.querySelectorAll('.btn-view');
     const detailsModal = document.getElementById('customViewDetailsModal');
     const detailsContent = document.getElementById('modalDetailsContent');
-//    const viewCloseButton = document.getElementById('viewDetailsCloseButton');
-//    const viewCancelButton = document.getElementById('viewDetailsCancelButton');
 
-//    function showDetailsModal(html) {
-//        detailsContent.innerHTML = html;
-//        detailsModal.classList.add('show');
-//    }
-
-//    function hideDetailsModal() {
-//        detailsModal.classList.remove('show');
-//        detailsContent.innerHTML = 'Loading...';
-//    }
-
-//    viewButtons.forEach(button => {
-//        button.addEventListener('click', function() {
-//            const row = this.closest('tr');
-//            const html = `
-//                <strong>ID:</strong> ${row.dataset.userId} <br>
-//                <strong>Name:</strong> ${row.dataset.userName} <br>
-//                <strong>Email:</strong> ${row.dataset.userEmail} <br>
-//                <strong>Total Orders:</strong> ${row.dataset.totalOrders} <br>
-//                <strong>Total Spent:</strong> &#8369;${row.dataset.totalSpent} <br>
-//                <strong>Status:</strong> ${row.dataset.userStatus}
-//            `;
-//            showDetailsModal(html);
-//        });
-//    });
-
-//    viewCloseButton.addEventListener('click', hideDetailsModal);
-//    viewCancelButton.addEventListener('click', hideDetailsModal);
 });
 
     </script>

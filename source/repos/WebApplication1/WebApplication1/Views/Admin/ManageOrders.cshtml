@@ -132,7 +132,7 @@
                     </div>
 
                     <div class="modal-body-custom">
-                        <p id="viewModalBodyContent">Order Details</p>
+                        <div id="viewModalBodyContent">Order Details</div>
                     </div>
 
                     <div class="modal-footer-custom">
@@ -174,177 +174,232 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         <script>
-        $(document).ready(function () {
-            const $viewDetailsModal = $('#modalViewOrderDetails');
-            const $viewBodyContent = $viewDetailsModal.find('#viewModalBodyContent');
+$(document).ready(function () {
+    const $viewDetailsModal = $('#modalViewOrderDetails');
+    const $viewBodyContent = $('#viewModalBodyContent');  // Fixed selector
 
-            const $confirmModal = $('#customConfirmModal');
-            const $confirmTitle = $('#confirmModalTitle');
-            const $confirmBodyText = $('#confirmModalBodyText');
-            const $statusUpdateButtons = $('#statusUpdateButtons');
-            const $confirmActionButton = $('#confirmActionButton');
+    const $confirmModal = $('#customConfirmModal');
+    const $confirmTitle = $('#confirmModalTitle');
+    const $confirmBodyText = $('#confirmModalBodyText');
+    const $statusUpdateButtons = $('#statusUpdateButtons');
+    const $confirmActionButton = $('#confirmActionButton');
 
-            let currentOrderId = null;
-            let currentActionType = null;
+    let currentOrderId = null;
+    let currentActionType = null;
 
-            function hideConfirmModal() {
-                $confirmModal.removeClass('show');
-                $statusUpdateButtons.hide();
-                $confirmActionButton.show();
-                currentOrderId = null;
-                currentActionType = null;
+    function hideConfirmModal() {
+        $confirmModal.removeClass('show');
+        $statusUpdateButtons.hide();
+        $confirmActionButton.show();
+        currentOrderId = null;
+        currentActionType = null;
+    }
+
+    //filters
+    $('#orderStatusFilters').on('click', '.filter-btn', function () {
+        const selectedStatus = $(this).data('status');
+
+        $('#orderStatusFilters .filter-btn').removeClass('active-filter');
+        $(this).addClass('active-filter');
+
+        const $tableRows = $('.admin-table tbody tr');
+
+        $tableRows.each(function () {
+            const row = $(this);
+            const rowStatus = row.find('.btn-edit').data('current-status');
+
+            if (selectedStatus === 'all') {
+                row.show();
+            }
+            else if (rowStatus === selectedStatus) {
+                row.show();
+            }
+            else {
+                row.hide();
             }
 
-            //filters
-            $('#orderStatusFilters').on('click', '.filter-btn', function () {
-                const selectedStatus = $(this).data('status');
+        });
+    });
 
-                $('#orderStatusFilters .filter-btn').removeClass('active-filter');
-                $(this).addClass('active-filter');
+    $('.btn-view').on('click', function () {
+        currentOrderId = $(this).data('order-id');
+        $viewBodyContent.html('<strong>Loading order details...</strong>');
+        $viewDetailsModal.addClass('show');
 
-                const $tableRows = $('.admin-table tbody tr');
+        $.ajax({
+            url: '@Url.Action("GetOrderDetails", "Admin")',
+            type: 'GET',
+            data: { id: currentOrderId },
+            success: function (response) {
+                console.log('Response:', response); 
+                if (response.success && response.data) {
+                    const data = response.data;
 
-                $tableRows.each(function () {
-                    const row = $(this);
-                    const rowStatus = row.find('.btn-edit').data('current-status');
 
-                    if (selectedStatus === 'all') {
-                        row.show();
+                    const orderStatus = data.orderStatus ? data.orderStatus.toLowerCase() : 'pending';
+                    let statusClass = 'default';
+
+                    if (orderStatus.includes('pending')) {
+                        statusClass = 'status-pending';
+                    } else if (orderStatus.includes('completed')) {
+                        statusClass = 'status-completed';
+                    } else if (orderStatus.includes('processing')) {
+                        statusClass = 'status-processing';
+                    } else if (orderStatus.includes('cancelled')) {
+                        statusClass = 'status-inactive';
                     }
-                    else if (rowStatus === selectedStatus) {
-                        row.show();
+
+
+                    let itemsHtml = '';
+                    if (Array.isArray(data.Items) && data.Items.length > 0) {
+                        data.Items.forEach(item => {
+                            itemsHtml += `<div class="order-item">
+                                <span class="item-name">${item.productTitle}</span>
+                                <span class="item-qty">Qty: ${item.orderItemQuantity}</span>
+                                <span class="item-price">&#8369;${parseFloat(item.orderItemPrice).toFixed(2)}</span>
+                            </div>`;
+                        });
+                    } else {
+                        itemsHtml = '<div class="order-item">No items found.</div>';
                     }
-                    else {
-                        row.hide();
-                    }
 
-                });
-            });
 
-            $('.btn-view').on('click', function () {
-                currentOrderId = $(this).data('order-id');
-                $viewBodyContent.html('<strong>Loading order details...</strong>');
-                $viewDetailsModal.addClass('show');
+                    let htmlContent = `
+                        <div class="order-header">
+                            <h4>Order #${data.orderId}</h4>
+                            <span class="status-badge ${statusClass}">${data.orderStatus}</span>
+                        </div>
 
-                $.ajax({
-                    url: '@Url.Action("GetOrderDetails", "Admin")',
-                    type: 'GET',
-                    data: { id: currentOrderId },
-                    success: function (response) {
-                        if (response.success && response.data) {
-                            const data = response.data;
+                        <div class="order-info">
+                            <div class="info-row">
+                                <span class="label">Customer:</span>
+                                <span class="value">${data.userName}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Email:</span>
+                                <span class="value">${data.userEmail}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Date:</span>
+                                <span class="value">${new Date(parseInt(data.orderDate.substr(6))).toLocaleDateString()}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Total:</span>
+                                <span class="value total">&#8369;${parseFloat(data.orderTotalAmount).toFixed(2)}</span>
+                            </div>
+                        </div>
 
-                            let itemsHtml = Array.isArray(data.Items) ? data.Items.map(item => `
-                                <li>
-                                    ${item.productTitle} - Qty: ${item.orderItemQuantity}  &#8369;${item.orderItemPrice.toFixed(2)}
+                        <div class="order-items-section">
+                            <h5>Order Items</h5>
+                            <div class="items-container">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    `;
 
-                                </li>
-                            `).join('') : '<li>No items found.</li>';
-
-                            let htmlContent = `
-                                <h4>Order Summary (#${data.orderId})</h4>
-                                <p><strong>Customer:</strong> ${data.userName} (${data.userEmail})</p>
-                                <p><strong>Date:</strong> ${new Date(parseInt(data.orderDate.substr(6))).toLocaleDateString()}</p>
-                                <p><strong>Status:</strong> ${data.orderStatus}</p>
-                                <p><strong>Total Amount:</strong> &#8369;${data.orderTotalAmount.toFixed(2)}</p>
-
-                                <h4>Order Items</h4>
-                                <ul class="order-items-list">${itemsHtml}</ul>
-                            `;
-                            $viewBodyContent.html(htmlContent);
-                        } else {
-                            $viewBodyContent.html('<strong>Error:</strong> Could not load order details.');
-                        }
-                    },
-                    error: function () {
-                        $viewBodyContent.html('<strong>Error:</strong> Network request failed. Check the console.');
-                    }
-                });
-            });
-
-            $viewDetailsModal.find('#viewCloseButton, #viewCancelButton').on('click', function() {
-                 $viewDetailsModal.removeClass('show');
-            });
-
-            $('.btn-edit').on('click', function () {
-                currentOrderId = $(this).data('order-id');
-                const currentStatus = $(this).data('current-status');
-
-                currentActionType = 'update';
-                $confirmTitle.text(`Update Status for Order #${currentOrderId}`);
-                $confirmBodyText.html(`Select the new status for this order. Current status: <strong>${currentStatus.toUpperCase()}</strong>`);
-
-                $statusUpdateButtons.show();
-                $confirmActionButton.hide();
-
-                $confirmModal.addClass('show');
-
-                $('.status-btn').removeClass('active-status-highlight');
-                $(`.status-btn[data-status="${currentStatus}"]`).addClass('active-status-highlight');
-            });
-
-            $('.btn-delete').on('click', function () {
-                currentOrderId = $(this).data('order-id');
-
-                if ($(this).data('current-status') === 'cancelled') {
-                    alert('This order is already cancelled.');
-                    return;
+                    $viewBodyContent.html(htmlContent);
+                } else {
+                    $viewBodyContent.html('<strong>Error:</strong> Could not load order details.');
                 }
-
-                currentActionType = 'cancel';
-                $confirmTitle.text(`Cancel Order #${currentOrderId}`);
-                $confirmBodyText.html(`Are you sure you want to <strong>cancel</strong> Order #${currentOrderId}? This action cannot be undone.`);
-
-                $statusUpdateButtons.hide();
-                $confirmActionButton.show().text('Confirm Cancel').removeClass('btn-primary-custom').addClass('btn-danger-custom');
-
-                $confirmModal.addClass('show');
-            });
-
-            $('#confirmCancelButton, #confirmCloseButton').on('click', hideConfirmModal);
-
-            $('#statusUpdateButtons').on('click', '.status-btn', function() {
-                if (!currentOrderId || currentActionType !== 'update') return;
-
-                const newStatus = $(this).data('status');
-
-                const currentStatus = $('.btn-edit[data-order-id="' + currentOrderId + '"]').data('current-status');
-                if (newStatus === currentStatus) {
-                    hideConfirmModal();
-                    return;
-                }
-
-                updateOrderStatus(currentOrderId, newStatus);
-            });
-
-            $confirmActionButton.on('click', function() {
-                if (currentOrderId && currentActionType === 'cancel') {
-                    updateOrderStatus(currentOrderId, 'cancelled');
-                }
-            });
-
-            function updateOrderStatus(orderId, newStatus) {
-                const updateUrl = '@Url.Action("UpdateOrderStatus", "Admin")';
-
-                $.ajax({
-                    url: updateUrl,
-                    type: 'POST',
-                    data: { id: orderId, newStatus: newStatus },
-                    success: function (response) {
-                        if (response.success) {
-                            alert(response.message);
-                            window.location.reload();
-                        } else {
-                            alert('Error: ' + response.message);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        alert('An error occurred during status update. (Server Error)');
-                    }
-                });
-                hideConfirmModal();
+            },
+            error: function (xhr, status, error) {
+                console.log('AJAX Error:', error); 
+                $viewBodyContent.html('<strong>Error:</strong> Network request failed. Check the console.');
             }
         });
+    });
+
+    $viewDetailsModal.find('#viewCloseButton').on('click', function() {
+        $viewDetailsModal.removeClass('show');
+    });
+
+    $('.btn-edit').on('click', function () {
+        currentOrderId = $(this).data('order-id');
+        const currentStatus = $(this).data('current-status');
+
+        currentActionType = 'update';
+        $confirmTitle.text(`Update Status for Order #${currentOrderId}`);
+        $confirmBodyText.html(`Select the new status for this order. Current status: <strong>${currentStatus.toUpperCase()}</strong>`);
+
+        $statusUpdateButtons.show();
+        $confirmActionButton.hide();
+
+        $confirmModal.addClass('show');
+
+        $('.status-btn').removeClass('active-status-highlight');
+        $(`.status-btn[data-status="${currentStatus}"]`).addClass('active-status-highlight');
+    });
+
+    $('.btn-delete').on('click', function () {
+        currentOrderId = $(this).data('order-id');
+
+        if ($(this).data('current-status') === 'cancelled') {
+            alert('This order is already cancelled.');
+            return;
+        }
+
+        currentActionType = 'cancel';
+        $confirmTitle.text(`Cancel Order #${currentOrderId}`);
+
+        // Simple, readable text
+        $confirmBodyText.html(`
+        <div>
+            <p><strong>Cancel Order #${currentOrderId}?</strong></p>
+            <p>This will mark the order as cancelled.</p>
+            <p><strong style="color: #e74c3c;">Warning: This action cannot be undone.</strong></p>
+        </div>
+    `);
+
+        $statusUpdateButtons.hide();
+        $confirmActionButton.show().text('Confirm Cancel').removeClass('btn-primary-custom').addClass('btn-danger-custom');
+
+        $confirmModal.addClass('show');
+    });
+
+    $('#confirmCancelButton, #confirmCloseButton').on('click', hideConfirmModal);
+
+    $('#statusUpdateButtons').on('click', '.status-btn', function() {
+        if (!currentOrderId || currentActionType !== 'update') return;
+
+        const newStatus = $(this).data('status');
+
+        const currentStatus = $('.btn-edit[data-order-id="' + currentOrderId + '"]').data('current-status');
+        if (newStatus === currentStatus) {
+            hideConfirmModal();
+            return;
+        }
+
+        updateOrderStatus(currentOrderId, newStatus);
+    });
+
+    $confirmActionButton.on('click', function() {
+        if (currentOrderId && currentActionType === 'cancel') {
+            updateOrderStatus(currentOrderId, 'cancelled');
+        }
+    });
+
+    function updateOrderStatus(orderId, newStatus) {
+        const updateUrl = '@Url.Action("UpdateOrderStatus", "Admin")';
+
+        $.ajax({
+            url: updateUrl,
+            type: 'POST',
+            data: { id: orderId, newStatus: newStatus },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert('An error occurred during status update. (Server Error)');
+            }
+        });
+        hideConfirmModal();
+    }
+});
         </script>
     </body>
 

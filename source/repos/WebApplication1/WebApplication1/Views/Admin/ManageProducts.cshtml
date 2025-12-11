@@ -409,7 +409,17 @@
             const productTitle = $(this).closest('tr').find('td:nth-child(2)').text();
 
             $confirmTitle.text(`Confirm Product Deletion`);
-            $confirmBodyText.html(`Are you sure you want to permanently delete ${productTitle} (ID: ${productIdToDelete})? This action cannot be undone.`);
+
+
+            $confirmBodyText.html(`
+                <div style="text-align: center; padding: 10px 0;">
+                    <p><strong>Delete: ${productTitle}</strong></p>
+                    <p>Product ID: ${productIdToDelete}</p>
+                    <p style="color: #e74c3c; font-weight: bold; margin-top: 10px;">
+                        This will permanently delete this product and all associated data.
+                    </p>
+                    <p<strong>This action cannot be undone.</strong></p>
+                </div>`);
 
             $confirmDeleteButton.show().text('Confirm Delete').removeClass('btn-primary-custom').addClass('btn-danger-custom');
 
