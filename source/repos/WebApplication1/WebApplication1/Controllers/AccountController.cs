@@ -20,7 +20,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public ActionResult Login(string email, string password, bool RememberMe)
+        public ActionResult Login(string email, string password, bool? RememberMe)
         {
             using (var db = new AppDbContext())
             {
@@ -28,7 +28,10 @@ namespace WebApplication1.Controllers
 
                 if (user != null && Utils.VerifyPassword(password, user.hashedpassword))
                 {
-                    FormsAuthentication.SetAuthCookie(user.userEmail, false);
+
+                    bool isPersistent = RememberMe ?? false;
+
+                    //FormsAuthentication.SetAuthCookie(user.userEmail, false);
 
                     Session["UserId"] = user.userId; //idk why I put this here but it may come useful later :D 
                                                     //update: it is useful :D
@@ -36,7 +39,7 @@ namespace WebApplication1.Controllers
                     Session["UserRole"] = user.userRole;
 
                     //"Maalaala Mo Kaya?"
-                    var expiration = RememberMe ?
+                    var expiration = isPersistent ?
                         DateTime.Now.AddDays(7) :
                         DateTime.Now.AddMinutes(FormsAuthentication.Timeout.TotalMinutes);
 
@@ -45,7 +48,7 @@ namespace WebApplication1.Controllers
                             user.userEmail,
                             DateTime.Now,
                             expiration,
-                            RememberMe,
+                            isPersistent,
                             user.userRole   ,
                             FormsAuthentication.FormsCookiePath
 
@@ -55,7 +58,7 @@ namespace WebApplication1.Controllers
 
                     HttpCookie authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket);
 
-                    if (RememberMe)
+                    if (isPersistent)
                     {
                         authCookie.Expires = ticket.Expiration;
                     }
