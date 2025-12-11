@@ -139,8 +139,8 @@
                             <td><span class="status-badge @statusClass">@details.orderStatus</span></td>
                             <td>@details.orderDate.ToString("yyyy-MM-dd")</td>
                             <td>
-                                <button class="btn-admin btn-view">View</button>
-                                <button class="btn-admin btn-edit">Edit</button>
+                                <a href=@Url.Action("ManageOrders", "Admin") class="btn-admin btn-view">View</a>
+                                <a href=@Url.Action("ManageOrders", "Admin") class="btn-admin btn-edit">Edit</a>
                             </td>
                         </tr>
                     }

@@ -716,7 +716,8 @@ body.dark-mode .admin-table thead {
     z-index: 9999;
 }
 .custom-modal-content {
-    background: white;
+    background: var(--card-bg);
+    color: var(--text-color);
     padding: 20px;
     border-radius: 8px;
     width: 500px;
@@ -725,6 +726,74 @@ body.dark-mode .admin-table thead {
     overflow-y: auto; 
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
+    .custom-modal-content label {
+        color: var(--text-color);
+        display: block;
+        align-content: center;
+    }
+    .custom-modal-content .form-control,
+    .custom-modal-content .form-control-file,
+    .custom-modal-content select,
+    .custom-modal-content textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-color);
+        color: var(--text-color);
+        transition: border-color 0.3s, box-shadow 0.3s;
+        box-sizing: border-box; 
+    }
+        .custom-modal-content .form-control:focus,
+        .custom-modal-content textarea:focus,
+        .custom-modal-content select:focus {
+            border-color: var(--main-color);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.3);
+            outline: none;
+        }
+
+
+/*view container*/
+.custom-modal-content.view-modal-content {
+    max-width: 700px; 
+    width: 90%; 
+}
+.modal-body-custom img#viewProductImage {
+    max-width: 300px;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+}
+.modal-body-custom p {
+    background-color: var(--card-bg);
+    margin-bottom: 12px; 
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.1); 
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--text-color);
+    display: flex; 
+}
+.modal-body-custom p strong {
+    font-weight: 700;
+    color: var(--text-color); 
+    min-width: 140px; 
+    margin-right: 15px; 
+}
+
+.modal-body-custom p:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+
+
 /*IT WORKS NOW DONT TOUCH THIS!!!!*/
 .custom-modal-overlay.show {
     display: flex;
@@ -743,7 +812,6 @@ body.dark-mode .admin-table thead {
     font-weight: 700;
     color: var(--text-color);
 }
-
 
 .close-btn-custom {
     background: none;
@@ -764,16 +832,18 @@ body.dark-mode .admin-table thead {
     }
 
 .modal-body-custom {
+    background-color: var(--card-bg);
     color: var(--text-color);
     font-size: 1rem;
     margin-bottom: 30px;
 }
 
     .modal-body-custom span {
-        color: black;
+        color: var(--text-color);
     }
 
 .modal-footer-custom {
+    color: var(--text-color);
     display: flex;
     justify-content: flex-end;
     gap: 15px;
