@@ -7,6 +7,7 @@ using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Helpers;
 using System.Web.Security;
+using System.Web.UI.WebControls;
 
 namespace WebApplication1.Controllers
 {
@@ -19,7 +20,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public ActionResult Login(string email, string password)
+        public ActionResult Login(string email, string password, bool RememberMe)
         {
             using (var db = new AppDbContext())
             {
@@ -29,9 +30,38 @@ namespace WebApplication1.Controllers
                 {
                     FormsAuthentication.SetAuthCookie(user.userEmail, false);
 
-                    Session["UserId"] = user.userId; //idk why I put this here but it may come useful later :D
+                    Session["UserId"] = user.userId; //idk why I put this here but it may come useful later :D 
+                                                    //update: it is useful :D
                     Session["UserEmail"] = user.userEmail;
                     Session["UserRole"] = user.userRole;
+
+                    //"Maalaala Mo Kaya?"
+                    var expiration = RememberMe ?
+                        DateTime.Now.AddDays(7) :
+                        DateTime.Now.AddMinutes(FormsAuthentication.Timeout.TotalMinutes);
+
+                    FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(
+                            1,
+                            user.userEmail,
+                            DateTime.Now,
+                            expiration,
+                            RememberMe,
+                            user.userRole   ,
+                            FormsAuthentication.FormsCookiePath
+
+                        );
+
+                    string encryptedTicket = FormsAuthentication.Encrypt(ticket);
+
+                    HttpCookie authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket);
+
+                    if (RememberMe)
+                    {
+                        authCookie.Expires = ticket.Expiration;
+                    }
+
+                    Response.Cookies.Add(authCookie);
+
 
                     if (user.userRole == "admin")
                         return RedirectToAction("Dashboard", "Admin");
