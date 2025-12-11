@@ -66,8 +66,16 @@
 
         <div class="header-right">
             <div class="search-track-box">
-                <input type="text" placeholder="Search..." />
-                <a href="#"><i class='bx bx-search'></i></a>
+                <form id="searchForm" action="@Url.Action("Search", "Home")" method="GET">
+                    <input type="text"
+                           placeholder="Search..."
+                           name="q"
+                           id="searchInput" />
+
+                    <a href="#" id="searchIconLink">
+                        <i class='bx bx-search'></i>
+                    </a>
+                </form>
             </div>
 
             @if (Session["UserID"] != null)
@@ -152,6 +160,21 @@
     @RenderSection("scripts", required: false)
 
     <!-- JavaScript -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchForm = document.getElementById('searchForm');
+            const searchIconLink = document.getElementById('searchIconLink');
+
+            if (searchIconLink && searchForm) {
+                searchIconLink.addEventListener('click', function (e) {
+                    e.preventDefault(); 
+                    searchForm.submit(); 
+                });
+            }
+        });
+    </script>
+
     <script src="@Url.Content("~/Scripts/main2.js")"></script>
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
 </body>

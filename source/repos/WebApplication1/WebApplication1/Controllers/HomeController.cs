@@ -168,6 +168,31 @@ namespace WebApplication1.Controllers
             return View(viewModel);
         }
 
+        public ActionResult Search(string q) 
+        {
+            List<WebApplication1.Data.Products> products;
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                string searchTerm = q.Trim().ToLower();
+
+                products = db.Products
+                    .Where(p => p.productStock > 0 &&
+                                (p.productTitle.ToLower().Contains(searchTerm) ||
+                                 p.productArtist.ToLower().Contains(searchTerm) ||
+                                 p.productDescription.ToLower().Contains(searchTerm)))
+                    .ToList(); 
+            }
+            else
+            {
+                products = new List<WebApplication1.Data.Products>();
+            }
+
+            ViewBag.SearchQuery = q;
+
+            return View("SearchResults", products);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ProcessOrder()
