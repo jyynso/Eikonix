@@ -770,7 +770,6 @@ body.dark-mode .admin-table thead {
     box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
 }
 .modal-body-custom p {
-    background-color: var(--card-bg);
     margin-bottom: 12px; 
     padding-bottom: 5px;
     border-bottom: 1px solid rgba(0, 255, 255, 0.1); 
