@@ -1468,11 +1468,6 @@ body.dark-mode .heading p {
     color: rgba(255, 255, 255, 0.7);
 }
 
-/*for the products section*/
-.box {
-    display: flex;
-    flex-direction: column;
-}
 
 /* RESPONSIVE FOOTER */
 @media (max-width: 1200px) {
