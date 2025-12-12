@@ -7,6 +7,21 @@
 
 <!-- CUSTOM CSS TO OVERRIDE THE CHURCH ICON -->
 <style>
+
+    :root {
+        --main-color: #00FFFF;
+        --second-color: #008080;
+        --text-color: #1b1b1b;
+        --bg-color: #F3FFFF;
+        --accent-color: #003333;
+        --box-shadow: 0 8px 32px rgba(0, 255, 255, 0.15);
+        --gradient-primary: linear-gradient(135deg, #00FFFF 0%, #008080 100%);
+        --gradient-secondary: linear-gradient(135deg, #008080 0%, #003333 100%);
+        --header-gradient: linear-gradient(90deg, #008B8B 0%, #00A0A0 50%, #00B8B8 100%);
+        --card-bg: #ffffff;
+        --input-bg: #ffffff;
+        --border-color: rgba(0, 255, 255, 0.2);
+    }
     /* Remove ALL existing styling and icons from the add to cart button */
     .box .content a,
     .box .content a::before,
@@ -64,6 +79,65 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
+    }
+
+
+/*    an attempt at fixing the featured product section*/
+    .box {
+        background: var(--card-bg) !important;
+        color: var(--text-color) !important;
+        box-shadow: var(--box-shadow);
+        border-radius: 18px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .image-container {
+        width: 100%;
+        height: 300px; 
+        border-radius: 14px;
+        overflow: hidden;
+    }
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    .product-title {
+        margin: 0;
+        margin-top: 6px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-color) !important;
+    }
+    .product-meta {
+        margin-left: 5%;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--text-color);
+    }
+    .product-card {
+        background: var(--card-bg);
+        color: var(--text-color);
+    }
+    .content .product-price {
+        color: var(--second-color) !important;
+        font-weight: 700;
+        font-size: 1.1rem;
+        white-space: nowrap;
+    }
+    .products {
+        background-color: var(--card-bg) !important;
+        color: var(--text-color);
+    }
+    .view-all-container {
+/*        color: var(--second-color) !important;*/
+        justify-content: center;
+        display: flex;
+        margin-top: 15px;
     }
 
 </style>

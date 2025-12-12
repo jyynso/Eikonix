@@ -1005,6 +1005,21 @@ body.dark-mode .about-card p {
     opacity: 0.95;
 }
 
+
+/*products*/
+body.dark-mode .content .product-price {
+    color: var(--main-color) !important;
+    white-space: nowrap;
+}
+/*not working for some reason :(*/
+body.dark-mode .products {
+    background-color: var(--card-bg) !important;
+}
+/*.body.dark-mode .view-all-container {
+    color: var(--main-color) !important;
+    
+}*/
+
 /* CATEGORIES SECTION */
 .categories {
     padding: 80px 100px;
@@ -1100,7 +1115,6 @@ body.dark-mode .category-link {
     color: var(--main-color);
     gap: 10px;
 }
-
 /* FEATURES SECTION */
 .features {
     padding: 80px 100px;
@@ -1302,6 +1316,9 @@ body.dark-mode .heading p {
     color: var(--text-color);
     position: relative;
     display: inline-block;
+}
+.body.dark-mode .heading h2 {
+    color: var(--text-color) !important;
 }
 
 .heading h2::after {

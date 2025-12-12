@@ -350,6 +350,7 @@
     <Content Include="Views\Home\Traditional.cshtml" />
     <Content Include="Views\Home\Checkout.cshtml" />
     <Content Include="Views\Home\SearchResults.cshtml" />
+    <Content Include="Views\Home\OrderSuccess.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

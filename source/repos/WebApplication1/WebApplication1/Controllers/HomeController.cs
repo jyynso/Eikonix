@@ -50,6 +50,11 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        public ActionResult OrderSuccess()
+        {
+            return View();
+        }
+
         [HttpGet]
         public ActionResult Confirmation(int orderId)
         {
@@ -253,7 +258,7 @@ namespace WebApplication1.Controllers
                 db.SaveChanges();
 
                 TempData["Success"] = $"Order #{newOrder.orderId} placed!";
-                return RedirectToAction("Cart");
+                return RedirectToAction("OrderSuccess");
             }
             catch (Exception ex)
             {
@@ -261,6 +266,7 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Cart");
             }
         }
+
 
         [HttpPost]
         [ActionName("ReserveProducts")]
