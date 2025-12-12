@@ -190,7 +190,7 @@ namespace WebApplication1.Controllers
 
                 model.TotalProducts = totalCompletedOrders;
                 model.TotalSales = totalSales;
-                model.AvgOrderValue = totalSales / totalCompletedOrders;
+                model.AvgOrderValue = Math.Round(totalSales / totalCompletedOrders, 2);
             }
             else
             {
