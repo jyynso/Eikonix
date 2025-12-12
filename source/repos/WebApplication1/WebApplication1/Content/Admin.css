@@ -1045,3 +1045,77 @@ body.dark-mode .item-qty {
 body.dark-mode .item-price {
     color: #ffffff;
 }
+
+
+/*modals*/
+.btn-admin {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: inline-block;
+    margin: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-secondary-custom {
+    background: #6c757d;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+    .btn-secondary-custom:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+
+/* MAKE ALL MODAL CONFIRM BUTTONS RED */
+#modalConfirmButton {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3) !important;
+    font-weight: 700;
+}
+
+    #modalConfirmButton:hover {
+        background: #c0392b !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4) !important;
+    }
+
+/* REMOVE the green button rule entirely since we want all confirm buttons red */
+/*
+.modal-footer-custom .btn-admin:not(.btn-secondary-custom) {
+    background: var(--gradient-primary);
+    color: #003333 !important;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+    font-weight: 700;
+}
+
+    .modal-footer-custom .btn-admin:not(.btn-secondary-custom):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+        background: #008080;
+        color: #ffffff !important;
+    }
+*/
+
+/* Keep this for other danger buttons if needed elsewhere */
+.btn-danger-custom {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3) !important;
+    font-weight: 700;
+}
+
+    .btn-danger-custom:hover {
+        background: #c0392b !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4) !important;
+    }

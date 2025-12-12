@@ -15,8 +15,27 @@
 </head>
 
 <body>
+
     <!-- Notification Container -->
     <div class="notification-container" id="notificationContainer"></div>
+
+    <div class="custom-modal-overlay" id="confirmationModal">
+        <div class="custom-modal-content">
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom" id="modalTitle">Confirmation</h3>
+                <button class="close-btn-custom" id="modalCloseButton">&times;</button>
+            </div>
+
+            <div class="modal-body-custom">
+                <p id="modalBodyText">Are you sure you want to proceed?</p>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn-admin btn-secondary-custom" id="modalCancelButton">Cancel</button>
+                <button class="btn-admin" id="modalConfirmButton">Confirm</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Cart Sidebar -->
     <div class="cart">
@@ -69,13 +88,17 @@
                 </form>
             </div>
 
-            @if (Session["UserID"] != null)
+            @if (Session["UserId"] != null)
             {
                 <a href="#" class="cart-icon" id="cart-icon" title="Shopping Cart">
                     <i class='bx bx-shopping-bag'></i>
                     <span class="cart-count">0</span>
                 </a>
-                <a href="@Url.Action("Logout", "Account")" class="logout-btn" title="Logout">
+
+                <a href="#"
+                   class="logout-btn"
+                   title="Logout"
+                   id="logoutButton">
                     <i class='bx bx-log-out'></i>
                 </a>
             }
@@ -148,19 +171,86 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchForm = document.getElementById('searchForm');
-            const searchIconLink = document.getElementById('searchIconLink');
+const modal = {
+    element: document.getElementById('confirmationModal'),
+    title: document.getElementById('modalTitle'),
+    body: document.getElementById('modalBodyText'),
+    confirmBtn: document.getElementById('modalConfirmButton'),
+    cancelBtn: document.getElementById('modalCancelButton'),
+    closeBtn: document.getElementById('modalCloseButton'),
+    callback: null,
 
-            if (searchIconLink && searchForm) {
-                searchIconLink.addEventListener('click', function (e) {
-                    e.preventDefault(); 
-                    searchForm.submit(); 
-                });
+    show: function(title, message, confirmText, confirmCallback, isDanger = false) {
+        this.title.textContent = title;
+        this.body.textContent = message;
+        this.confirmBtn.textContent = confirmText;
+        this.callback = confirmCallback;
+
+        this.confirmBtn.className = 'btn-admin';
+        this.confirmBtn.classList.remove('btn-view', 'btn-primary-custom');
+
+        if (isDanger) {
+            this.confirmBtn.classList.add('btn-danger-custom');
+        } else {
+            this.confirmBtn.classList.remove('btn-danger-custom');
+        }
+
+        this.element.classList.add('show');
+
+        setTimeout(() => this.cancelBtn.focus(), 100);
+    },
+
+    hide: function() {
+        this.element.classList.remove('show');
+        this.callback = null;
+    },
+
+    init: function() {
+        this.cancelBtn.addEventListener('click', () => this.hide());
+        this.closeBtn.addEventListener('click', () => this.hide());
+
+        this.element.addEventListener('click', (e) => {
+            if (e.target === this.element) {
+                this.hide();
             }
         });
+
+        this.confirmBtn.addEventListener('click', () => {
+            if (this.callback && typeof this.callback === 'function') {
+                this.callback();
+            }
+            this.hide();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.element.classList.contains('show')) {
+                this.hide();
+            }
+        });
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    modal.init();
+
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            modal.show(
+                'Confirm Logout',
+                'Are you sure you want to logout from your account?',
+                'Logout',
+                function() {
+                    window.location.href = '@Url.Action("Logout", "Account")';
+                },
+                true
+            );
+        });
+    }
+});
     </script>
 
     <script src="~/Scripts/main2.js"></script>

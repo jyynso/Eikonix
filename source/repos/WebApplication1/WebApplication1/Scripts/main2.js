@@ -93,18 +93,19 @@ function start() {
 
     loadInitialCartItems();
 
-    // Bind all events (remove, add, quantity change, buy/checkout)
     addEvents();
 
     updateTotal();
     updateCartCount();
 
-    // Bind the Checkout form submit listener only if the form exists (on Checkout.cshtml)
     const checkoutForm = document.getElementById('checkoutForm');
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', handle_placeOrder);
     }
+
 }
+
+
 
 function loadInitialCartItems() {
     const cartContent = document.querySelector(".cart-content");
@@ -113,7 +114,6 @@ function loadInitialCartItems() {
     cartContent.innerHTML = "";
 
     itemsAdded.forEach(item => {
-        // Ensure the item.price is a string with the currency format before passing it to CartBoxComponent
         let formattedPrice = item.price.startsWith('₱') ? item.price : '₱' + parseFloat(item.price).toFixed(2);
 
         let cartBoxElement = CartBoxComponent(item.title, formattedPrice, item.imgSrc, item.id);

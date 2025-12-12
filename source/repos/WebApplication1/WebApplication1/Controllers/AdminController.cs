@@ -392,8 +392,8 @@ namespace WebApplication1.Controllers
                 };
 
                 category.AveragePrice = category.TotalUnitsSold > 0
-                          ? category.TotalRevenue / category.TotalUnitsSold
-                          : 0m;
+                ? Math.Round(category.TotalRevenue / category.TotalUnitsSold, 2)
+                : 0m;
 
                 if (overallTotalRevenue > 0)
                 {
