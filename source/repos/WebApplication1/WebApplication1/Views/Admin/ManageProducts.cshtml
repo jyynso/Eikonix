@@ -32,8 +32,34 @@
             <li><a href="@Url.Action("ManageOrders", "Admin")"><i class='bx bx-cart'></i> Manage Orders</a></li>
             <li><a href="@Url.Action("ManageCustomers", "Admin")"><i class='bx bx-user'></i> Manage Customers</a></li>
             <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
-            <li><a href="@Url.Action("Logout", "Account")" class="logout-btn"><i class='bx bx-log-out'></i> Logout</a></li>
+            <li>
+                <a href="#"
+                   class="logout-btn"
+                   title="Logout"
+                   id="logoutButton">
+                    <i class='bx bx-log-out'></i>
+                    Logout
+                </a>
+            </li>
         </ul>
+    </div>
+
+    <div class="custom-modal-overlay" id="confirmationModal">
+        <div class="custom-modal-content">
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom" id="logoutModalTitle">Confirmation</h3>
+                <button class="close-btn-custom" id="logoutModalCloseButton">&times;</button>
+            </div>
+
+            <div class="modal-body-custom">
+                <p id="logoutModalBodyText">Are you sure you want to proceed?</p>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn-admin btn-secondary-custom" id="logoutModalCancelButton">Cancel</button>
+                <button class="btn-admin" id="logoutModalConfirmButton">Confirm</button>
+            </div>
+        </div>
     </div>
 
     <div class="admin-content">
@@ -463,6 +489,76 @@
                 }
             });
         });
+
+
+        const logoutModal = {
+    element: document.getElementById('confirmationModal'),
+    title: document.getElementById('logoutModalTitle'),
+    body: document.getElementById('logoutModalBodyText'),
+    confirmBtn: document.getElementById('logoutModalConfirmButton'),
+    cancelBtn: document.getElementById('logoutModalCancelButton'),
+    closeBtn: document.getElementById('logoutModalCloseButton'),
+    callback: null,
+
+    show: function(title, message, confirmText, confirmCallback) {
+        this.title.textContent = title;
+        this.body.textContent = message;
+        this.confirmBtn.textContent = confirmText;
+        this.callback = confirmCallback;
+
+        this.confirmBtn.className = 'btn-admin btn-danger-custom';
+
+        this.element.classList.add('show');
+        setTimeout(() => this.cancelBtn.focus(), 100);
+    },
+
+    hide: function() {
+        this.element.classList.remove('show');
+        this.callback = null;
+    },
+
+    init: function() {
+        this.cancelBtn.addEventListener('click', () => this.hide());
+        this.closeBtn.addEventListener('click', () => this.hide());
+
+        this.element.addEventListener('click', (e) => {
+            if (e.target === this.element) {
+                this.hide();
+            }
+        });
+
+        this.confirmBtn.addEventListener('click', () => {
+            if (this.callback && typeof this.callback === 'function') {
+                this.callback();
+            }
+            this.hide();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.element.classList.contains('show')) {
+                this.hide();
+            }
+        });
+    }
+};
+
+logoutModal.init();
+
+const logoutButton = document.getElementById('logoutButton');
+if (logoutButton) {
+    logoutButton.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        logoutModal.show(
+            'Confirm Logout',
+            'Are you sure you want to logout from your admin account?',
+            'Logout',
+            function() {
+                window.location.href = '@Url.Action("Logout", "Account")';
+            }
+        );
+    });
+}
     });
     </script>
 </body>
