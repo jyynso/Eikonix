@@ -1,0 +1,138 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Login - Eikonix";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Eikonix</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/Login.css")" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+    <link rel="icon" type="image/png" href="@Url.Content("~/Content/imgs/Logo/favicon.png")" />
+</head>
+<body>
+
+    <!-- DARK MODE TOGGLE BUTTON -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+        <i class='bx bx-moon' id="themeIcon"></i>
+    </button>
+
+    <div class="back-home">
+        <a href="@Url.Action("Index", "Home")">
+            <i class='bx bx-arrow-back'></i>
+            <span>Back to Home</span>
+        </a>
+    </div>
+
+    <div class="form-container">
+        <div class="logo-section">
+            <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="login-logo">
+            <h1 class="brand-name">EIKONIX</h1>
+            <p class="brand-tagline">Your Gateway to Art</p>
+        </div>
+
+        @using (Html.BeginForm("Login", "Account", FormMethod.Post))
+        {
+            <h3>Welcome Back</h3>
+            <p class="subtitle">Login to continue your art journey</p>
+
+            if (ViewBag.Error != null)
+            {
+                <div class="error-msg">
+                    <i class='bx bx-error-circle'></i>
+                    <span>@ViewBag.Error</span>
+                </div>
+            }
+
+            <div class="input-group">
+                <i class='bx bx-envelope'></i>
+                @Html.TextBox("email", null, new { @type = "email", placeholder = "Enter your email", required = "required" })
+            </div>
+
+            <div class="input-group">
+                <i class='bx bx-lock-alt'></i>
+                @Html.Password("password", null, new { placeholder = "Enter your password", required = "required", id = "password" })
+                <i class='bx bx-show toggle-password' id="togglePassword"></i>
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="RememberMe" id="RememberMe">
+                    <span>Remember me</span>
+                </label>
+                @*  forgot password? tawag ka nalang sa admin nyan  *@
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="form-btn">
+                <i class='bx bx-log-in'></i>
+                <span>Login Now</span>
+            </button>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <p class="signup-link">
+                Don't have an account?
+                <a href="@Url.Action("Register", "Account")">Register now</a>
+            </p>
+        }
+        
+
+        <script>
+        // Toggle password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('password');
+
+        if (togglePassword && passwordField) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                this.classList.toggle('bx-show');
+                this.classList.toggle('bx-hide');
+            });
+        }
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+
+            // Save user preference in localStorage
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.remove('bx-moon');
+                themeIcon.classList.add('bx-sun');
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.remove('bx-sun');
+                themeIcon.classList.add('bx-moon');
+            }
+        });
+
+        // Load user theme preference on initial load
+        window.addEventListener('load', () => {
+            const preferredTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
+            document.body.classList.add(preferredTheme);
+
+            // Set the icon based on the current theme
+            if (preferredTheme === 'dark') {
+                themeIcon.classList.remove('bx-moon');
+                themeIcon.classList.add('bx-sun');
+            } else {
+                themeIcon.classList.remove('bx-sun');
+                themeIcon.classList.add('bx-moon');
+            }
+        });
+        </script>
+        <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+    </div>
+    </body>
+</html>

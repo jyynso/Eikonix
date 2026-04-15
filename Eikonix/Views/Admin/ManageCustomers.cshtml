@@ -1,0 +1,333 @@
+@model Eikonix.Models.AdminDashboardView
+@{
+    Layout = null;
+    ViewBag.Title = "Manage Customers";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Customers - Eikonix</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/Admin.css")" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+    <link rel="icon" type="image/png" href="@Url.Content("~/Content/imgs/Logo/favicon.png")" />
+</head>
+<body>
+    <!-- DARK MODE TOGGLE BUTTON -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+        <i class='bx bx-moon' id="themeIcon"></i>
+    </button>
+
+    <div class="custom-modal-overlay" id="confirmationModal">
+        <div class="custom-modal-content">
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom" id="logoutModalTitle">Confirmation</h3> 
+                <button class="close-btn-custom" id="logoutModalCloseButton">&times;</button> 
+            </div>
+
+            <div class="modal-body-custom">
+                <p id="logoutModalBodyText">Are you sure you want to proceed?</p> 
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn-admin btn-secondary-custom" id="logoutModalCancelButton">Cancel</button> 
+                <button class="btn-admin" id="logoutModalConfirmButton">Confirm</button> 
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <div class="admin-logo-section">
+            <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
+            <h1 class="admin-brand-name">EIKONIX</h1>
+            <p class="admin-brand-tagline">Admin Portal</p>
+        </div>
+        <ul>
+            <li><a href="@Url.Action("Dashboard", "Admin")"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+            <li><a href="@Url.Action("ManageProducts", "Admin")"><i class='bx bx-box'></i> Manage Products</a></li>
+            <li><a href="@Url.Action("ManageOrders", "Admin")"><i class='bx bx-cart'></i> Manage Orders</a></li>
+            <li><a href="@Url.Action("ManageCustomers", "Admin")" class="active"><i class='bx bx-user'></i> Manage Customers</a></li>
+            <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
+            <li>
+                <a href="#"
+                   class="logout-btn"
+                   title="Logout"
+                   id="logoutButton">
+                    <i class='bx bx-log-out'></i>
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <div class="admin-header">
+            <h1>Manage Customers</h1>
+            <div class="user-info">
+                <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
+                <span>@ViewBag.CurrentAdminEmail</span>
+            </div>
+        </div>
+
+        <div class="admin-table-container">
+            <h2>All Customers</h2>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Total Orders</th>
+                        <th>Total Spent</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var details in Model.ManageCustomer)
+                    {
+
+                        string status = details.userStatus.ToLower();
+                        string statusClass = status.Equals("active") ? "status-active" : "status-inactive";
+                        string buttonText = status.Equals("active") ? "Deactivate" : "Activate";
+
+                        <tr data-user-id="@details.userId"
+                            data-user-name="@details.userName"
+                            data-user-email="@details.userEmail"
+                            data-total-orders="@details.totalOrders"
+                            data-total-spent="@details.totalSpent"
+                            data-user-status="@details.userStatus">
+                            <td>@details.userId</td>
+                            <td>@details.userName</td>
+                            <td>@details.userEmail</td>
+                            <td>@details.totalOrders</td>
+                            <td>&#8369;@details.totalSpent</td>
+
+                            <td>
+                                <span class="status-badge @statusClass customer-status" data-user-id="@details.userId">
+                                    @details.userStatus
+                                </span>
+                            </td>
+                            <td>
+                                @*removed this for now cause why is this here*@
+                                @*<button class="btn-admin btn-view">View Details</button>*@
+                                <button class="btn-admin toggle-status-btn @(status.Equals("active") ? "btn-delete" : "btn-view")"
+                                        data-user-id="@details.userId"
+                                        data-current-status="@status">
+                                    @buttonText
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="custom-modal-overlay" id="customConfirmModal">
+        <div class="custom-modal-content">
+
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom" id="modalTitle">Confirm Status Change</h3>
+                <button class="close-btn-custom" id="closeButton">&times;</button>
+            </div>
+
+            <div class="modal-body-custom">
+                <p id="modalBodyText">Are you sure you want to proceed with this action?</p>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn-admin btn-secondary-custom" id="cancelButton">Cancel</button>
+                <button class="btn-admin" id="confirmButton">Confirm Change</button>
+            </div>
+
+        </div>
+    </div>
+
+    @*remove for now, This only complicates things for now :( *@
+    @*<div class="custom-modal-overlay" id="customViewDetailsModal">
+
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom">Details</h3>
+                <button class="close-btn-custom" id="viewDetailsCloseButton">&times;</button>
+            </div>
+
+            <div class="modal-body-custom">
+                <p id="modalDetailsContent">details</p>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn-admin btn-secondary-custom" id="viewDetailsCancelButton">Close</button>
+            </div>
+        </div>*@
+
+    <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+    <script>
+   document.addEventListener('DOMContentLoaded', function() {
+    const toggleButtons = document.querySelectorAll('.toggle-status-btn');
+    const customModal = document.getElementById('customConfirmModal');
+    const modalBodyText = document.getElementById('modalBodyText');
+    const confirmButton = document.getElementById('confirmButton');
+    const cancelButton = document.getElementById('cancelButton');
+    const closeButton = document.getElementById('closeButton');
+
+    let currentUserId = null;
+    let currentButtonElement = null;
+
+
+       function showModal(message, isDeactivating) {
+           const userId = currentButtonElement.getAttribute('data-user-id');
+           const row = currentButtonElement.closest('tr');
+           const customerName = row.querySelector('td:nth-child(2)').textContent;
+           const actionText = isDeactivating ? 'Deactivate' : 'Activate';
+
+           document.getElementById('modalTitle').textContent = `${actionText} Customer?`;
+
+           modalBodyText.innerHTML = `
+        <div style="text-align: center; padding: 10px 0;">
+            <p><strong>${actionText}: ${customerName}</strong></p>
+            <p>Customer ID: ${userId}</p>
+            <p style="color: ${isDeactivating ? '#e74c3c' : '#00b894'}; font-weight: bold; margin-top: 10px;">
+                ${isDeactivating ? 'Customer will no longer be able to access their account.' : 'Customer account will be restored with full access.'}
+            </p>
+        </div>
+    `;
+
+           confirmButton.className = 'btn-admin';
+           confirmButton.classList.add(isDeactivating ? 'btn-danger-custom' : 'btn-view');
+           confirmButton.textContent = actionText;
+           customModal.classList.add('show');
+       }
+
+    function hideModal() {
+        customModal.classList.remove('show');
+        currentUserId = null;
+        currentButtonElement = null;
+    }
+
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            currentUserId = this.getAttribute('data-user-id');
+            currentButtonElement = this;
+            const isDeactivating = this.getAttribute('data-current-status') === 'active';
+            const actionText = isDeactivating ? 'deactivate' : 'activate';
+            showModal(`Are you sure you want to <strong>${actionText}</strong> Customer ID #${currentUserId}?`, isDeactivating);
+        });
+    });
+
+    cancelButton.addEventListener('click', hideModal);
+    closeButton.addEventListener('click', hideModal);
+
+    confirmButton.addEventListener('click', function() {
+        if (currentUserId && currentButtonElement) {
+            toggleUserStatus(currentUserId, currentButtonElement);
+        }
+        hideModal();
+    });
+
+    function toggleUserStatus(userId, buttonElement) {
+        const toggleUrl = '@Url.Action("ToggleUserStatus", "Admin")';
+        fetch(toggleUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+            body: `id=${encodeURIComponent(userId)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const newStatus = data.newStatus.toLowerCase();
+                const statusSpan = document.querySelector(`.customer-status[data-user-id="${userId}"]`);
+                if (statusSpan) {
+                    statusSpan.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                    statusSpan.className = 'status-badge customer-status ' + (newStatus === 'active' ? 'status-active' : 'status-inactive');
+                }
+                buttonElement.textContent = newStatus === 'active' ? 'Deactivate' : 'Activate';
+                buttonElement.setAttribute('data-current-status', newStatus);
+                buttonElement.className = 'btn-admin toggle-status-btn ' + (newStatus === 'active' ? 'btn-delete' : 'btn-view');
+                alert(data.message);
+            } else {
+                alert('Status update failed: ' + data.message);
+            }
+        }).catch(err => { console.error(err); alert('Error updating status'); });
+    }
+
+    const logoutModal = {
+        element: document.getElementById('confirmationModal'),
+        title: document.getElementById('logoutModalTitle'),
+        body: document.getElementById('logoutModalBodyText'),
+        confirmBtn: document.getElementById('logoutModalConfirmButton'),
+        cancelBtn: document.getElementById('logoutModalCancelButton'),
+        closeBtn: document.getElementById('logoutModalCloseButton'),
+        callback: null,
+
+        show: function(title, message, confirmText, confirmCallback) {
+            this.title.textContent = title;
+            this.body.textContent = message;
+            this.confirmBtn.textContent = confirmText;
+            this.callback = confirmCallback;
+
+            this.confirmBtn.className = 'btn-admin btn-danger-custom';
+
+            this.element.classList.add('show');
+            setTimeout(() => this.cancelBtn.focus(), 100);
+        },
+
+        hide: function() {
+            this.element.classList.remove('show');
+            this.callback = null;
+        },
+
+        init: function() {
+            this.cancelBtn.addEventListener('click', () => this.hide());
+            this.closeBtn.addEventListener('click', () => this.hide());
+
+            this.element.addEventListener('click', (e) => {
+                if (e.target === this.element) {
+                    this.hide();
+                }
+            });
+
+            this.confirmBtn.addEventListener('click', () => {
+                if (this.callback && typeof this.callback === 'function') {
+                    this.callback();
+                }
+                this.hide();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.element.classList.contains('show')) {
+                    this.hide();
+                }
+            });
+        }
+    };
+
+    logoutModal.init();
+
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            logoutModal.show(
+                'Confirm Logout',
+                'Are you sure you want to logout from your admin account?',
+                'Logout',
+                function() {
+                    window.location.href = '@Url.Action("Logout", "Account")';
+                }
+            );
+        });
+    }
+
+}); 
+    </script>
+</body>
+</html>

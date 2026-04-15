@@ -1,0 +1,503 @@
+@model Eikonix.Models.AdminDashboardView
+@{
+    Layout = null;
+    ViewBag.Title = "Manage Orders";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders - Eikonix</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/Admin.css")" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+    <link rel="icon" type="image/png" href="@Url.Content("~/Content/imgs/Logo/favicon.png")" />
+
+    <body>
+        <!-- DARK MODE TOGGLE BUTTON -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+            <i class='bx bx-moon' id="themeIcon"></i>
+        </button>
+
+        <div class="custom-modal-overlay" id="confirmationModal">
+            <div class="custom-modal-content">
+                <div class="modal-header-custom">
+                    <h3 class="modal-title-custom" id="logoutModalTitle">Confirmation</h3>
+                    <button class="close-btn-custom" id="logoutModalCloseButton">&times;</button>
+                </div>
+
+                <div class="modal-body-custom">
+                    <p id="logoutModalBodyText">Are you sure you want to proceed?</p>
+                </div>
+
+                <div class="modal-footer-custom">
+                    <button class="btn-admin btn-secondary-custom" id="logoutModalCancelButton">Cancel</button>
+                    <button class="btn-admin" id="logoutModalConfirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="admin-logo-section">
+                <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
+                <h1 class="admin-brand-name">EIKONIX</h1>
+                <p class="admin-brand-tagline">Admin Portal</p>
+            </div>
+            <ul>
+                <li><a href="@Url.Action("Dashboard", "Admin")"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+                <li><a href="@Url.Action("ManageProducts", "Admin")"><i class='bx bx-box'></i> Manage Products</a></li>
+                <li>
+                    <a href="@Url.Action("ManageOrders", "Admin")" class="active"><i class='bx bx-cart'></i> Manage Orders</a>
+                </li>
+                <li><a href="@Url.Action("ManageCustomers", "Admin")"><i class='bx bx-user'></i> Manage Customers</a></li>
+                <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
+                <li>
+                    <a href="#"
+                       class="logout-btn"
+                       title="Logout"
+                       id="logoutButton">
+                        <i class='bx bx-log-out'></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <div class="admin-header">
+                <h1>Manage Orders</h1>
+                <div class="user-info">
+                    <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
+                    <span>@ViewBag.CurrentAdminEmail</span>
+                </div>
+            </div>
+
+            <div class="admin-table-container">
+
+                @*brute muna tayo*@
+                <div id="orderStatusFilters" style="margin-bottom: 20px;">
+                    <button class="btn-admin filter-btn active-filter" data-status="all">All Orders</button>
+                    <button class="btn-admin filter-btn status-pending" data-status="pending">Pending</button>
+                    <button class="btn-admin filter-btn status-processing" data-status="processing">Processing</button>
+                    <button class="btn-admin filter-btn status-completed" data-status="completed">Completed</button>
+                    <button class="btn-admin filter-btn status-inactive" data-status="cancelled">Cancelled</button>
+                </div>
+                <h2>All Orders</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Order Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var details in Model.RecentOrders)
+                        {
+                            //throwing a nullexception at first so I added this :D
+                            string status = string.IsNullOrEmpty(details.orderStatus)
+                                ? "pending"
+                                : details.orderStatus.ToLower();
+
+                            string statusClass;
+
+                            if (status.Contains("pending"))
+                            {
+                                statusClass = "status-pending";
+                            }
+                            else if (status.Contains("completed"))
+                            {
+                                statusClass = "status-completed";
+                            }
+                            else if (status.Contains("processing"))
+                            {
+                                statusClass = "status-processing";
+                            }
+                            else if (status.Contains("cancelled"))
+                            {
+                                statusClass = "status-inactive";
+                            }
+                            else
+                            {
+                                statusClass = "default";
+                            }
+                            <tr>
+                                <td>#@details.orderId</td>
+                                <td>@details.userName</td>
+                                <td>&#8369;@details.orderTotalAmount</td>
+                                <td><span class="status-badge @statusClass">@details.orderStatus</span></td>
+                                <td>@details.orderDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <button class="btn-admin btn-view" data-order-id="@details.orderId">View</button>
+                                    <button class="btn-admin btn-edit" data-order-id="@details.orderId" data-current-status="@status">Update Status</button>
+                                    <button class="btn-admin btn-delete" data-order-id="@details.orderId" data-current-status="@status">Cancel</button>
+                                </td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @*reuse lang natin modal :D*@
+            @*this is for the view order details*@
+            <div class="custom-modal-overlay" id="modalViewOrderDetails">
+                <div class="custom-modal-content">
+
+                    <div class="modal-header-custom">
+                        <h3 class="modal-title-custom" id="viewModalTitle">Order Details</h3>
+                        <button class="close-btn-custom" id="viewCloseButton">&times;</button>
+                    </div>
+
+                    <div class="modal-body-custom">
+                        <div id="viewModalBodyContent">Order Details</div>
+                    </div>
+
+                    <div class="modal-footer-custom">
+                        <button class="btn-admin btn-secondary-custom" id="viewCloseButton">Close</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="custom-modal-overlay" id="customConfirmModal">
+                <div class="custom-modal-content">
+
+                    <div class="modal-header-custom">
+                        <h3 class="modal-title-custom" id="confirmModalTitle">Order Action</h3>
+                        <button class="close-btn-custom" id="confirmCloseButton">&times;</button>
+                    </div>
+
+                    <div class="modal-body-custom">
+                        <p id="confirmModalBodyText">Are you sure you want to proceed with this action?</p>
+
+                        <div id="statusUpdateButtons" style="display:none; margin-top: 15px; text-align: center;">
+                            <button class="btn-admin status-btn status-pending" data-status="pending">Pending</button>
+                            <button class="btn-admin status-btn status-processing" data-status="processing">Processing</button>
+                            <button class="btn-admin status-btn status-completed" data-status="completed">Completed</button>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer-custom">
+                        <button class="btn-admin btn-secondary-custom" id="confirmCancelButton">Cancel</button>
+                        <button class="btn-admin" id="confirmActionButton">Confirm</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script>
+$(document).ready(function () {
+    const $viewDetailsModal = $('#modalViewOrderDetails');
+    const $viewBodyContent = $('#viewModalBodyContent');  // Fixed selector
+
+    const $confirmModal = $('#customConfirmModal');
+    const $confirmTitle = $('#confirmModalTitle');
+    const $confirmBodyText = $('#confirmModalBodyText');
+    const $statusUpdateButtons = $('#statusUpdateButtons');
+    const $confirmActionButton = $('#confirmActionButton');
+
+    let currentOrderId = null;
+    let currentActionType = null;
+
+    function hideConfirmModal() {
+        $confirmModal.removeClass('show');
+        $statusUpdateButtons.hide();
+        $confirmActionButton.show();
+        currentOrderId = null;
+        currentActionType = null;
+    }
+
+    //filters
+    $('#orderStatusFilters').on('click', '.filter-btn', function () {
+        const selectedStatus = $(this).data('status');
+
+        $('#orderStatusFilters .filter-btn').removeClass('active-filter');
+        $(this).addClass('active-filter');
+
+        const $tableRows = $('.admin-table tbody tr');
+
+        $tableRows.each(function () {
+            const row = $(this);
+            const rowStatus = row.find('.btn-edit').data('current-status');
+
+            if (selectedStatus === 'all') {
+                row.show();
+            }
+            else if (rowStatus === selectedStatus) {
+                row.show();
+            }
+            else {
+                row.hide();
+            }
+
+        });
+    });
+
+    $('.btn-view').on('click', function () {
+        currentOrderId = $(this).data('order-id');
+        $viewBodyContent.html('<strong>Loading order details...</strong>');
+        $viewDetailsModal.addClass('show');
+
+        $.ajax({
+            url: '@Url.Action("GetOrderDetails", "Admin")',
+            type: 'GET',
+            data: { id: currentOrderId },
+            success: function (response) {
+                console.log('Response:', response);
+                if (response.success && response.data) {
+                    const data = response.data;
+
+
+                    const orderStatus = data.orderStatus ? data.orderStatus.toLowerCase() : 'pending';
+                    let statusClass = 'default';
+
+                    if (orderStatus.includes('pending')) {
+                        statusClass = 'status-pending';
+                    } else if (orderStatus.includes('completed')) {
+                        statusClass = 'status-completed';
+                    } else if (orderStatus.includes('processing')) {
+                        statusClass = 'status-processing';
+                    } else if (orderStatus.includes('cancelled')) {
+                        statusClass = 'status-inactive';
+                    }
+
+
+                    let itemsHtml = '';
+                    if (Array.isArray(data.Items) && data.Items.length > 0) {
+                        data.Items.forEach(item => {
+                            itemsHtml += `<div class="order-item">
+                                <span class="item-name">${item.productTitle}</span>
+                                <span class="item-qty">Qty: ${item.orderItemQuantity}</span>
+                                <span class="item-price">&#8369;${parseFloat(item.orderItemPrice).toFixed(2)}</span>
+                            </div>`;
+                        });
+                    } else {
+                        itemsHtml = '<div class="order-item">No items found.</div>';
+                    }
+
+
+                    let htmlContent = `
+                        <div class="order-header">
+                            <h4>Order #${data.orderId}</h4>
+                            <span class="status-badge ${statusClass}">${data.orderStatus}</span>
+                        </div>
+
+                        <div class="order-info">
+                            <div class="info-row">
+                                <span class="label">Customer:</span>
+                                <span class="value">${data.userName}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Email:</span>
+                                <span class="value">${data.userEmail}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Date:</span>
+                                <span class="value">${new Date(parseInt(data.orderDate.substr(6))).toLocaleDateString()}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Total:</span>
+                                <span class="value total">&#8369;${parseFloat(data.orderTotalAmount).toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div class="order-items-section">
+                            <h5>Order Items</h5>
+                            <div class="items-container">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    `;
+
+                    $viewBodyContent.html(htmlContent);
+                } else {
+                    $viewBodyContent.html('<strong>Error:</strong> Could not load order details.');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log('AJAX Error:', error);
+                $viewBodyContent.html('<strong>Error:</strong> Network request failed. Check the console.');
+            }
+        });
+    });
+
+    $viewDetailsModal.find('#viewCloseButton').on('click', function() {
+        $viewDetailsModal.removeClass('show');
+    });
+
+    $('.btn-edit').on('click', function () {
+        currentOrderId = $(this).data('order-id');
+        const currentStatus = $(this).data('current-status');
+
+        currentActionType = 'update';
+        $confirmTitle.text(`Update Status for Order #${currentOrderId}`);
+        $confirmBodyText.html(`Select the new status for this order. Current status: <strong>${currentStatus.toUpperCase()}</strong>`);
+
+        $statusUpdateButtons.show();
+        $confirmActionButton.hide();
+
+        $confirmModal.addClass('show');
+
+        $('.status-btn').removeClass('active-status-highlight');
+        $(`.status-btn[data-status="${currentStatus}"]`).addClass('active-status-highlight');
+    });
+
+    $('.btn-delete').on('click', function () {
+        currentOrderId = $(this).data('order-id');
+
+        if ($(this).data('current-status') === 'cancelled') {
+            alert('This order is already cancelled.');
+            return;
+        }
+
+        currentActionType = 'cancel';
+        $confirmTitle.text(`Cancel Order #${currentOrderId}`);
+
+        // Simple, readable text
+        $confirmBodyText.html(`
+        <div>
+            <p><strong>Cancel Order #${currentOrderId}?</strong></p>
+            <p>This will mark the order as cancelled.</p>
+            <p><strong style="color: #e74c3c;">Warning: This action cannot be undone.</strong></p>
+        </div>
+    `);
+
+        $statusUpdateButtons.hide();
+        $confirmActionButton.show().text('Confirm Cancel').removeClass('btn-primary-custom').addClass('btn-danger-custom');
+
+        $confirmModal.addClass('show');
+    });
+
+    $('#confirmCancelButton, #confirmCloseButton').on('click', hideConfirmModal);
+
+    $('#statusUpdateButtons').on('click', '.status-btn', function() {
+        if (!currentOrderId || currentActionType !== 'update') return;
+
+        const newStatus = $(this).data('status');
+
+        const currentStatus = $('.btn-edit[data-order-id="' + currentOrderId + '"]').data('current-status');
+        if (newStatus === currentStatus) {
+            hideConfirmModal();
+            return;
+        }
+
+        updateOrderStatus(currentOrderId, newStatus);
+    });
+
+    $confirmActionButton.on('click', function() {
+        if (currentOrderId && currentActionType === 'cancel') {
+            updateOrderStatus(currentOrderId, 'cancelled');
+        }
+    });
+
+    function updateOrderStatus(orderId, newStatus) {
+        const updateUrl = '@Url.Action("UpdateOrderStatus", "Admin")';
+
+        $.ajax({
+            url: updateUrl,
+            type: 'POST',
+            data: { id: orderId, newStatus: newStatus },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert('An error occurred during status update. (Server Error)');
+            }
+        });
+        hideConfirmModal();
+    }
+
+    const logoutModal = {
+    element: document.getElementById('confirmationModal'),
+    title: document.getElementById('logoutModalTitle'),
+    body: document.getElementById('logoutModalBodyText'),
+    confirmBtn: document.getElementById('logoutModalConfirmButton'),
+    cancelBtn: document.getElementById('logoutModalCancelButton'),
+    closeBtn: document.getElementById('logoutModalCloseButton'),
+    callback: null,
+
+    show: function(title, message, confirmText, confirmCallback) {
+        this.title.textContent = title;
+        this.body.textContent = message;
+        this.confirmBtn.textContent = confirmText;
+        this.callback = confirmCallback;
+
+        this.confirmBtn.className = 'btn-admin btn-danger-custom';
+
+        this.element.classList.add('show');
+        setTimeout(() => this.cancelBtn.focus(), 100);
+    },
+
+    hide: function() {
+        this.element.classList.remove('show');
+        this.callback = null;
+    },
+
+    init: function() {
+        this.cancelBtn.addEventListener('click', () => this.hide());
+        this.closeBtn.addEventListener('click', () => this.hide());
+
+        this.element.addEventListener('click', (e) => {
+            if (e.target === this.element) {
+                this.hide();
+            }
+        });
+
+        this.confirmBtn.addEventListener('click', () => {
+            if (this.callback && typeof this.callback === 'function') {
+                this.callback();
+            }
+            this.hide();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.element.classList.contains('show')) {
+                this.hide();
+            }
+        });
+    }
+};
+
+logoutModal.init();
+
+const logoutButton = document.getElementById('logoutButton');
+if (logoutButton) {
+    logoutButton.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        logoutModal.show(
+            'Confirm Logout',
+            'Are you sure you want to logout from your admin account?',
+            'Logout',
+            function() {
+                window.location.href = '@Url.Action("Logout", "Account")';
+            }
+        );
+    });
+}
+
+
+});
+        </script>
+    </body>
+
+</html>
