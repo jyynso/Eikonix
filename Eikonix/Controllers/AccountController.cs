@@ -30,8 +30,7 @@ namespace Eikonix.Controllers
 
                     //FormsAuthentication.SetAuthCookie(user.userEmail, false);
 
-                    Session["UserId"] = user.userId; //idk why I put this here but it may come useful later :D 
-                                                    //update: it is useful :D
+                    Session["UserId"] = user.userId; //idk why I put this here but it may come useful later. update: it is useful :D
                     Session["UserEmail"] = user.userEmail;
                     Session["UserRole"] = user.userRole;
 
@@ -113,10 +112,6 @@ namespace Eikonix.Controllers
                 db.Users.Add(user);
                 db.SaveChanges();
             }
-
-            // TODO: Add logic to save user in DB
-            // done.
-
             return RedirectToAction("Login");
         }
     }

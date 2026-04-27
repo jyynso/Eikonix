@@ -274,7 +274,8 @@ namespace Eikonix.Controllers
                     currentReport.Growth = 0m;
                 }
 
-                //uncomment this and comment the one below this if gusto lang ishow months with actual data inside them :D
+                //uncomment this one below and comment the one below this if gusto lang ishow months with actual data inside them :D
+
                 //if (currentReport.TotalOrders > 0 || currentReport.NewCustomers > 0)
                 //{
                 //    model.MonthSummaryView.Add(currentReport);
@@ -298,8 +299,9 @@ namespace Eikonix.Controllers
                                 .OrderByDescending(x => x.revenue)
                                 .Take(5)
                                 .ToList();
+
             //this is a problem
-            //we need to add this to not make the market share& but by doing so the total sales and other data is setting to 0
+            //we need to add this to not make the market share& but by doing so the total sales and other data is set to 0
             //model.TotalProducts = 0;
             //model.TotalSales = 0;
             //model.AvgOrderValue = 0;
