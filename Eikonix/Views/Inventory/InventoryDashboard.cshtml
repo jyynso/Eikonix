@@ -1,4 +1,4 @@
-﻿@*@model Eikonix.Models.AdminDashboardView*@
+﻿@model Eikonix.Models.AdminDashboardView
 
 @{
     Layout = null;
@@ -11,7 +11,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Eikonix</title>
+    <title>Inventory - Eikonix</title>
     <link rel="stylesheet" href="@Url.Content("~/Content/Admin.css")?v=@DateTime.Now.Ticks" />
     <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
     <link rel="icon" type="image/png" href="@Url.Content("~/Content/imgs/Logo/favicon.png")" />
@@ -65,7 +65,7 @@
         </div>
         <ul>
             <li><a href="@Url.Action("InventoryDashboard", "Inventory")" class="active"><i class='bx bxs-dashboard'></i> Home</a></li>
-            <li><a href="@Url.Action("InventoryProducts", "Inventory")"><i class='bx bx-box'></i> Products</a></li>
+            <li><a href="@Url.Action("InventoryProducts", "Inventory")"><i class='bx bx-box'></i>Products</a></li>
             @*<li><a href="@Url.Action("ManageOrders", "Admin")"><i class='bx bx-cart'></i> Orders</a></li>*@
             <li>
                 <a href="#"
@@ -88,8 +88,51 @@
                 <span>@ViewBag.CurrentAdminEmail</span>
             </div>
         </div>
-        
-        Inventory Dashboard
+
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <i class='bx bx-box'></i>
+                <h3>Total Artworks</h3>
+                <p>@Model.TotalProducts</p>
+            </div>
+
+            <div class="dashboard-card">
+                <i class='bx bx-dollar-circle'></i>
+                <h3>Total Sales</h3>
+                <p>&#8369;@Model.TotalSales</p>
+            </div>
+        </div>
+
+        <div class="admin-table-container" style="margin-bottom: 30px;">
+            <h2>Top Selling Artworks</h2>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Artwork Name</th>
+                        <th>Category</th>
+                        <th>Units Sold</th>
+                        <th>Revenue</th>
+                        <th>Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var details in Model.TopProducts)
+                    {
+                        //the responsive css class @performanceClass is in the adminController on this one sry for inconsistency I forgor. It works just fine, leave it be
+                        <tr>
+                            <td>@details.Rank</td>
+                            <td>@details.ArtworkName</td>
+                            <td>@details.Category</td>
+                            <td>@details.UnitsSold</td>
+                            <td>&#8369;@details.Revenue</td>
+                            <td><span class="status-badge @details.PerformanceClass">@details.PerformanceLabel</span></td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
 
     </div>
 
