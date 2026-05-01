@@ -64,6 +64,8 @@ namespace Eikonix.Controllers
 
                     if (user.userRole == "admin")
                         return RedirectToAction("Dashboard", "Admin");
+                    else if (user.userRole == "supplier")
+                        return RedirectToAction("InventoryDashboard", "Inventory");
                     else
                         return RedirectToAction("Cart", "Home");
                 }
@@ -106,7 +108,8 @@ namespace Eikonix.Controllers
                     userName = name,
                     userEmail = email,
                     hashedpassword = hashed,
-                    userRole = string.IsNullOrEmpty(userRole) ? "customer" : userRole
+                    userRole = string.IsNullOrEmpty(userRole) ? "customer" : userRole,
+                    userStatus = "active"
                 };
 
                 db.Users.Add(user);
