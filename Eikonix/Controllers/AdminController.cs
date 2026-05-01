@@ -10,7 +10,7 @@ using Eikonix.Models;
 
 namespace Eikonix.Controllers
 {
-    public class BaseController : Controller
+    public class AdminBaseController : Controller
     {
         protected AppDbContext db = new AppDbContext();
 
@@ -35,7 +35,7 @@ namespace Eikonix.Controllers
         }
     }
 
-    public class AdminController : BaseController
+    public class AdminController : AdminBaseController
     {
         // Dashboard
         public ActionResult Dashboard()

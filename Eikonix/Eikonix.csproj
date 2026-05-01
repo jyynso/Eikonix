@@ -353,6 +353,7 @@
     <Content Include="Views\Home\SearchResults.cshtml" />
     <Content Include="Views\Home\OrderSuccess.cshtml" />
     <Content Include="Views\Inventory\InventoryDashboard.cshtml" />
+    <Content Include="Views\Inventory\InventoryProducts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

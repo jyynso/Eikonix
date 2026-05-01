@@ -61,14 +61,12 @@
         <div class="admin-logo-section">
             <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
             <h1 class="admin-brand-name">EIKONIX</h1>
-            <p class="admin-brand-tagline">Admin Portal</p>
+            <p class="admin-brand-tagline">Inventory Portal</p>
         </div>
         <ul>
-            <li><a href="@Url.Action("Dashboard", "Admin")" class="active"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
-            <li><a href="@Url.Action("ManageProducts", "Admin")"><i class='bx bx-box'></i> Manage Products</a></li>
-            <li><a href="@Url.Action("ManageOrders", "Admin")"><i class='bx bx-cart'></i> Manage Orders</a></li>
-            <li><a href="@Url.Action("ManageCustomers", "Admin")"><i class='bx bx-user'></i> Manage Customers</a></li>
-            <li><a href="@Url.Action("SalesReports", "Admin")"><i class='bx bx-line-chart'></i> Sales Reports</a></li>
+            <li><a href="@Url.Action("InventoryDashboard", "Inventory")" class="active"><i class='bx bxs-dashboard'></i> Home</a></li>
+            <li><a href="@Url.Action("InventoryProducts", "Inventory")"><i class='bx bx-box'></i> Products</a></li>
+            @*<li><a href="@Url.Action("ManageOrders", "Admin")"><i class='bx bx-cart'></i> Orders</a></li>*@
             <li>
                 <a href="#"
                    class="logout-btn"
@@ -84,97 +82,17 @@
     <!-- Main Content -->
     <div class="admin-content">
         <div class="admin-header">
-            <h1>this is inventory dashboard</h1>
+            <h1>Inventory Dashboard</h1>
             <div class="user-info">
                 <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
                 <span>@ViewBag.CurrentAdminEmail</span>
             </div>
         </div>
+        
+        Inventory Dashboard
 
-        <!-- Dashboard Cards -->
-        <div class="dashboard-cards">
-            <div class="dashboard-card">
-                <i class='bx bx-box'></i>
-                <h3>Total Artworks</h3>
-                <p>@Model.TotalProducts</p>
-            </div>
-
-            <div class="dashboard-card">
-                <i class='bx bx-cart'></i>
-                <h3>Total Orders</h3>
-                <p>@Model.TotalOrders</p>
-            </div>
-
-            <div class="dashboard-card">
-                <i class='bx bx-user'></i>
-                <h3>Total Customers</h3>
-                <p>@Model.TotalCustomers</p>
-            </div>
-
-            <div class="dashboard-card">
-                <i class='bx bx-dollar-circle'></i>
-                <h3>Total Sales</h3>
-                <p>&#8369;@Model.TotalSales</p>
-            </div>
-        </div>
-
-        <!-- Recent Orders -->
-        <div class="admin-table-container">
-            <h2>Recent Orders</h2>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    @foreach (var details in Model.RecentOrders)
-                    {
-                        string status = details.orderStatus.ToLower();
-                        string statusClass;
-
-                        if (status.Contains("pending"))
-                        {
-                            statusClass = "status-pending";
-                        }
-                        else if (status.Contains("completed"))
-                        {
-                            statusClass = "status-completed";
-                        }
-                        else if (status.Contains("processing"))
-                        {
-                            statusClass = "status-processing";
-                        }
-                        else if (status.Contains("cancelled"))
-                        {
-                            statusClass = "status-inactive";
-                        }
-                        else
-                        {
-                            statusClass = "default";
-                        }
-                        <tr>
-                            <td>#@details.orderId</td>
-                            <td>@details.userName</td>
-                            <td>&#8369;@details.orderTotalAmount</td>
-                            <td><span class="status-badge @statusClass">@details.orderStatus</span></td>
-                            <td>@details.orderDate.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                <a href=@Url.Action("ManageOrders", "Admin") class="btn-admin btn-view">View</a>
-                                <a href=@Url.Action("ManageOrders", "Admin") class="btn-admin btn-edit">Edit</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
     </div>
+
     <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
