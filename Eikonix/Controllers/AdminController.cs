@@ -514,49 +514,65 @@ namespace Eikonix.Controllers
         }
 
         //for add product button
-        public ActionResult AddProduct(Products product, HttpPostedFileBase productImage)
+        [HttpPost]
+        public ActionResult AddProduct(string productTitle, string productDescription, decimal productPrice, int productStock, string productCategory, string productMedium, string productSize, string productArtist, string productSoftwareUsed, HttpPostedFileBase productImage)
         {
-
-            if (ModelState.IsValid)
+            try
             {
+                if (string.IsNullOrEmpty(productTitle))
+                {
+                    return Json(new { success = false, message = "Title is required." });
+                }
+
+                // Robust check for duplicate title (case-insensitive and trimmed)
+                var isDuplicate = db.Products.Any(p => p.productTitle.Trim().ToLower() == productTitle.Trim().ToLower());
+
+                if (isDuplicate)
+                {
+                    return Json(new { success = false, message = "An artwork with this title already exists. Please use a unique name." });
+                }
+
+                var product = new Products
+                {
+                    productTitle = productTitle,
+                    productDescription = productDescription,
+                    productPrice = productPrice,
+                    productStock = productStock,
+                    productCategory = productCategory,
+                    productMedium = productMedium,
+                    productSize = productSize,
+                    productArtist = productArtist,
+                    productSoftwareUsed = productSoftwareUsed,
+                    productCreationDate = DateTime.Now,
+                    productImagePath = "~/Content/imgs/Drawing/p1.png" // Placeholder
+                };
+
                 if (productImage != null && productImage.ContentLength > 0)
                 {
-                    try
-                    {
-                        string path = Server.MapPath("~/Content/imgs/Drawing/");
-
-                        if (!System.IO.Directory.Exists(path))
-                        {
-                            System.IO.Directory.CreateDirectory(path);
-                        }
-
-                        string fileExtension = Path.GetExtension(productImage.FileName);
-                        string fileName = Guid.NewGuid().ToString() + fileExtension;
-                        string fullPath = Path.Combine(path, fileName);
-
-                        productImage.SaveAs(fullPath);
-
-                        product.productImagePath = "~/Content/imgs/Drawing/" + fileName;
-
-                        product.productCreationDate = DateTime.Now;
-
-                        db.Products.Add(product);
-                        db.SaveChanges();
-
-                        return Json(new { success = true, message = "Product added successfully!" });
-                    }
-                    catch (Exception ex)
-                    {
-                        return Json(new { success = false, message = "Error saving product: " + ex.Message });
-                    }
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(productImage.FileName);
+                    string path = Path.Combine(Server.MapPath("~/Content/imgs/Drawing/"), fileName);
+                    productImage.SaveAs(path);
+                    product.productImagePath = "~/Content/imgs/Drawing/" + fileName;
                 }
-                else
-                {
-                    return Json(new { success = false, message = "Image file is required." });
-                }
+
+                db.Products.Add(product);
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Product added successfully!" });
             }
-
-            return Json(new { success = false, message = "Invalid product data provided." });
+            catch (Exception ex)
+            {
+                string errorMessage = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorMessage += " Details: " + ex.InnerException.Message;
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        errorMessage += " " + ex.InnerException.InnerException.Message;
+                    }
+                }
+                return Json(new { success = false, message = "Error: " + errorMessage });
+            }
         }
 
         //view product details
@@ -595,6 +611,7 @@ namespace Eikonix.Controllers
         }
 
         //edit the product
+        [HttpPost]
         public JsonResult EditProduct(Products product, HttpPostedFileBase productImage)
         {
             try
@@ -606,15 +623,31 @@ namespace Eikonix.Controllers
                     return Json(new { success = false, message = "Product not found for update." });
                 }
 
+                var isDuplicate = db.Products.Any(p => p.productId != product.productId && p.productTitle.Trim().ToLower() == product.productTitle.Trim().ToLower());
+                
+                if (isDuplicate)
+                {
+                    return Json(new { success = false, message = "Another artwork already has this title. Please use a unique name." });
+                }
+
                 existingProduct.productTitle = product.productTitle;
                 existingProduct.productDescription = product.productDescription;
                 existingProduct.productPrice = product.productPrice;
                 existingProduct.productStock = product.productStock;
+                existingProduct.productCategory = product.productCategory;
+                existingProduct.productMedium = product.productMedium;
+                existingProduct.productSize = product.productSize;
+                existingProduct.productArtist = product.productArtist;
+                existingProduct.productSoftwareUsed = product.productSoftwareUsed;
 
-                //// 3. Handle image update (if a new file was uploaded)
-                //if (productImage != null && productImage.ContentLength > 0)
-                //{
-                //}
+                // Handle image update (if a new file was uploaded)
+                if (productImage != null && productImage.ContentLength > 0)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(productImage.FileName);
+                    string path = Path.Combine(Server.MapPath("~/Content/imgs/Drawing/"), fileName);
+                    productImage.SaveAs(path);
+                    existingProduct.productImagePath = "~/Content/imgs/Drawing/" + fileName;
+                }
 
                 db.SaveChanges();
 
@@ -622,7 +655,7 @@ namespace Eikonix.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error saving product or file: " + ex.Message });
+                return Json(new { success = false, message = "Error saving product: " + ex.Message });
             }
         }
 

@@ -413,6 +413,8 @@
                             $('#imagePreview').hide().attr('src', '#');
                         }
 
+                        // Image is optional when editing
+                        $('#productImage').prop('required', false);
 
                         $form.attr('action', '@Url.Action("EditProduct", "Admin")');
 

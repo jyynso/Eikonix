@@ -108,7 +108,7 @@
         @*for add new products button*@
         <div class="custom-modal-overlay" id="modalAddProduct">
             <div class="custom-modal-content">
-                <form id="addProductForm" action="@Url.Action("AddProduct", "Admin")" method="post" enctype="multipart/form-data">
+                <form id="addProductForm" action="@Url.Action("AddProduct", "Inventory")" method="post" enctype="multipart/form-data">
 
                     <div class="modal-header-custom">
                         <h3 class="modal-title-custom">Add New Product</h3>
@@ -283,7 +283,7 @@
             $imagePreview.hide().attr('src', '#');
             $addProductModal.addClass('show');
 
-            $addProductForm.attr('action', '@Url.Action("AddProduct", "Admin")');
+            $addProductForm.attr('action', '@Url.Action("AddProduct", "Inventory")');
             if ($productIdHidden.length) {
                 $productIdHidden.remove();
             }
@@ -346,7 +346,7 @@
             const productId = $(this).data('id');
 
             $.ajax({
-                url: '@Url.Action("GetProductDetails", "Admin")',
+                url: '@Url.Action("GetProductDetails", "Inventory")',
                 type: 'GET',
                 data: { id: productId },
                 success: function (response) {
@@ -389,7 +389,7 @@
             const $form = $('#addProductForm');
 
             $.ajax({
-                url: '@Url.Action("GetProductDetails", "Admin")',
+                url: '@Url.Action("GetProductDetails", "Inventory")',
                 type: 'GET',
                 data: { id: productId },
                 success: function (response) {
@@ -412,8 +412,10 @@
                             $('#imagePreview').hide().attr('src', '#');
                         }
 
+                        // Image is optional when editing
+                        $('#productImage').prop('required', false);
 
-                        $form.attr('action', '@Url.Action("EditProduct", "Admin")');
+                        $form.attr('action', '@Url.Action("EditProduct", "Inventory")');
 
                         let $hiddenIdInput = $('#productIdHidden');
                         if ($hiddenIdInput.length === 0) {
@@ -460,7 +462,7 @@
             const $rowToRemove = $('.btn-delete[data-id="' + deleteId + '"]').closest('tr');
 
             $.ajax({
-                url: '@Url.Action("DeleteProduct", "Admin")',
+                url: '@Url.Action("DeleteProduct", "Inventory")',
                 type: 'POST',
                 data: { id: deleteId },
                 success: function (response) {
