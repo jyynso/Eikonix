@@ -47,7 +47,8 @@ namespace Eikonix.Controllers
             AdminDashboardView model = new AdminDashboardView();
 
             //initialize and get details
-            model.TotalProducts = db.Products.Count();
+            model.TotalProducts = db.Products.Count(p => p.productStock > 0);
+
             //we only count completed orders for the total sales reflection
             var CompletedOrders = db.Orders.Where(o => o.orderStatus.Equals("completed"));
 
@@ -115,7 +116,8 @@ namespace Eikonix.Controllers
             }
             model.TopProducts = rankings;
 
-            model.ManageProducts = db.Products.ToList();
+            //populate available products only (stock > 0)
+            model.ManageProducts = db.Products.Where(p => p.productStock > 0).ToList();
 
             return View(model);
         }
@@ -128,7 +130,8 @@ namespace Eikonix.Controllers
             }
             AdminDashboardView model = new AdminDashboardView();
 
-            model.ManageProducts = db.Products.ToList();
+            //populate available products only (stock > 0)
+            model.ManageProducts = db.Products.Where(p => p.productStock > 0).ToList();
 
             return View(model);
         }
@@ -143,7 +146,6 @@ namespace Eikonix.Controllers
                     return Json(new { success = false, message = "Title is required." });
                 }
 
-                // Robust check for duplicate title (case-insensitive and trimmed)
                 var isDuplicate = db.Products.Any(p => p.productTitle.Trim().ToLower() == productTitle.Trim().ToLower());
 
                 if (isDuplicate)

@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
     <link rel="icon" type="image/png" href="@Url.Content("~/Content/imgs/Logo/favicon.png")" />
     <style>
-        /* CRITICAL FIX - Inline styles to ensure button text is visible */
         .btn-view,
         .btn-add {
             color: #000000 !important;
@@ -33,21 +32,25 @@
 </head>
 <body>
     <!-- DARK MODE TOGGLE BUTTON -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+    <button class="theme-toggle theme-toggle-shifted" id="themeToggle" aria-label="Toggle Dark Mode">
         <i class='bx bx-moon' id="themeIcon"></i>
     </button>
 
+    <!-- FLOATING LOGOUT BUTTON -->
+    <button class="floating-logout" id="floatingLogout" aria-label="Logout">
+        <i class='bx bx-log-out'></i>
+    </button>
+
+    <!-- LOGOUT MODAL -->
     <div class="custom-modal-overlay" id="confirmationModal">
         <div class="custom-modal-content">
             <div class="modal-header-custom">
                 <h3 class="modal-title-custom" id="logoutModalTitle">Confirmation</h3>
                 <button class="close-btn-custom" id="logoutModalCloseButton">&times;</button>
             </div>
-
             <div class="modal-body-custom">
                 <p id="logoutModalBodyText">Are you sure you want to proceed?</p>
             </div>
-
             <div class="modal-footer-custom">
                 <button class="btn-admin btn-secondary-custom" id="logoutModalCancelButton">Cancel</button>
                 <button class="btn-admin" id="logoutModalConfirmButton">Confirm</button>
@@ -55,9 +58,8 @@
         </div>
     </div>
 
-
     <!-- Sidebar -->
-    <div class="admin-sidebar">
+    @*<div class="admin-sidebar">
         <div class="admin-logo-section">
             <img src="~/Content/imgs/Logo/logof.png" alt="Eikonix Logo" class="admin-logo">
             <h1 class="admin-brand-name">EIKONIX</h1>
@@ -66,36 +68,31 @@
         <ul>
             <li><a href="@Url.Action("InventoryDashboard", "Inventory")" class="active"><i class='bx bxs-dashboard'></i> Home</a></li>
             <li><a href="@Url.Action("InventoryProducts", "Inventory")"><i class='bx bx-box'></i>Products</a></li>
-            @*<li><a href="@Url.Action("ManageOrders", "Admin")"><i class='bx bx-cart'></i> Orders</a></li>*@
             <li>
-                <a href="#"
-                   class="logout-btn"
-                   title="Logout"
-                   id="logoutButton">
-                    <i class='bx bx-log-out'></i>
-                    Logout
+                <a href="#" class="logout-btn" title="Logout" id="logoutButton">
+                    <i class='bx bx-log-out'></i> Logout
                 </a>
             </li>
         </ul>
-    </div>
+    </div>*@
 
     <!-- Main Content -->
-    <div class="admin-content">
+    <div class="admin-content" style="margin-left: 3%; margin-right: 3%;">
         <div class="admin-header">
-            <h1>Inventory Dashboard</h1>
+            <h1>Inventory Portal</h1>
             <div class="user-info">
                 <i class='bx bx-user-circle' style="font-size: 1.5rem;"></i>
                 <span>@ViewBag.CurrentAdminEmail</span>
             </div>
         </div>
 
+        <!-- Metric Cards -->
         <div class="dashboard-cards">
             <div class="dashboard-card">
                 <i class='bx bx-box'></i>
                 <h3>Total Artworks</h3>
                 <p>@Model.TotalProducts</p>
             </div>
-
             <div class="dashboard-card">
                 <i class='bx bx-dollar-circle'></i>
                 <h3>Total Sales</h3>
@@ -103,6 +100,7 @@
             </div>
         </div>
 
+        <!-- Top Selling Artworks -->
         <div class="admin-table-container" style="margin-bottom: 30px;">
             <h2>Top Selling Artworks</h2>
             <table class="admin-table">
@@ -113,30 +111,38 @@
                         <th>Category</th>
                         <th>Units Sold</th>
                         <th>Revenue</th>
-                        <th>Performance</th>
+                        @*<th>Performance</th>*@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var details in Model.TopProducts)
+                    @if (Model.TopProducts != null && Model.TopProducts.Any())
                     {
-                        //the responsive css class @performanceClass is in the adminController on this one sry for inconsistency I forgor. It works just fine, leave it be
+                        foreach (var details in Model.TopProducts)
+                        {
+                            <tr>
+                                <td>@details.Rank</td>
+                                <td>@details.ArtworkName</td>
+                                <td>@details.Category</td>
+                                <td>@details.UnitsSold</td>
+                                <td>&#8369;@details.Revenue</td>
+                                @*<td><span class="status-badge @details.PerformanceClass">@details.PerformanceLabel</span></td>*@
+                            </tr>
+                        }
+                    }
+                    else
+                    {
                         <tr>
-                            <td>@details.Rank</td>
-                            <td>@details.ArtworkName</td>
-                            <td>@details.Category</td>
-                            <td>@details.UnitsSold</td>
-                            <td>&#8369;@details.Revenue</td>
-                            <td><span class="status-badge @details.PerformanceClass">@details.PerformanceLabel</span></td>
+                            <td colspan="6" style="text-align:center;">No sales data yet.</td>
                         </tr>
-
                     }
                 </tbody>
             </table>
         </div>
 
+        <!-- My Artworks CRUD -->
         <div class="admin-table-container">
+            <h2>Manage Products</h2>
             <button class="btn-admin btn-add"><i class='bx bx-plus'></i> Add New Product</button>
-
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -149,36 +155,51 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var details in Model.ManageProducts)
+                    @if (Model.ManageProducts != null && Model.ManageProducts.Any())
+                    {
+                        foreach (var details in Model.ManageProducts)
+                        {
+                            <tr>
+                                <td>@details.productId</td>
+                                <td>@details.productTitle</td>
+                                <td>&#8369;@details.productPrice</td>
+                                <td>
+                                    @if (details.productStock == 0)
+                                    {
+                                        <span class="status-badge status-inactive">SOLD</span>
+                                    }
+                                    else
+                                    {
+                                        @details.productStock
+                                    }
+                                </td>
+                                <td>@details.productCategory</td>
+                                <td>
+                                    <button class="btn-admin btn-view" data-id="@details.productId">View</button>
+                                    <button class="btn-admin btn-edit" data-id="@details.productId">Edit</button>
+                                    <button class="btn-admin btn-delete" data-id="@details.productId">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td>@details.productId</td>
-                            <td>@details.productTitle</td>
-                            <td>&#8369;@details.productPrice</td>
-                            <td>@details.productStock</td>
-                            <td>@details.productCategory</td>
-                            <td>
-                                <button class="btn-admin btn-view" data-id="@details.productId">View</button>
-                                <button class="btn-admin btn-edit" data-id="@details.productId">Edit</button>
-                                <button class="btn-admin btn-delete" data-id="@details.productId">Delete</button>
-                            </td>
+                            <td colspan="6" style="text-align:center;">No products yet.</td>
                         </tr>
                     }
-
                 </tbody>
             </table>
         </div>
 
-        @*for add new products button*@
+        <!-- ADD / EDIT PRODUCT MODAL -->
         <div class="custom-modal-overlay" id="modalAddProduct">
             <div class="custom-modal-content">
                 <form id="addProductForm" action="@Url.Action("AddProduct", "Admin")" method="post" enctype="multipart/form-data">
-
                     <div class="modal-header-custom">
                         <h3 class="modal-title-custom">Add New Product</h3>
                         <button type="button" class="close-btn-custom" data-dismiss="modal">&times;</button>
                     </div>
-
                     <div class="modal-body-custom">
                         <div class="form-group">
                             <label for="productTitle">Artwork Name</label>
@@ -193,13 +214,11 @@
                                 <label for="productPrice">Price (&#8369;)</label>
                                 <input type="number" id="productPrice" name="productPrice" min="0" step="0.01" required class="form-control">
                             </div>
-
                             <div class="form-group">
                                 <label for="productStock">Stock</label>
                                 <input type="number" id="productStock" name="productStock" min="0" required class="form-control">
                             </div>
                         </div>
-
                         <div class="form-group-inline">
                             <div class="form-group">
                                 <label for="productCategory">Category</label>
@@ -212,13 +231,11 @@
                                 <label for="productMedium">Medium</label>
                                 <input type="text" id="productMedium" name="productMedium" class="form-control">
                             </div>
-
                             <div class="form-group">
                                 <label for="productSize">Size</label>
                                 <input type="text" id="productSize" name="productSize" class="form-control">
                             </div>
                         </div>
-
                         <div class="form-group-inline">
                             <div class="form-group">
                                 <label for="productArtist">Artist Name</label>
@@ -229,14 +246,12 @@
                                 <input type="text" id="productSoftwareUsed" name="productSoftwareUsed" class="form-control">
                             </div>
                         </div>
-
                         <div class="form-group image-upload-group">
                             <label for="productImage">Artwork Image (JPEG/PNG)</label>
                             <input type="file" id="productImage" name="productImage" accept=".jpg,.jpeg,.png" required class="form-control-file">
                             <img id="imagePreview" src="#" alt="Image Preview" style="display: none; max-width: 100px; max-height: 100px; margin-top: 10px; border: 1px solid #ccc;">
                         </div>
                     </div>
-
                     <div class="modal-footer-custom">
                         <button type="button" class="btn-admin btn-secondary-custom" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn-admin btn-primary-custom" id="saveProductBtn">Save Product</button>
@@ -245,34 +260,30 @@
             </div>
         </div>
 
-        @*for delete*@
+        <!-- DELETE CONFIRM MODAL -->
         <div class="custom-modal-overlay" id="customConfirmModal">
             <div class="custom-modal-content">
-
                 <div class="modal-header-custom">
                     <h3 class="modal-title-custom" id="confirmModalTitle">Confirm Action</h3>
                     <button class="close-btn-custom" data-dismiss="modal">&times;</button>
                 </div>
-
                 <div class="modal-body-custom">
                     <p id="confirmModalBodyText">Are you sure you want to proceed?</p>
                 </div>
-
                 <div class="modal-footer-custom">
                     <button class="btn-admin btn-secondary-custom" data-dismiss="modal">Cancel</button>
                     <button class="btn-admin btn-danger-custom" id="confirmDeleteButton">Confirm Delete</button>
                 </div>
-
             </div>
         </div>
 
+        <!-- VIEW PRODUCT MODAL -->
         <div class="custom-modal-overlay" id="modalViewProduct">
             <div class="custom-modal-content view-modal-content">
                 <div class="modal-header-custom">
                     <h3 class="modal-title-custom" id="viewProductTitle">Product Details</h3>
                     <button type="button" class="close-btn-custom" data-dismiss="modal">&times;</button>
                 </div>
-
                 <div class="modal-body-custom">
                     <div class="view-details-container">
                         <img id="viewProductImage" src="#" alt="Product Image" style="width: 100%; height: auto; margin-bottom: 15px; border-radius: 5px;">
@@ -287,81 +298,302 @@
                         <p><strong>Software Used:</strong> <span id="viewProductSoftwareUsed"></span></p>
                     </div>
                 </div>
-
+                <div class="modal-footer-custom">
+                    <button type="button" class="btn-admin btn-secondary-custom" data-dismiss="modal">Close</button>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
-            <script>
-        document.addEventListener('DOMContentLoaded', function () {
+    <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        function resolveImagePath(path) {
+            if (!path) return '#';
+            var cleanedPath = path.trim().replace(/^~/, '');
+            if (!cleanedPath.startsWith('/')) {
+                cleanedPath = '/' + cleanedPath;
+            }
+            return window.location.origin + cleanedPath;
+        }
+
+        $(document).ready(function () {
+
+            const $addProductModal = $('#modalAddProduct');
+            const $addProductForm = $('#addProductForm');
+            const $closeButtons = $addProductModal.find('.close-btn-custom, [data-dismiss="modal"]');
+            const $imageInput = $('#productImage');
+            const $imagePreview = $('#imagePreview');
+            const $productIdHidden = $('#productIdHidden');
+
+            const $confirmModal = $('#customConfirmModal');
+            const $confirmTitle = $confirmModal.find('#confirmModalTitle');
+            const $confirmBodyText = $confirmModal.find('#confirmModalBodyText');
+            const $confirmDeleteButton = $confirmModal.find('#confirmDeleteButton');
+            const $modalCloseButtons = $confirmModal.find('.close-btn-custom, [data-dismiss="modal"]');
+
+            let productIdToDelete = null;
+
+            const $viewProductModal = $('#modalViewProduct');
+            const $viewProductCloseButtons = $viewProductModal.find('.close-btn-custom, [data-dismiss="modal"]');
+
+            function hideConfirmModal() {
+                $confirmModal.removeClass('show');
+                productIdToDelete = null;
+            }
+
+            function hideViewModal() {
+                $viewProductModal.removeClass('show');
+            }
+
+            $viewProductCloseButtons.on('click', hideViewModal);
+
+            $('.btn-add').on('click', function () {
+                $addProductForm[0].reset();
+                $imagePreview.hide().attr('src', '#');
+                $addProductModal.addClass('show');
+                $addProductForm.attr('action', '@Url.Action("AddProduct", "Admin")');
+                if ($productIdHidden.length) {
+                    $productIdHidden.remove();
+                }
+            });
+
+            $closeButtons.on('click', function () {
+                $addProductModal.removeClass('show');
+            });
+
+            $imageInput.on('change', function () {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $imagePreview.attr('src', e.target.result).show();
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    $imagePreview.hide();
+                }
+            });
+
+            $addProductForm.on('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const actionUrl = $addProductForm.attr('action');
+                $.ajax({
+                    url: actionUrl,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            $addProductModal.removeClass('show');
+                            window.location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        let errorMessage = 'An error occurred.';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.message) errorMessage = response.message;
+                        } catch (e) {
+                            errorMessage += ` (HTTP Status: ${xhr.status} ${xhr.statusText})`;
+                        }
+                        alert(errorMessage);
+                    }
+                });
+            });
+
+            $('.btn-view').on('click', function () {
+                const productId = $(this).data('id');
+                $.ajax({
+                    url: '@Url.Action("GetProductDetails", "Inventory")',
+                    type: 'GET',
+                    data: { id: productId },
+                    success: function (response) {
+                        if (response.success) {
+                            const product = response.product;
+                            $('#viewProductTitle').text(product.productTitle);
+                            $('#viewProductId').text(product.productId);
+                            $('#viewProductDescription').text(product.productDescription);
+                            $('#viewProductPrice').text(product.productPrice.toFixed(2));
+                            $('#viewProductStock').text(product.productStock);
+                            $('#viewProductCategory').text(product.productCategory);
+                            $('#viewProductMedium').text(product.productMedium || 'N/A');
+                            $('#viewProductSize').text(product.productSize || 'N/A');
+                            $('#viewProductArtist').text(product.productArtist || 'N/A');
+                            $('#viewProductSoftwareUsed').text(product.productSoftwareUsed || 'N/A');
+                            if (product.productImagePath) {
+                                $('#viewProductImage').attr('src', resolveImagePath(product.productImagePath)).show();
+                            } else {
+                                $('#viewProductImage').hide();
+                            }
+                            $viewProductModal.addClass('show');
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred while fetching product details.');
+                    }
+                });
+            });
+
+            $('.btn-edit').on('click', function () {
+                const productId = $(this).data('id');
+                const $form = $('#addProductForm');
+                $.ajax({
+                    url: '@Url.Action("GetProductDetails", "Inventory")',
+                    type: 'GET',
+                    data: { id: productId },
+                    success: function (response) {
+                        if (response.success) {
+                            const product = response.product;
+                            $('#productTitle').val(product.productTitle);
+                            $('#productDescription').val(product.productDescription);
+                            $('#productPrice').val(product.productPrice);
+                            $('#productStock').val(product.productStock);
+                            $('#productCategory').val(product.productCategory);
+                            $('#productMedium').val(product.productMedium);
+                            $('#productSize').val(product.productSize);
+                            $('#productArtist').val(product.productArtist);
+                            $('#productSoftwareUsed').val(product.productSoftwareUsed);
+                            if (product.productImagePath) {
+                                $('#imagePreview').attr('src', resolveImagePath(product.productImagePath)).show();
+                            } else {
+                                $('#imagePreview').hide().attr('src', '#');
+                            }
+                            $('#productImage').prop('required', false);
+                            $form.attr('action', '@Url.Action("EditProduct", "Inventory")');
+                            let $hiddenIdInput = $('#productIdHidden');
+                            if ($hiddenIdInput.length === 0) {
+                                $form.prepend('<input type="hidden" name="productId" id="productIdHidden" value="' + productId + '">');
+                            } else {
+                                $hiddenIdInput.val(productId);
+                            }
+                            $('#modalAddProduct').addClass('show');
+                        } else {
+                            alert('Error fetching product for edit: ' + response.message);
+                        }
+                    }
+                });
+            });
+
+            $('.btn-delete').on('click', function () {
+                productIdToDelete = $(this).data('id');
+                const productTitle = $(this).closest('tr').find('td:nth-child(2)').text();
+                $confirmTitle.text('Confirm Product Deletion');
+                $confirmBodyText.html(`
+                    <div style="text-align: center; padding: 10px 0;">
+                        <p><strong>Delete: ${productTitle}</strong></p>
+                        <p>Product ID: ${productIdToDelete}</p>
+                        <p style="color: #e74c3c; font-weight: bold; margin-top: 10px;">
+                            This will permanently delete this product and all associated data.
+                        </p>
+                        <p><strong>This action cannot be undone.</strong></p>
+                    </div>`);
+                $confirmDeleteButton.show().text('Confirm Delete')
+                    .removeClass('btn-primary-custom').addClass('btn-danger-custom');
+                $confirmModal.addClass('show');
+            });
+
+            $modalCloseButtons.on('click', hideConfirmModal);
+
+            $confirmDeleteButton.on('click', function () {
+                if (!productIdToDelete) return;
+                const deleteId = productIdToDelete;
+                const $rowToRemove = $('.btn-delete[data-id="' + deleteId + '"]').closest('tr');
+                $.ajax({
+                    url: '@Url.Action("DeleteProduct", "Inventory")',
+                    type: 'POST',
+                    data: { id: deleteId },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            $rowToRemove.remove();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        let errorMessage = 'An error occurred during deletion.';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.message) errorMessage = response.message;
+                        } catch (e) {
+                            errorMessage += ` (HTTP Status: ${xhr.status} ${xhr.statusText})`;
+                        }
+                        alert(errorMessage);
+                    },
+                    complete: function () {
+                        hideConfirmModal();
+                    }
+                });
+            });
+
+            // LOGOUT MODAL
             const logoutModal = {
-    element: document.getElementById('confirmationModal'),
-    title: document.getElementById('logoutModalTitle'),
-    body: document.getElementById('logoutModalBodyText'),
-    confirmBtn: document.getElementById('logoutModalConfirmButton'),
-    cancelBtn: document.getElementById('logoutModalCancelButton'),
-    closeBtn: document.getElementById('logoutModalCloseButton'),
-    callback: null,
+                element: document.getElementById('confirmationModal'),
+                title: document.getElementById('logoutModalTitle'),
+                body: document.getElementById('logoutModalBodyText'),
+                confirmBtn: document.getElementById('logoutModalConfirmButton'),
+                cancelBtn: document.getElementById('logoutModalCancelButton'),
+                closeBtn: document.getElementById('logoutModalCloseButton'),
+                callback: null,
 
-    show: function(title, message, confirmText, confirmCallback) {
-        this.title.textContent = title;
-        this.body.textContent = message;
-        this.confirmBtn.textContent = confirmText;
-        this.callback = confirmCallback;
+                show: function (title, message, confirmText, confirmCallback) {
+                    this.title.textContent = title;
+                    this.body.textContent = message;
+                    this.confirmBtn.textContent = confirmText;
+                    this.callback = confirmCallback;
+                    this.confirmBtn.className = 'btn-admin btn-danger-custom';
+                    this.element.classList.add('show');
+                    setTimeout(() => this.cancelBtn.focus(), 100);
+                },
 
-        this.confirmBtn.className = 'btn-admin btn-danger-custom';
+                hide: function () {
+                    this.element.classList.remove('show');
+                    this.callback = null;
+                },
 
-        this.element.classList.add('show');
-        setTimeout(() => this.cancelBtn.focus(), 100);
-    },
+                init: function () {
+                    this.cancelBtn.addEventListener('click', () => this.hide());
+                    this.closeBtn.addEventListener('click', () => this.hide());
+                    this.element.addEventListener('click', (e) => {
+                        if (e.target === this.element) this.hide();
+                    });
+                    this.confirmBtn.addEventListener('click', () => {
+                        if (this.callback && typeof this.callback === 'function') this.callback();
+                        this.hide();
+                    });
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && this.element.classList.contains('show')) this.hide();
+                    });
+                }
+            };
 
-    hide: function() {
-        this.element.classList.remove('show');
-        this.callback = null;
-    },
+            logoutModal.init();
 
-    init: function() {
-        this.cancelBtn.addEventListener('click', () => this.hide());
-        this.closeBtn.addEventListener('click', () => this.hide());
+            const logoutButton = document.getElementById('logoutButton');
+            const floatingLogout = document.getElementById('floatingLogout');
 
-        this.element.addEventListener('click', (e) => {
-            if (e.target === this.element) {
-                this.hide();
-            }
+            const handleLogout = function (e) {
+                e.preventDefault();
+                logoutModal.show(
+                    'Confirm Logout',
+                    'Are you sure you want to logout from your supplier account?',
+                    'Logout',
+                    function () {
+                        window.location.href = '@Url.Action("Logout", "Account")';
+                    }
+                );
+            };
+
+            if (logoutButton) logoutButton.addEventListener('click', handleLogout);
+            if (floatingLogout) floatingLogout.addEventListener('click', handleLogout);
         });
-
-        this.confirmBtn.addEventListener('click', () => {
-            if (this.callback && typeof this.callback === 'function') {
-                this.callback();
-            }
-            this.hide();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.element.classList.contains('show')) {
-                this.hide();
-            }
-        });
-    }
-};
-
-logoutModal.init();
-
-const logoutButton = document.getElementById('logoutButton');
-if (logoutButton) {
-    logoutButton.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        logoutModal.show(
-            'Confirm Logout',
-            'Are you sure you want to logout from your admin account?',
-            'Logout',
-            function() {
-                window.location.href = '@Url.Action("Logout", "Account")';
-            }
-        );
-    });
-}
-        });
-            </script>
+    </script>
 </body>
 </html>

@@ -48,7 +48,7 @@ namespace Eikonix.Controllers
             AdminDashboardView model = new AdminDashboardView();
 
             //initialize and pull details 
-            model.TotalProducts = db.Products.Count();
+            model.TotalProducts = db.Products.Count(p => p.productStock > 0);
             model.TotalOrders = db.Orders.Count();
 
             //only completed orders will be total
@@ -90,8 +90,8 @@ namespace Eikonix.Controllers
             }
             AdminDashboardView model = new AdminDashboardView();
 
-            //populate natin :D
-            model.ManageProducts = db.Products.ToList();
+            //populate available products only (stock > 0)
+            model.ManageProducts = db.Products.Where(p => p.productStock > 0).ToList();
 
             return View(model);
         }

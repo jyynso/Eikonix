@@ -17,8 +17,14 @@
     <link rel="icon" type="image/png" href="@Url.Content("~/Content/imgs/Logo/favicon.png")" />
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+    <!-- DARK MODE TOGGLE BUTTON -->
+    <button class="theme-toggle theme-toggle-shifted" id="themeToggle" aria-label="Toggle Dark Mode">
         <i class='bx bx-moon' id="themeIcon"></i>
+    </button>
+
+    <!-- FLOATING LOGOUT BUTTON -->
+    <button class="floating-logout" id="floatingLogout" aria-label="Logout">
+        <i class='bx bx-log-out'></i>
     </button>
 
     <div class="admin-sidebar">
@@ -546,19 +552,25 @@
 logoutModal.init();
 
 const logoutButton = document.getElementById('logoutButton');
-if (logoutButton) {
-    logoutButton.addEventListener('click', function(e) {
-        e.preventDefault();
+const floatingLogout = document.getElementById('floatingLogout');
 
-        logoutModal.show(
-            'Confirm Logout',
-            'Are you sure you want to logout from your admin account?',
-            'Logout',
-            function() {
-                window.location.href = '@Url.Action("Logout", "Account")';
-            }
-        );
-    });
+const handleLogout = function(e) {
+    e.preventDefault();
+    logoutModal.show(
+        'Confirm Logout',
+        'Are you sure you want to logout from your admin account?',
+        'Logout',
+        function() {
+            window.location.href = '@Url.Action("Logout", "Account")';
+        }
+    );
+};
+
+if (logoutButton) {
+    logoutButton.addEventListener('click', handleLogout);
+}
+if (floatingLogout) {
+    floatingLogout.addEventListener('click', handleLogout);
 }
     });
     </script>

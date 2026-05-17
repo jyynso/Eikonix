@@ -92,7 +92,16 @@
                             <td>@details.productId</td>
                             <td>@details.productTitle</td>
                             <td>&#8369;@details.productPrice</td>
-                            <td>@details.productStock</td>
+                            <td>
+                                @if (details.productStock == 0)
+                                {
+                                    <span class="status-badge status-inactive">SOLD</span>
+                                }
+                                else
+                                {
+                                    @details.productStock
+                                }
+                            </td>
                             <td>@details.productCategory</td>
                             <td>
                                 <button class="btn-admin btn-view" data-id="@details.productId">View</button>
