@@ -1123,11 +1123,12 @@ body.dark-mode .category-link {
 
 .features-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
 }
+    .feature-card:nth-child(4) {
+        grid-column: 2;
+    }
 
 .feature-card {
     background: #fff;
@@ -1688,3 +1689,96 @@ body.dark-mode .custom-modal-content {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4) !important;
     }
+
+/* PRODUCTS - DARK MODE FIX ONLY */
+body.dark-mode .products {
+    background: var(--bg-color);
+}
+
+    body.dark-mode .products .box {
+        background: var(--card-bg);
+        color: var(--text-color);
+    }
+
+    body.dark-mode .products .product-title {
+        color: var(--text-color);
+    }
+
+    body.dark-mode .products .product-meta,
+    body.dark-mode .products .product-meta span {
+        color: var(--text-color);
+        opacity: 0.85;
+    }
+
+    body.dark-mode .products .product-price {
+        color: var(--main-color);
+    }
+
+    body.dark-mode .products .add-cart {
+        color: var(--main-color);
+    }
+
+/*feaures fix*/
+body.dark-mode .features {
+    background: var(--bg-color);
+}
+
+body.dark-mode .feature-card {
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+
+    body.dark-mode .feature-card h3 {
+        color: var(--text-color);
+    }
+
+    body.dark-mode .feature-card p {
+        color: var(--text-color);
+        opacity: 0.85;
+    }
+/*customer fxi*/
+body.dark-mode .customers {
+    background: var(--bg-color);
+}
+
+    body.dark-mode .customers .box {
+        background: var(--card-bg);
+        color: var(--text-color);
+    }
+
+        body.dark-mode .customers .box p {
+            color: var(--text-color);
+            opacity: 0.85;
+        }
+
+        body.dark-mode .customers .box h2 {
+            color: var(--text-color);
+        }
+
+    body.dark-mode .customers .customer-role {
+        color: var(--main-color);
+    }
+
+.customers-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    justify-content: center;
+}
+
+.customers-container .box {
+    width: 300px;
+    height: 500px;
+}
+
+@media (max-width: 900px) {
+    .customers-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .customers-container {
+        grid-template-columns: 1fr;
+    }
+}
