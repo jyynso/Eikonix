@@ -9,6 +9,29 @@
     font-family: 'Poppins', sans-serif;
 }
 
+/*scrollbar*/
+html::-webkit-scrollbar {
+    background: transparent;
+    width: 8px;
+}
+
+html::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: 20px;
+}
+
+    html::-webkit-scrollbar-thumb:hover {
+        background: #808080;
+    }
+
+html:has(body.dark-mode)::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
 /* ==================== TEXT SELECTION ==================== */
 ::selection {
     background: rgba(0, 255, 255, 0.3);
@@ -757,18 +780,16 @@ body.dark-mode .req-title {
 }
 
 .register-container::-webkit-scrollbar-track {
-    background: rgba(0, 255, 255, 0.05);
-    border-radius: 10px;
+    background: transparent;
 }
 
-.register-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #00FFFF 0%, #008080 100%);
-    border-radius: 10px;
-}
+    .register-container::-webkit-scrollbar-thumb {
+        background: transparent;
+    }
 
-.register-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #008080 0%, #003333 100%);
-}
+    .register-container::-webkit-scrollbar-thumb:hover {
+        background: transparent;
+    }
 
 /* ==================== RESPONSIVE - THEME TOGGLE ==================== */
 @media (max-width: 768px) {
