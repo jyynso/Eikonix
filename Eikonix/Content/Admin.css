@@ -7,6 +7,26 @@
     box-sizing: border-box;
 }
 
+/*scrollbar*/
+html::-webkit-scrollbar {
+    background: transparent;
+    width: 8px;
+}
+
+html::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: 20px;
+}
+
+    html::-webkit-scrollbar-thumb:hover {
+        background: #808080;
+    }
+
+
 /* TEXT SELECTION STYLES */
 ::selection {
     background: rgba(0, 255, 255, 0.3);
