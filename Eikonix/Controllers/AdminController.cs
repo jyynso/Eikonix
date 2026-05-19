@@ -67,7 +67,7 @@ namespace Eikonix.Controllers
                                      .Count();
             model.RecentOrders = (from o in db.Orders
                                   join u in db.Users on o.userId equals u.userId
-                                  orderby o.orderDate ascending
+                                  orderby o.orderDate descending
                                   select new RecentOrderView
                                   {
                                       orderId = o.orderId,
@@ -90,8 +90,8 @@ namespace Eikonix.Controllers
             }
             AdminDashboardView model = new AdminDashboardView();
 
-            //populate available products only (stock > 0)
-            model.ManageProducts = db.Products.Where(p => p.productStock > 0).ToList();
+            //populate all products
+            model.ManageProducts = db.Products.ToList();
 
             return View(model);
         }
@@ -108,7 +108,7 @@ namespace Eikonix.Controllers
             //join two tables 
             model.RecentOrders = (from o in db.Orders
                                   join u in db.Users on o.userId equals u.userId
-                                  orderby o.orderDate ascending
+                                  orderby o.orderDate descending
                                   select new RecentOrderView
                                   {
                                       orderId = o.orderId,
@@ -117,7 +117,6 @@ namespace Eikonix.Controllers
                                       orderDate = o.orderDate,
                                       orderTotalAmount = o.orderTotalAmount,
                                   })
-                                 .Take(5)
                                  .ToList();
 
             return View(model);
