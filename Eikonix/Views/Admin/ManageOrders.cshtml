@@ -154,7 +154,7 @@
 
                     <div class="modal-header-custom">
                         <h3 class="modal-title-custom" id="viewModalTitle">Order Details</h3>
-                        <button class="close-btn-custom" id="viewCloseButton">&times;</button>
+                        <button type="button" class="close-btn-custom" data-dismiss="modal">&times;</button>
                     </div>
 
                     <div class="modal-body-custom">
@@ -162,7 +162,7 @@
                     </div>
 
                     <div class="modal-footer-custom">
-                        <button class="btn-admin btn-secondary-custom" id="viewCloseButton">Close</button>
+                        <button type="button" class="btn-admin btn-secondary-custom" data-dismiss="modal">Close</button>
                     </div>
 
                 </div>
@@ -335,8 +335,13 @@ $(document).ready(function () {
         });
     });
 
-    $viewDetailsModal.find('#viewCloseButton').on('click', function() {
-        $viewDetailsModal.removeClass('show');
+    const viewModalElement = document.getElementById('modalViewOrderDetails');
+    const viewCloseButtons = viewModalElement.querySelectorAll('[data-dismiss="modal"], .close-btn-custom');
+
+    viewCloseButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewModalElement.classList.remove('show');
+        });
     });
 
     $('.btn-edit').on('click', function () {
@@ -382,7 +387,12 @@ $(document).ready(function () {
         $confirmModal.addClass('show');
     });
 
-    $('#confirmCancelButton, #confirmCloseButton').on('click', hideConfirmModal);
+    const confirmModalElement = document.getElementById('customConfirmModal');
+    const confirmCloseButtons = confirmModalElement.querySelectorAll('[data-dismiss="modal"], .close-btn-custom, #confirmCancelButton, #confirmCloseButton');
+
+    confirmCloseButtons.forEach(btn => {
+        btn.addEventListener('click', hideConfirmModal);
+    });
 
     $('#statusUpdateButtons').on('click', '.status-btn', function() {
         if (!currentOrderId || currentActionType !== 'update') return;

@@ -246,12 +246,13 @@ body.dark-mode .dropdown-content {
 }
 
 .dropdown-content a:hover {
-    background-color: var(--main-color);
-    color: var(--accent-color);
+    background-color: transparent;
+    color: var(--main-color) !important;
+    padding-left: 25px !important;
 }
 
 body.dark-mode .dropdown-content a:hover {
-    color: #003333;
+    color: var(--main-color) !important;
 }
 
 /* CART ICON IN HEADER */
