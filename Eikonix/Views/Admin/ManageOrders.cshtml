@@ -363,9 +363,15 @@ $(document).ready(function () {
 
     $('.btn-delete').on('click', function () {
         currentOrderId = $(this).data('order-id');
+        const currentStatus = $(this).data('current-status');
 
-        if ($(this).data('current-status') === 'cancelled') {
+        if (currentStatus === 'cancelled') {
             alert('This order is already cancelled.');
+            return;
+        }
+
+        if (currentStatus === 'completed') {
+            alert('Completed orders cannot be cancelled.');
             return;
         }
 

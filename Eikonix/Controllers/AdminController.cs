@@ -509,6 +509,12 @@ namespace Eikonix.Controllers
                     return Json(new { success = false, message = $"Invalid status provided: {newStatus}" });
                 }
 
+                // Business Rule: Completed orders cannot be cancelled
+                if (statusLower == "cancelled" && oldStatusLower == "completed")
+                {
+                    return Json(new { success = false, message = "Completed orders cannot be cancelled." });
+                }
+
                 // If we are cancelling an order that wasn't already cancelled, restock the products
                 if (statusLower == "cancelled" && oldStatusLower != "cancelled")
                 {
