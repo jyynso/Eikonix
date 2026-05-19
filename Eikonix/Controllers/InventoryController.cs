@@ -72,7 +72,6 @@ namespace Eikonix.Controllers
                                     revenue = g.Sum(oi => oi.orderItemQuantity * oi.orderItemPrice)
                                 })
                                 .OrderByDescending(x => x.revenue)
-                                .Take(5)
                                 .ToList();
 
             //threshold
