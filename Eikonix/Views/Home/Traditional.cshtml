@@ -28,6 +28,40 @@
     .content {
         padding-top: 2rem;
     }
+
+    /*pop-up upon image click*/
+    .image-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease;
+    }
+
+        .image-modal img {
+            width: auto;
+            height: auto;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        /* when modal is active */
+        .image-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+            .image-modal.show img {
+                transform: scale(1);
+            }
 </style>
 
 <link href="~/Content/Cart.css" rel="stylesheet" />
@@ -129,3 +163,29 @@
 <!-- JavaScript -->
 <script src="@Url.Content("~/Scripts/main2.js")"></script>
 <script src="@Url.Content("~/Scripts/theme-toggle.js")"></script>
+<script>
+    // Loading screen functionality
+    window.addEventListener('load', function () {
+        const loadingScreen = document.getElementById('loadingScreen');
+        setTimeout(function () {
+            loadingScreen.style.opacity = '0';
+            setTimeout(function () {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }, 2000); // Show loader for 2 seconds
+    });
+
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImage");
+
+    document.querySelectorAll(".product-img").forEach(img => {
+        img.addEventListener("click", () => {
+            modalImg.src = img.src;
+            modal.classList.add("show");
+        });
+    });
+
+    modal.addEventListener("click", () => {
+        modal.classList.remove("show");
+    });
+</script>
