@@ -484,32 +484,68 @@ namespace Eikonix.Controllers
 
 
         //for the order status
+        [HttpPost]
         public ActionResult UpdateOrderStatus(int id, string newStatus)
         {
-
-            var order = db.Orders.Find(id);
-
-            if (order == null)
+            try
             {
-                Response.StatusCode = 404;
-                return Json(new { success = false, message = "Order not found." });
+                var order = db.Orders.Find(id);
+
+                if (order == null)
+                {
+                    Response.StatusCode = 404;
+                    return Json(new { success = false, message = "Order not found." });
+                }
+
+
+                string statusLower = newStatus.ToLower();
+                string oldStatusLower = (order.orderStatus ?? "").ToLower();
+
+                var validStatuses = new List<string> { "pending", "processing", "completed", "cancelled" };
+
+                if (!validStatuses.Contains(statusLower))
+                {
+                    Response.StatusCode = 400;
+                    return Json(new { success = false, message = $"Invalid status provided: {newStatus}" });
+                }
+
+                // If we are cancelling an order that wasn't already cancelled, restock the products
+                if (statusLower == "cancelled" && oldStatusLower != "cancelled")
+                {
+                    var items = db.Orderitems.Where(oi => oi.orderId == id).ToList();
+                    foreach (var item in items)
+                    {
+                        var product = db.Products.Find(item.productId);
+                        if (product != null)
+                        {
+                            product.productStock += item.orderItemQuantity;
+                        }
+                    }
+                }
+                // If we are moving FROM cancelled back to an active status, we need to subtract stock again
+                else if (oldStatusLower == "cancelled" && statusLower != "cancelled")
+                {
+                    var items = db.Orderitems.Where(oi => oi.orderId == id).ToList();
+                    foreach (var item in items)
+                    {
+                        var product = db.Products.Find(item.productId);
+                        if (product != null)
+                        {
+                            product.productStock -= item.orderItemQuantity;
+                        }
+                    }
+                }
+
+                order.orderStatus = newStatus;
+                db.Entry(order).State = EntityState.Modified;
+                db.SaveChanges();
+
+                return Json(new { success = true, message = $"Order #{id} status updated to: {newStatus}" });
             }
-
-
-            string statusLower = newStatus.ToLower();
-            var validStatuses = new List<string> { "pending", "processing", "completed"};
-
-            if (!validStatuses.Contains(statusLower))
+            catch (Exception ex)
             {
-                Response.StatusCode = 400;
-                return Json(new { success = false, message = $"Invalid status provided: {newStatus}" });
+                return Json(new { success = false, message = "Server Error: " + ex.Message });
             }
-
-            order.orderStatus = newStatus;
-            db.Entry(order).State = EntityState.Modified;
-            db.SaveChanges();
-
-            return Json(new { success = true, message = $"Order #{id} status updated to: {newStatus}" });
         }
 
         //for add product button
