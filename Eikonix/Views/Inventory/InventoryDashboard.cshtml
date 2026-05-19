@@ -102,11 +102,11 @@
 
         <!-- Top Selling Artworks -->
         <div class="admin-table-container" style="margin-bottom: 30px;">
-            <h2>Top Selling Artworks</h2>
+            <h2>Sold Artworks</h2>
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>Rank</th>
+                        @*<th>Rank</th>*@
                         <th>Artwork Name</th>
                         <th>Category</th>
                         <th>Units Sold</th>
@@ -120,7 +120,7 @@
                         foreach (var details in Model.TopProducts)
                         {
                             <tr>
-                                <td>@details.Rank</td>
+                                @*<td>@details.Rank</td>*@
                                 <td>@details.ArtworkName</td>
                                 <td>@details.Category</td>
                                 <td>@details.UnitsSold</td>
