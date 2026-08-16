@@ -1,5 +1,4 @@
 # Eikonix
----
 Eikonix is a web-based e-commerce platform that gives artists a centralized space to sell traditional and digital artworks online, and gives customers a straightforward way to browse, purchase
 ## Overview
 - User registration and role-based authentication (Customer, Supplier, Admin)
@@ -13,7 +12,6 @@ Eikonix is a web-based e-commerce platform that gives artists a centralized spac
 - Sales reporting: total sales, orders, average order value, monthly summaries, top-selling artworks, and category performance
 - Dark mode / light mode theming
 - Customer account activation/deactivation by admins
----
 ## Tech Stack
 | Category | Technology |
 |---|---|
