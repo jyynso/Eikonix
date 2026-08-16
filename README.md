@@ -1,6 +1,5 @@
 # Eikonix
-**A Digital E-Commerce Space for Traditional and Digital Artworks**
-Eikonix is a web-based e-commerce platform that gives artists a centralized space to sell traditional and digital artworks online, and gives customers a straightforward way to browse, purchase, and track those pieces. Every artwork is treated as a single, unique item — once it's sold, it's sold.
+Eikonix is a web-based e-commerce platform that gives artists a centralized space to sell traditional and digital artworks online, and gives customers a straightforward way to browse, purchase, and track those pieces.
 ---
 ## Overview
 - User registration and role-based authentication (Customer, Supplier, Admin)
