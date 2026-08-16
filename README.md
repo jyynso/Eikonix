@@ -1,5 +1,6 @@
 # Eikonix
-Eikonix is a web-based e-commerce platform that gives artists a centralized space to sell traditional and digital artworks online, and gives customers a straightforward way to browse, purchase, and track those pieces.
+---
+Eikonix is a web-based e-commerce platform that gives artists a centralized space to sell traditional and digital artworks online, and gives customers a straightforward way to browse, purchase
 ---
 ## Overview
 - User registration and role-based authentication (Customer, Supplier, Admin)
@@ -23,7 +24,3 @@ Eikonix is a web-based e-commerce platform that gives artists a centralized spac
 | Database | MySQL |
 | Web Server | IIS Express |
 | Frontend | HTML5, CSS3, JavaScript, jQuery |
-
-## License
-
-Academic project — developed for educational purposes as part of the BSIT curriculum at Quezon City University.
