@@ -19,7 +19,7 @@ Eikonix is a web-based e-commerce platform that gives artists a centralized spac
 - Customer account activation/deactivation by admins
 
 ## Documentation
-- 📄 [Eikonix SIA102 Documentation](Eikonix-paper.pdf) 
+- 📄 [Eikonix SIA102 Documentation](https://raw.githubusercontent.com/jyynso/Eikonix/master/Eikonix-paper.pdf)
 
 ## Tech Stack
 | Category | Technology |
