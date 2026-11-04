@@ -2,9 +2,6 @@
 
 Eikonix is a web-based e-commerce platform that gives artists a centralized space to sell traditional and digital artworks online, and gives customers a straightforward way to browse and purchase art.
 
-## Role & Contribution
-- **Backend Developer:** Developed as part of a team project where I served as the backend developer.
-
 ## Overview
 - User registration and role-based authentication (Customer, Supplier, Admin)
 - Artwork browsing, search, and category filtering (Traditional / Digital)
@@ -17,10 +14,7 @@ Eikonix is a web-based e-commerce platform that gives artists a centralized spac
 - Sales reporting: total sales, orders, average order value, monthly summaries, top-selling artworks, and category performance
 - Dark mode / light mode theming
 - Customer account activation/deactivation by admins
-
-## Documentation
-- 📄 [Eikonix SIA102 Documentation](https://raw.githubusercontent.com/jyynso/Eikonix/master/Eikonix-paper.pdf)
-
+  
 ## Tech Stack
 | Category | Technology |
 |---|---|
@@ -30,3 +24,5 @@ Eikonix is a web-based e-commerce platform that gives artists a centralized spac
 | Database | MySQL |
 | Web Server | IIS Express |
 | Frontend | HTML5, CSS3, JavaScript, jQuery |
+
+Developed as part of a team project where I served as the backend developer.
